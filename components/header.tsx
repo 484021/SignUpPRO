@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Instagram } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { useState } from "react";
 
@@ -26,7 +26,9 @@ export function Header() {
             className="flex items-center gap-2"
           >
             <Logo className="w-7 h-7 md:w-8 md:h-8" />
-            <span className="text-lg md:text-xl font-semibold">SignUpPRO - BETA</span>
+            <span className="text-lg md:text-xl font-semibold">
+              SignUpPRO - BETA
+            </span>
           </Link>
 
           <nav className="hidden md:flex items-center gap-3">
@@ -50,6 +52,16 @@ export function Header() {
                 </Button>
               </Link>
             )}
+            <a
+              href="https://instagram.com/san.growth"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center"
+            >
+              <Button variant="outline" size="icon">
+                <Instagram className="w-4 h-4" />
+              </Button>
+            </a>
             <Button asChild variant="default">
               <a href="mailto:support@example.com?subject=Support%20Request">
                 Contact Support
