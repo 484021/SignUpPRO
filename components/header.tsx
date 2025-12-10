@@ -99,7 +99,7 @@ export function Header() {
                   </Button>
                 </Link>
                 <Button asChild variant="default">
-                  <a href="mailto:support@example.com?subject=Support%20Request">
+                  <a href="mailto:santhosh@hnbk.solutions?subject=Support%20Request">
                     Contact Support
                   </a>
                 </Button>
