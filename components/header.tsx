@@ -1,29 +1,30 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { usePathname } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Menu, X } from "lucide-react"
-import { UserButton, useUser } from "@clerk/nextjs"
-import { Logo } from "@/components/logo"
-import { useState } from "react"
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Menu, X } from "lucide-react";
+import { Logo } from "@/components/logo";
+import { useState } from "react";
+
+const hasClerkKeys =
+  typeof window !== "undefined" &&
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+  process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY !== "";
 
 export function Header() {
-  const pathname = usePathname()
-  const { isSignedIn } = useUser()
-  const hasClerkKeys =
-    typeof window !== "undefined" &&
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY !== ""
-
-  const isDashboard = pathname?.startsWith("/dashboard")
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const pathname = usePathname();
+  const isDashboard = pathname?.startsWith("/dashboard");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-50">
       <div className="container mx-auto px-4 py-3 md:py-4">
         <div className="flex items-center justify-between">
-          <Link href={isDashboard ? "/dashboard" : "/"} className="flex items-center gap-2">
+          <Link
+            href={isDashboard ? "/dashboard" : "/"}
+            className="flex items-center gap-2"
+          >
             <Logo className="w-7 h-7 md:w-8 md:h-8" />
             <span className="text-lg md:text-xl font-semibold">SignUpPRO</span>
           </Link>
@@ -41,16 +42,6 @@ export function Header() {
                     Settings
                   </Button>
                 </Link>
-                {hasClerkKeys && <UserButton afterSignOutUrl="/" />}
-              </>
-            ) : isSignedIn ? (
-              <>
-                <Link href="/dashboard">
-                  <Button variant="outline" size="sm">
-                    Dashboard
-                  </Button>
-                </Link>
-                {hasClerkKeys && <UserButton afterSignOutUrl="/" />}
               </>
             ) : (
               <Link href="/sign-in">
@@ -66,7 +57,11 @@ export function Header() {
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {mobileMenuOpen ? (
+              <X className="w-5 h-5" />
+            ) : (
+              <Menu className="w-5 h-5" />
+            )}
           </button>
         </div>
 
@@ -74,40 +69,38 @@ export function Header() {
           <nav className="md:hidden mt-4 pb-4 flex flex-col gap-2 border-t pt-4">
             {isDashboard ? (
               <>
-                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                <Link
+                  href="/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start"
+                  >
                     Dashboard
                   </Button>
                 </Link>
-                <Link href="/dashboard/settings" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="ghost" size="sm" className="w-full justify-start">
+                <Link
+                  href="/dashboard/settings"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full justify-start"
+                  >
                     Settings
                   </Button>
                 </Link>
-                {hasClerkKeys && (
-                  <div className="flex items-center gap-2 px-2 py-2">
-                    <UserButton afterSignOutUrl="/" />
-                    <span className="text-sm text-muted-foreground">Account</span>
-                  </div>
-                )}
-              </>
-            ) : isSignedIn ? (
-              <>
-                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" size="sm" className="w-full bg-transparent">
-                    Dashboard
-                  </Button>
-                </Link>
-                {hasClerkKeys && (
-                  <div className="flex items-center gap-2 px-2 py-2">
-                    <UserButton afterSignOutUrl="/" />
-                    <span className="text-sm text-muted-foreground">Account</span>
-                  </div>
-                )}
               </>
             ) : (
               <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
-                <Button variant="outline" size="sm" className="w-full bg-transparent">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="w-full bg-transparent"
+                >
                   Sign In
                 </Button>
               </Link>
@@ -116,5 +109,5 @@ export function Header() {
         )}
       </div>
     </header>
-  )
+  );
 }

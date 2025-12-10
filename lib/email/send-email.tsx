@@ -10,7 +10,7 @@ export async function sendSignupConfirmation(data: {
 }) {
   // In production, integrate with Resend, SendGrid, or your email provider
   // For now, we'll log the email details
-  console.log("[v0] Email would be sent:", {
+  console.log("Email would be sent:", {
     to: data.to,
     subject: `Confirmation: ${data.eventTitle}`,
     body: `
@@ -50,7 +50,7 @@ export async function sendWaitlistConfirmation(data: {
   position: number
   manageUrl: string
 }) {
-  console.log("[v0] Waitlist email would be sent:", {
+  console.log("Waitlist email would be sent:", {
     to: data.to,
     subject: `Waitlist: ${data.eventTitle}`,
     body: `
@@ -76,7 +76,7 @@ export async function sendCancellationConfirmation(data: {
   name: string
   eventTitle: string
 }) {
-  console.log("[v0] Cancellation email would be sent:", {
+  console.log("Cancellation email would be sent:", {
     to: data.to,
     subject: `Cancelled: ${data.eventTitle}`,
     body: `

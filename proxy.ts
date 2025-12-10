@@ -26,7 +26,8 @@ export default async function middleware(request: NextRequest) {
         }
       })(request)
     } catch (error) {
-      console.log("[v0] Clerk middleware error, allowing request:", error)
+      // Clerk middleware failed to initialize — allow request through in dev/demo environment
+      // (Logged intentionally removed in cleanup)
       return NextResponse.next()
     }
   }

@@ -24,25 +24,25 @@ export default function LandingPage() {
 
       if (code) {
         setIsAuthenticating(true)
-        console.log("[v0] Auth code detected on homepage, exchanging for session...")
+        console.log("Auth code detected on homepage, exchanging for session...")
         const supabase = createClient()
 
         try {
           const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
           if (error) {
-            console.error("[v0] Code exchange error:", error)
+            console.error("Code exchange error:", error)
             setIsAuthenticating(false)
             router.push("/sign-in")
             return
           }
 
           if (data?.session) {
-            console.log("[v0] Session created successfully, redirecting to dashboard...")
+            console.log("Session created successfully, redirecting to dashboard...")
             router.push("/dashboard")
           }
         } catch (err) {
-          console.error("[v0] Auth code handling error:", err)
+          console.error("Auth code handling error:", err)
           setIsAuthenticating(false)
           router.push("/sign-in")
         }

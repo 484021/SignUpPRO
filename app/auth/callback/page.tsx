@@ -12,7 +12,7 @@ export default function AuthCallbackPage() {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        console.log("[v0] Auth callback started")
+        console.log("Auth callback started")
         const supabase = createClient()
 
         const hashParams = new URLSearchParams(window.location.hash.substring(1))
@@ -23,7 +23,7 @@ export default function AuthCallbackPage() {
         const errorDescription = hashParams.get("error_description") || searchParams.get("error_description")
 
         if (errorParam && errorParam !== "invalid_request") {
-          console.error("[v0] Auth callback error:", errorParam, errorDescription)
+          console.error("Auth callback error:", errorParam, errorDescription)
           setError(errorDescription || errorParam)
           setTimeout(() => router.push("/sign-in"), 3000)
           return
@@ -32,11 +32,11 @@ export default function AuthCallbackPage() {
         // Try to get the auth code from search params
         const code = searchParams.get("code")
         if (code) {
-          console.log("[v0] Exchanging code for session...")
+          console.log("Exchanging code for session...")
           const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
 
           if (exchangeError && !exchangeError.message.includes("code verifier")) {
-            console.error("[v0] Code exchange error:", exchangeError)
+            console.error("Code exchange error:", exchangeError)
             setError(exchangeError.message)
             setTimeout(() => router.push("/sign-in"), 3000)
             return

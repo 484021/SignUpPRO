@@ -7,7 +7,7 @@ try {
     resend = new Resend(process.env.RESEND_API_KEY)
   }
 } catch (error) {
-  console.error("[v0] Failed to initialize Resend client:", error)
+  console.error("Failed to initialize Resend client:", error)
 }
 
 interface SendEmailOptions {
@@ -21,12 +21,12 @@ export async function sendEmail(options: SendEmailOptions) {
   const { to, subject, html, text = "" } = options
 
   if (!to || !subject || !html) {
-    console.error("[v0] Missing required email parameters")
+    console.error("Missing required email parameters")
     return { success: false, error: "Missing required email parameters" }
   }
 
   if (!process.env.RESEND_API_KEY || !resend) {
-    console.error("[v0] Resend API not configured")
+    console.error("Resend API not configured")
     return { success: false, error: "Email service not configured" }
   }
 
@@ -42,7 +42,7 @@ export async function sendEmail(options: SendEmailOptions) {
     })
 
     if (error) {
-      console.error("[v0] Resend API error:", error)
+      console.error("Resend API error:", error)
       return {
         success: false,
         error: error.message || "Failed to send email",
@@ -51,7 +51,7 @@ export async function sendEmail(options: SendEmailOptions) {
 
     return { success: true, data }
   } catch (error) {
-    console.error("[v0] Email send exception:", error)
+    console.error("Email send exception:", error)
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to send email",

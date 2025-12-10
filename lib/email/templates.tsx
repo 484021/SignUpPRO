@@ -1,32 +1,46 @@
 interface SignupConfirmationData {
-  name: string
-  eventTitle: string
-  slotName: string
-  eventDate: string
-  eventTime?: string
-  eventLocation?: string
-  manageUrl: string
+  name: string;
+  eventTitle: string;
+  slotName: string;
+  eventDate: string;
+  eventTime?: string;
+  eventLocation?: string;
+  manageUrl: string;
 }
 
 interface WaitlistData {
-  name: string
-  eventTitle: string
-  slotName: string
-  position: number
-  manageUrl: string
+  name: string;
+  eventTitle: string;
+  slotName: string;
+  position: number;
+  manageUrl: string;
 }
 
 export function getSignupConfirmationEmail(data: SignupConfirmationData) {
-  console.log("[v0] getSignupConfirmationEmail called with:", data)
-
-  if (!data || !data.name || !data.eventTitle || !data.slotName || !data.eventDate || !data.manageUrl) {
-    console.error("[v0] Missing required data in getSignupConfirmationEmail:", data)
-    throw new Error("Missing required data for confirmation email")
+  // Validate required data for signup confirmation email
+  if (
+    !data ||
+    !data.name ||
+    !data.eventTitle ||
+    !data.slotName ||
+    !data.eventDate ||
+    !data.manageUrl
+  ) {
+    console.error("Missing required data in getSignupConfirmationEmail:", data);
+    throw new Error("Missing required data for confirmation email");
   }
 
-  const { name, eventTitle, slotName, eventDate, eventTime, eventLocation, manageUrl } = data
+  const {
+    name,
+    eventTitle,
+    slotName,
+    eventDate,
+    eventTime,
+    eventLocation,
+    manageUrl,
+  } = data;
 
-  const subject = `✓ You're signed up for ${eventTitle}`
+  const subject = `✓ You're signed up for ${eventTitle}`;
 
   const html = `
     <!DOCTYPE html>
@@ -88,12 +102,12 @@ export function getSignupConfirmationEmail(data: SignupConfirmationData) {
             </p>
           </div>
           <div class="footer">
-            <p>SignUpPRO • Powered by v0</p>
+            <p>SignUpPRO</p>
           </div>
         </div>
       </body>
     </html>
-  `
+  `;
 
   const text = `
 You're signed up for ${eventTitle}!
@@ -112,23 +126,29 @@ Manage your signup: ${manageUrl}
 Need to make changes? Use the link above to edit or cancel your signup.
 
 ---
-SignUpPRO • Powered by v0
-  `
+SignUpPRO
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }
 
 export function getWaitlistEmail(data: WaitlistData) {
-  console.log("[v0] getWaitlistEmail called with:", data)
-
-  if (!data || !data.name || !data.eventTitle || !data.slotName || data.position === undefined || !data.manageUrl) {
-    console.error("[v0] Missing required data in getWaitlistEmail:", data)
-    throw new Error("Missing required data for waitlist email")
+  // Validate required data for waitlist email
+  if (
+    !data ||
+    !data.name ||
+    !data.eventTitle ||
+    !data.slotName ||
+    data.position === undefined ||
+    !data.manageUrl
+  ) {
+    console.error("Missing required data in getWaitlistEmail:", data);
+    throw new Error("Missing required data for waitlist email");
   }
 
-  const { name, eventTitle, slotName, position, manageUrl } = data
+  const { name, eventTitle, slotName, position, manageUrl } = data;
 
-  const subject = `You're on the waitlist for ${eventTitle}`
+  const subject = `You're on the waitlist for ${eventTitle}`;
 
   const html = `
     <!DOCTYPE html>
@@ -180,15 +200,14 @@ export function getWaitlistEmail(data: WaitlistData) {
             </p>
           </div>
           <div class="footer">
-            <p>SignUpPRO • Powered by v0</p>
+            <p>SignUpPRO</p>
           </div>
         </div>
       </body>
     </html>
-  `
-
-  const text = `
-You're on the waitlist for ${eventTitle}
+  
+`;
+  const text = `You're on the waitlist for ${eventTitle}
 
 Hi ${name},
 
@@ -206,8 +225,8 @@ Manage your waitlist entry: ${manageUrl}
 We'll notify you if a spot opens up!
 
 ---
-SignUpPRO • Powered by v0
-  `
+SignUpPRO
+  `;
 
-  return { subject, html, text }
+  return { subject, html, text };
 }

@@ -7,7 +7,7 @@ import { ChevronDown, MoreVertical, Users } from "lucide-react"
 import { format, parseISO } from "date-fns"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
-import { deleteEvent, removeSignup } from "@/lib/actions/events"
+import { deleteEvent, removeSignup, deleteOccurrence } from "@/lib/actions/events"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { LinkIcon } from "lucide-react"
 import { generateOccurrences as generateOccurrencesUtil } from "@/lib/utils/generate-occurrences"
@@ -66,29 +66,14 @@ export function RecurringEventManager({
   const [deletingOccurrence, setDeletingOccurrence] = useState<string | null>(null)
   const [selectedSlot, setSelectedSlot] = useState<any | null>(null)
   const [selectedOccurrence, setSelectedOccurrence] = useState<any | null>(null)
-
-  console.log("[v0] RecurringEventManager - Props received:")
-  console.log("[v0] - event:", event?.title)
-  console.log("[v0] - slots:", slots?.length, slots)
-  console.log("[v0] - signups:", signups?.length)
-  console.log("[v0] - waitlist:", waitlist?.length)
-  console.log("[v0] - publicSignups:", publicSignups?.length)
-  console.log("[v0] - publicWaitlist:", publicWaitlist?.length)
+ 
 
   const safeSlots = Array.isArray(slots) ? slots : []
   const safeSignups = Array.isArray(signups) ? signups : []
   const safeWaitlist = Array.isArray(waitlist) ? waitlist : []
 
   const occurrences = useMemo(() => {
-    console.log("[v0] Building occurrences...")
-    console.log("[v0] - safeSlots length:", safeSlots.length)
-    console.log("[v0] - safeSlots data:", safeSlots)
-    console.log("[v0] - event.recurrence_rule:", event?.recurrence_rule)
-    console.log("[v0] - event.date:", event?.date)
-
-    safeSlots.forEach((slot, idx) => {
-      console.log(`[v0] Slot ${idx}: name="${slot?.name}", occurrence_date="${slot?.occurrence_date}"`)
-    })
+    
 
     let generatedDates: Date[] = []
 
@@ -100,14 +85,13 @@ export function RecurringEventManager({
       generatedDates = generateOccurrencesUtil(new Date(event.date), event.recurrence_rule)
     }
 
-    console.log("[v0] Generated", generatedDates.length, "occurrence dates from recurrence pattern")
+    
 
     // Separate slots into those with specific dates and template slots (no occurrence_date)
     const templateSlots = safeSlots.filter((slot) => !slot?.occurrence_date)
     const specificDateSlots = safeSlots.filter((slot) => slot?.occurrence_date)
 
-    console.log("[v0] Template slots (no occurrence_date):", templateSlots.length)
-    console.log("[v0] Specific date slots:", specificDateSlots.length)
+    
 
     // For each generated occurrence, collect applicable slots
     return generatedDates
@@ -121,14 +105,13 @@ export function RecurringEventManager({
             try {
               const slotDateStr = format(parseISO(slot.occurrence_date!), "yyyy-MM-dd")
               return slotDateStr === occurrenceDateStr
-            } catch (err) {
-              console.error("[v0] Error parsing slot occurrence_date:", slot.occurrence_date, err)
-              return false
+              } catch (err) {
+                return false
             }
           }),
         ]
 
-        console.log(`[v0] Occurrence ${occurrenceDateStr} has ${applicableSlots.length} applicable slots`)
+        
 
         // Filter out "Waitlist" named slots
         const regularSlots = applicableSlots.filter(
@@ -154,7 +137,6 @@ export function RecurringEventManager({
                 const signupDateStr = format(parseISO(s.occurrence_date), "yyyy-MM-dd")
                 return signupDateStr === occurrenceDateStr
               } catch (err) {
-                console.error("[v0] Error parsing signup occurrence_date:", s.occurrence_date, err)
                 return false
               }
             }
@@ -172,7 +154,6 @@ export function RecurringEventManager({
                 const waitlistDateStr = format(parseISO(w.occurrence_date), "yyyy-MM-dd")
                 return waitlistDateStr === occurrenceDateStr
               } catch (err) {
-                console.error("[v0] Error parsing waitlist occurrence_date:", w.occurrence_date, err)
                 return false
               }
             }
@@ -180,10 +161,7 @@ export function RecurringEventManager({
             return true
           })
 
-          console.log(`[v0] Slot "${regularSlot.name}" (${regularSlot.id}) for ${occurrenceDateStr}:`, {
-            signups: slotSignups.length,
-            waitlist: slotWaitlist.length,
-          })
+          
 
           const available = regularSlot.capacity - slotSignups.length
 
@@ -210,21 +188,19 @@ export function RecurringEventManager({
           capacity: occurrenceSlotsData.reduce((sum, slot) => sum + slot.capacity, 0),
         }
       })
+      .filter((occurrence) => occurrence.slots.length > 0) // Filter out occurrences with no slots
       .sort((a, b) => a.date.getTime() - b.date.getTime())
   }, [safeSlots, safeSignups, safeWaitlist, event.recurrence_rule, event.date])
 
   const filteredOccurrences = useMemo(() => {
-    console.log("[v0] Filtering occurrences...")
-    console.log("[v0] - Total occurrences:", occurrences.length)
-    console.log("[v0] - hidePastSpots:", hidePastSpots)
-    console.log("[v0] - hideFullSpots:", hideFullSpots)
+    
 
     let filtered = occurrences
 
     if (hidePastSpots) {
       const now = new Date()
       filtered = filtered.filter((occ) => occ.date >= now)
-      console.log("[v0] - After hidePastSpots filter:", filtered.length)
+      
     }
 
     if (hideFullSpots) {
@@ -232,14 +208,13 @@ export function RecurringEventManager({
         const hasAvailableSpots = occ.slots.some((slot) => !slot.isWaitlist && slot.available > 0)
         return hasAvailableSpots
       })
-      console.log("[v0] - After hideFullSpots filter:", filtered.length)
+      
     }
 
-    console.log("[v0] Final filtered occurrences:", filtered.length)
+    
     return filtered
   }, [occurrences, hidePastSpots, hideFullSpots])
-
-  console.log("[v0] About to render. filteredOccurrences:", filteredOccurrences.length)
+  
 
   if (!event) {
     return (
@@ -389,6 +364,31 @@ export function RecurringEventManager({
     }
   }
 
+  const handleDeleteOccurrence = async (occurrenceDate: Date) => {
+    if (!confirm("Are you sure you want to delete this occurrence? This will remove all signups for this date.")) {
+      return
+    }
+
+    const dateStr = format(occurrenceDate, "yyyy-MM-dd")
+    setDeletingOccurrence(dateStr)
+    try {
+      await deleteOccurrence(event.id, dateStr)
+      toast({
+        title: "Occurrence deleted",
+        description: "This occurrence and all its signups have been deleted.",
+      })
+      window.location.reload()
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to delete occurrence",
+        variant: "destructive",
+      })
+    } finally {
+      setDeletingOccurrence(null)
+    }
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -458,9 +458,27 @@ export function RecurringEventManager({
                         {format(occurrence.date, "EEEE, MMM d, yyyy")}
                       </h3>
                     </div>
-                    <span className="text-sm text-gray-500 sm:text-base">
-                      {totalFilled} of {totalCapacity} filled
-                    </span>
+                    <div className="flex items-center gap-2 sm:gap-4">
+                      <span className="text-sm text-gray-500 sm:text-base">
+                        {totalFilled} of {totalCapacity} filled
+                      </span>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteOccurrence(occurrence.date)}
+                            disabled={deletingOccurrence === dateStr}
+                            className="text-destructive"
+                          >
+                            {deletingOccurrence === dateStr ? "Deleting..." : "Delete This Occurrence"}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
                   </div>
                 </CardHeader>
 
@@ -507,12 +525,7 @@ export function RecurringEventManager({
                                         onClick={() => {
                                           setSelectedSlot(slot)
                                           setSelectedOccurrence(occurrence)
-                                          console.log("[v0] Opening dialog for slot:", {
-                                            slotName: slot.name,
-                                            signupsCount: slot.signups?.length,
-                                            waitlistCount: slot.waitlist?.length,
-                                            waitlistData: slot.waitlist,
-                                          })
+                                         
                                         }}
                                       >
                                         <Users className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />

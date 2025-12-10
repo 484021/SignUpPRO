@@ -68,7 +68,7 @@ export function SignupForm({ eventId, slotId, slotName, occurrenceDate, onSucces
         try {
           onSuccess?.({ name, email, slotId, isWaitlist: data.isWaitlist || false })
         } catch (error) {
-          console.error("[v0] Error in onSuccess callback:", error)
+          console.error("Error in onSuccess callback:", error)
         }
       } else {
         const errorMessage = data.error || "Failed to complete signup"
@@ -79,7 +79,7 @@ export function SignupForm({ eventId, slotId, slotName, occurrenceDate, onSucces
         })
       }
     } catch (error) {
-      console.error("[v0] Signup error:", error)
+      console.error("Signup error:", error)
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",

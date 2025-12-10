@@ -53,7 +53,7 @@ export function EventDetailClient({ event, slots, signups, waitlist, showCopyBut
       toast({ title: "Event duplicated", description: "Your event has been duplicated successfully." })
       router.push(`/dashboard/events/${data.id}`)
     } catch (error) {
-      console.error("[v0] Duplicate error:", error)
+      console.error("Duplicate error:", error)
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to duplicate event",
@@ -91,7 +91,7 @@ export function EventDetailClient({ event, slots, signups, waitlist, showCopyBut
 
       toast({ title: "CSV exported", description: "Your signup data has been exported." })
     } catch (error) {
-      console.error("[v0] CSV export error:", error)
+      console.error("CSV export error:", error)
       toast({
         title: "Error",
         description: "Failed to export CSV",
@@ -109,7 +109,7 @@ export function EventDetailClient({ event, slots, signups, waitlist, showCopyBut
       toast({ title: "Event closed", description: "The event has been closed to new signups." })
       router.refresh()
     } catch (error) {
-      console.error("[v0] Close event error:", error)
+      console.error("Close event error:", error)
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to close event",
@@ -131,7 +131,7 @@ export function EventDetailClient({ event, slots, signups, waitlist, showCopyBut
       toast({ title: "Event deleted", description: "The event has been deleted successfully." })
       router.push("/dashboard")
     } catch (error) {
-      console.error("[v0] Delete event error:", error)
+      console.error("Delete event error:", error)
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to delete event",

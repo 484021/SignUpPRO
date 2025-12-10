@@ -8,18 +8,9 @@ import { format, parseISO } from "date-fns"
 import { RecurringEventManager } from "@/components/recurring-event-manager"
 
 export default async function EventDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  console.log("[v0] Event detail page loading...")
   const { id } = await params
-  console.log("[v0] Event ID:", id)
 
   const eventData = await getEvent(id)
-  console.log("[v0] Event data:", eventData ? "Found" : "Not found")
-  if (eventData) {
-    console.log("[v0] eventData.event:", eventData.event ? "exists" : "missing")
-    console.log("[v0] eventData.slots:", eventData.slots)
-    console.log("[v0] eventData.signups:", eventData.signups)
-    console.log("[v0] eventData.waitlist:", eventData.waitlist)
-  }
 
   if (!eventData || !eventData.event) {
     return (
@@ -37,9 +28,7 @@ export default async function EventDetailPage({ params }: { params: Promise<{ id
   }
 
   const { event, slots, signups, waitlist } = eventData
-  console.log("[v0] After destructuring - slots:", slots)
-  console.log("[v0] After destructuring - signups:", signups)
-  console.log("[v0] After destructuring - waitlist:", waitlist)
+  
 
   const isRecurring = !!(event.recurrence_rule || event.recurrenceRule)
 

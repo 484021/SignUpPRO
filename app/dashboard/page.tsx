@@ -16,7 +16,7 @@ export default async function DashboardPage() {
 
   // If user doesn't exist in database yet, create them
   if (!userData) {
-    console.log("[v0] User record not found, creating for Clerk ID:", user.id)
+    // User record not found — create a new DB entry for this Clerk user
     await supabase.from("users").insert({
       clerk_id: user.id,
       email: user.emailAddresses[0]?.emailAddress,
@@ -26,7 +26,7 @@ export default async function DashboardPage() {
 
   const { data: events } = await supabase
     .from("events")
-    .select("*, slots(*)")
+    .select("*, slots(*), signups(*)")
     .eq("clerk_id", user.id)
     .order("created_at", { ascending: false })
 

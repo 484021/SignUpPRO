@@ -1,18 +1,25 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useRouter } from "next/navigation"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Calendar, Repeat, ExternalLink, Copy, Users, Trash2 } from "lucide-react"
-import type { Event } from "@/lib/types"
-import { format } from "date-fns"
-import { useState } from "react"
-import { useToast } from "@/hooks/use-toast"
-import Link from "next/link"
-import { deleteEvent } from "@/lib/actions/events"
-import { formatRecurrenceDetails } from "@/lib/utils/recurrence"
+import type React from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Calendar,
+  Repeat,
+  ExternalLink,
+  Copy,
+  Users,
+  Trash2,
+} from "lucide-react";
+import type { Event } from "@/lib/types";
+import { format } from "date-fns";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
+import { deleteEvent } from "@/lib/actions/events";
+import { formatRecurrenceDetails } from "@/lib/utils/recurrence";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -22,123 +29,187 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 
 interface EventCardProps {
-  event: Event
+  event: Event;
 }
 
 export function EventCard({ event }: EventCardProps) {
-  const [isCopying, setIsCopying] = useState(false)
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-  const { toast } = useToast()
-  const router = useRouter()
+  const [isCopying, setIsCopying] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { toast } = useToast();
+  const router = useRouter();
 
   const statusColors = {
     draft: "bg-gray-500",
     open: "bg-green-500",
     closed: "bg-red-500",
     full: "bg-yellow-500",
-  }
+  };
 
   const handleCopyLink = async (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
 
     if (!event.slug) {
       toast({
         title: "Error",
         description: "Event link not available",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsCopying(true)
+    setIsCopying(true);
     try {
-      const url = `${window.location.origin}/signup/${event.slug}`
-      await navigator.clipboard.writeText(url)
+      const url = `${window.location.origin}/signup/${event.slug}`;
+      await navigator.clipboard.writeText(url);
       toast({
         title: "✓ Link copied!",
         description: "Share this link with attendees",
-      })
+      });
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to copy link",
         variant: "destructive",
-      })
+      });
     } finally {
-      setTimeout(() => setIsCopying(false), 1000)
+      setTimeout(() => setIsCopying(false), 1000);
     }
-  }
+  };
 
   const handleExternalLink = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
+    e.preventDefault();
+    e.stopPropagation();
     if (event.slug) {
-      window.open(`/signup/${event.slug}`, "_blank")
+      window.open(`/signup/${event.slug}`, "_blank");
     }
-  }
+  };
 
   const handleDeleteClick = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setShowDeleteDialog(true)
-  }
+    e.preventDefault();
+    e.stopPropagation();
+    setShowDeleteDialog(true);
+  };
 
   const handleConfirmDelete = async () => {
-    setIsDeleting(true)
+    setIsDeleting(true);
     try {
-      await deleteEvent(event.id)
+      await deleteEvent(event.id);
       toast({
         title: "Event deleted",
         description: "Your event has been permanently deleted",
-      })
-      router.refresh()
+      });
+      router.refresh();
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to delete event",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsDeleting(false)
-      setShowDeleteDialog(false)
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
-  }
+  };
 
-  const totalSlots = event.slots?.reduce((sum, slot) => sum + slot.capacity, 0) || 0
-  const totalSignups =
-    event.slots?.reduce((sum, slot) => {
-      // For recurring events, only count the first occurrence (event.date)
-      if (event.recurrence_rule || event.recurrenceRule) {
-        const slotDate = slot.occurrence_date ? new Date(slot.occurrence_date).toISOString().split("T")[0] : null
-        const eventDate = new Date(event.date).toISOString().split("T")[0]
-        if (slotDate === eventDate) {
-          // Count actual signups for this slot
-          const signupCount =
-            event.signups?.filter((s: any) => s.slot_id === slot.id && s.status === "confirmed").length || 0
-          return sum + signupCount
-        }
-        return sum
+  // Get the next upcoming date that has slots for this event
+  const getUpcomingDate = () => {
+    const eventDate = new Date(event.date);
+    const now = new Date();
+    
+    console.log("[EventCard] getUpcomingDate called:", {
+      eventTitle: event.title,
+      eventDate: event.date,
+      hasRecurrenceRule: !!(event.recurrence_rule || event.recurrenceRule),
+      slotCount: event.slots?.length || 0,
+      slots: event.slots?.map(s => ({ id: s.id, occurrence_date: s.occurrence_date })) || [],
+    });
+    
+    // If not recurring, just use the event date
+    if (!event.recurrence_rule && !event.recurrenceRule) {
+      return eventDate > now ? eventDate : now;
+    }
+
+    // For recurring events, find the next date that actually has slots
+    if (event.slots && event.slots.length > 0) {
+      const upcomingSlots = event.slots
+        .filter((slot) => slot.occurrence_date)
+        .sort((a, b) => new Date(a.occurrence_date!).getTime() - new Date(b.occurrence_date!).getTime())
+        .filter((slot) => new Date(slot.occurrence_date!) > now);
+
+      console.log("[EventCard] upcomingSlots after filtering:", {
+        eventTitle: event.title,
+        upcomingSlotsCount: upcomingSlots.length,
+        upcomingSlots: upcomingSlots.map(s => s.occurrence_date),
+      });
+
+      if (upcomingSlots.length > 0) {
+        const nextDate = new Date(upcomingSlots[0].occurrence_date!);
+        return nextDate;
       }
-      // For non-recurring events, count actual signups
-      const signupCount =
-        event.signups?.filter((s: any) => s.slot_id === slot.id && s.status === "confirmed").length || 0
-      return sum + signupCount
-    }, 0) || 0
+    }
 
-  const recurrenceRule = event.recurrence_rule || event.recurrenceRule
-  const recurrenceDetails = recurrenceRule ? formatRecurrenceDetails(recurrenceRule) : null
+    // Fallback to event date
+    
+    return eventDate > now ? eventDate : now;
+  };
 
-  console.log("[v0] Event card rendering:", {
-    title: event.title,
-    hasRecurrenceRule: !!recurrenceRule,
-    recurrenceRule,
-    recurrenceDetails,
-  })
+  const upcomingDate = getUpcomingDate();
+  const upcomingDateString = upcomingDate.toISOString().split("T")[0];
+
+  // Calculate confirmed signups and waitlisted for the upcoming occurrence only
+  const { confirmed: totalSignups, waitlisted: totalWaitlisted } = (
+    event.slots || []
+  ).reduce(
+    (acc, slot) => {
+      // For recurring events, only count for the upcoming occurrence
+      if (event.recurrence_rule || event.recurrenceRule) {
+        const slotDate = slot.occurrence_date
+          ? new Date(slot.occurrence_date).toISOString().split("T")[0]
+          : null;
+        if (slotDate === upcomingDateString) {
+          const confirmedCount =
+            event.signups?.filter(
+              (s: any) => s.slot_id === slot.id && s.status === "confirmed"
+            ).length || 0;
+          const waitlistedCount =
+            event.signups?.filter(
+              (s: any) => s.slot_id === slot.id && s.status === "waitlisted"
+            ).length || 0;
+          return {
+            confirmed: acc.confirmed + confirmedCount,
+            waitlisted: acc.waitlisted + waitlistedCount,
+          };
+        }
+        return acc;
+      }
+      // For non-recurring events, count all signups and waitlisted
+      const confirmedCount =
+        event.signups?.filter(
+          (s: any) => s.slot_id === slot.id && s.status === "confirmed"
+        ).length || 0;
+      const waitlistedCount =
+        event.signups?.filter(
+          (s: any) => s.slot_id === slot.id && s.status === "waitlisted"
+        ).length || 0;
+      return {
+        confirmed: acc.confirmed + confirmedCount,
+        waitlisted: acc.waitlisted + waitlistedCount,
+      };
+    },
+    { confirmed: 0, waitlisted: 0 }
+  );
+
+  const recurrenceRule = event.recurrence_rule || event.recurrenceRule;
+  const recurrenceDetails = recurrenceRule
+    ? formatRecurrenceDetails(recurrenceRule)
+    : null;
+
+  
 
   return (
     <>
@@ -150,23 +221,45 @@ export function EventCard({ event }: EventCardProps) {
                 <CardTitle className="text-base sm:text-lg line-clamp-2 group-hover:text-primary transition-colors">
                   {event.title}
                 </CardTitle>
-                {totalSlots > 0 && (
+                {totalSignups > 0 || totalWaitlisted > 0 ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
+                      <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
+                      <span className="whitespace-nowrap font-medium text-foreground">
+                        {totalSignups} Signed Up
+                      </span>
+                      {totalWaitlisted > 0 && (
+                        <span className="whitespace-nowrap text-amber-600 font-medium">
+                          • {totalWaitlisted} Waitlisted
+                        </span>
+                      )}
+                    </div>
+                    {totalSignups > 0 && (
+                      <div className="h-1.5 flex-1 max-w-[200px] bg-muted rounded-full overflow-hidden">
+                        <div
+                          className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all"
+                          style={{
+                            width: `${
+                              (totalSignups / (totalSignups + totalWaitlisted)) *
+                              100
+                            }%`,
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                ) : (
                   <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                     <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-                    <span className="whitespace-nowrap">
-                      {totalSignups}/{totalSlots} signed up
-                    </span>
-                    <div className="h-1.5 flex-1 max-w-[80px] sm:max-w-[100px] bg-muted rounded-full overflow-hidden">
-                      <div
-                        className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all"
-                        style={{ width: `${(totalSignups / totalSlots) * 100}%` }}
-                      />
-                    </div>
+                    <span className="whitespace-nowrap">No one signed up yet</span>
                   </div>
                 )}
               </div>
               <div className="flex flex-col gap-1.5 shrink-0">
-                <Badge className={`${statusColors[event.status]} text-white text-xs`} variant="secondary">
+                <Badge
+                  className={`${statusColors[event.status]} text-white text-xs`}
+                  variant="secondary"
+                >
                   {event.status}
                 </Badge>
                 {recurrenceRule && (
@@ -185,12 +278,16 @@ export function EventCard({ event }: EventCardProps) {
             <div className="space-y-2 text-xs sm:text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" />
-                <span className="truncate">{format(new Date(event.date), "PPP 'at' p")}</span>
+                <span className="truncate">
+                  {format(upcomingDate, "PPP 'at' p")}
+                </span>
               </div>
               {recurrenceDetails && (
                 <div className="flex items-start gap-2">
                   <Repeat className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 mt-0.5" />
-                  <span className="text-xs sm:text-sm leading-relaxed">{recurrenceDetails}</span>
+                  <span className="text-xs sm:text-sm leading-relaxed">
+                    {recurrenceDetails}
+                  </span>
                 </div>
               )}
             </div>
@@ -245,14 +342,20 @@ export function EventCard({ event }: EventCardProps) {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-lg mx-4">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-lg sm:text-xl">Delete Event?</AlertDialogTitle>
+            <AlertDialogTitle className="text-lg sm:text-xl">
+              Delete Event?
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-sm sm:text-base">
-              Are you sure you want to delete "{event.title}"? This will permanently remove the event and all associated
-              signups and waitlist entries. This action cannot be undone.
+              Are you sure you want to delete "{event.title}"? This will
+              permanently remove the event and all associated signups and
+              waitlist entries. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-col sm:flex-row gap-2 sm:gap-0">
-            <AlertDialogCancel disabled={isDeleting} className="w-full sm:w-auto m-0">
+            <AlertDialogCancel
+              disabled={isDeleting}
+              className="w-full sm:w-auto m-0"
+            >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
@@ -266,5 +369,5 @@ export function EventCard({ event }: EventCardProps) {
         </AlertDialogContent>
       </AlertDialog>
     </>
-  )
+  );
 }

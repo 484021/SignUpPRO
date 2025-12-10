@@ -114,9 +114,9 @@ export function NewEventClient() {
         showSignups: true,
       }
 
-      console.log("[v0] Creating event with data:", eventData)
+      console.log("Creating event with data:", eventData)
       const result = await createEvent(eventData)
-      console.log("[v0] Create event result:", result)
+      console.log("Create event result:", result)
 
       if (!result.success) {
         throw new Error(result.error || "Failed to create event")
@@ -128,7 +128,7 @@ export function NewEventClient() {
         throw new Error("Event was created but no ID was returned")
       }
 
-      console.log("[v0] Event created successfully with ID:", event.id)
+      console.log("Event created successfully with ID:", event.id)
 
       toast({
         title: "Event created",
@@ -137,7 +137,7 @@ export function NewEventClient() {
 
       router.push("/dashboard")
     } catch (error) {
-      console.error("[v0] Error in handleSubmit:", error)
+      console.error("Error in handleSubmit:", error)
       const errorMessage = error instanceof Error ? error.message : String(error)
 
       toast({

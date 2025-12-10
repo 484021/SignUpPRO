@@ -208,7 +208,7 @@ export function SignupPageClient({
       setSelectedWaitlistId(null)
       router.refresh()
     } catch (error) {
-      console.error("[v0] handleSelfRemove error:", error)
+      console.error("handleSelfRemove error:", error)
       const errorMessage =
         error instanceof Error ? error.message : "Failed to remove. Please check your email and try again."
       toast({
@@ -228,7 +228,7 @@ export function SignupPageClient({
   }
 
   const handleSignupRemoveClick = (signupId: string) => {
-    console.log("[v0] Signup remove clicked:", signupId)
+    console.log("Signup remove clicked:", signupId)
     const signup = publicSignups.find((s) => s.id === signupId)
     if (signup) {
       setSelectedToRemove({
@@ -280,7 +280,7 @@ export function SignupPageClient({
       setWaitlistIdToDelete(null)
       router.refresh()
     } catch (error) {
-      console.error("[v0] handleVerifyAndDeleteWaitlist error:", error)
+      console.error("handleVerifyAndDeleteWaitlist error:", error)
       const errorMessage =
         error instanceof Error ? error.message : "Failed to remove. Please check your email and try again."
       toast({
@@ -302,11 +302,18 @@ export function SignupPageClient({
   }
 
   const occurrences = generateOccurrences()
+  
+  // Filter occurrences to only include dates that have slots
+  const occurrencesWithSlots = occurrences.filter((date) => {
+    const dateString = date.toISOString().split("T")[0]
+    return slots.some((slot) => slot.occurrence_date?.split("T")[0] === dateString)
+  })
+
   const isRecurring = occurrences.length > 1 // Recurring means multiple occurrences
 
   const handleOccurrenceSelect = (date: Date) => {
     const dateString = date.toISOString().split("T")[0]
-    console.log("[v0] Selected occurrence date string:", dateString)
+    console.log("Selected occurrence date string:", dateString)
     setSelectedOccurrenceDate(date.toISOString())
     setSelectedOccurrence({ date: date.toISOString() }) // Store selected occurrence for removal
     setIsOccurrenceModalOpen(true)
@@ -323,7 +330,7 @@ export function SignupPageClient({
     if (!removeEmail || !selectedToRemove) return
 
     setIsRemoving(true)
-    console.log("[v0] Starting removal process:", {
+    console.log("Starting removal process:", {
       type: selectedToRemove.type,
       id: selectedToRemove.id,
       name: selectedToRemove.name,
@@ -335,14 +342,14 @@ export function SignupPageClient({
     try {
       let result
       if (selectedToRemove.type === "waitlist") {
-        console.log("[v0] Calling removeWaitlistByEmail with:", {
+        console.log("Calling removeWaitlistByEmail with:", {
           eventSlug: event.slug,
           email: removeEmail,
           waitlistId: selectedToRemove.id,
         })
         result = await removeWaitlistByEmail(event.slug || "", removeEmail, selectedToRemove.id)
       } else {
-        console.log("[v0] Calling removeSelfByEmail with:", {
+        console.log("Calling removeSelfByEmail with:", {
           eventSlug: event.slug,
           email: removeEmail,
           signupId: selectedToRemove.id,
@@ -350,7 +357,7 @@ export function SignupPageClient({
         result = await removeSelfByEmail(event.slug || "", removeEmail, selectedToRemove.id)
       }
 
-      console.log("[v0] Removal result:", result)
+      console.log("Removal result:", result)
 
       if (result.success) {
         toast({
@@ -362,7 +369,7 @@ export function SignupPageClient({
         setRemoveEmail("")
         router.refresh()
       } else {
-        console.error("[v0] Removal failed:", result.error)
+        console.error("Removal failed:", result.error)
         toast({
           title: "Removal Failed",
           description: result.error || "Could not remove your entry",
@@ -370,7 +377,7 @@ export function SignupPageClient({
         })
       }
     } catch (error) {
-      console.error("[v0] Error removing entry:", error)
+      console.error("Error removing entry:", error)
       toast({
         title: "Error",
         description: "An unexpected error occurred",
@@ -391,7 +398,7 @@ export function SignupPageClient({
       return
     }
 
-    console.log("[v0] Confirming signup removal:", { signupId: signupToRemove, email: removeSignupEmail })
+    console.log("Confirming signup removal:", { signupId: signupToRemove, email: removeSignupEmail })
 
     try {
       const result = await removeSelfByEmail(event.slug || "", removeSignupEmail.trim(), signupToRemove)
@@ -415,7 +422,7 @@ export function SignupPageClient({
         })
       }
     } catch (error) {
-      console.error("[v0] Error removing signup:", error)
+      console.error("Error removing signup:", error)
       toast({
         title: "Error",
         description: "An error occurred while removing your signup",
@@ -610,7 +617,7 @@ export function SignupPageClient({
           </CardHeader>
           <CardContent>
             <div className="grid gap-3">
-              {occurrences.map((date, index) => (
+              {occurrencesWithSlots.map((date, index) => (
                 <button
                   key={index}
                   onClick={() => handleOccurrenceSelect(date)}
@@ -784,7 +791,7 @@ export function SignupPageClient({
                         const matches =
                           slotYear === selectedYear && slotMonth === selectedMonth && slotDay === selectedDay
 
-                        console.log("[v0] Filtering slot:", {
+                        console.log("Filtering slot:", {
                           slotName: slot.name,
                           slotDate: slotDate ? `${slotYear}-${slotMonth + 1}-${slotDay}` : "null (applies to all)",
                           selectedDate: `${selectedYear}-${selectedMonth + 1}-${selectedDay}`,
@@ -801,9 +808,9 @@ export function SignupPageClient({
                         return true
                       })
 
-                    console.log("[v0] Filtered slots count:", filteredSlots.length)
+                    console.log("Filtered slots count:", filteredSlots.length)
                     console.log(
-                      "[v0] Filtered slots:",
+                      "Filtered slots:",
                       filteredSlots.map((s) => ({ name: s.name, id: s.id })),
                     )
 
@@ -825,7 +832,7 @@ export function SignupPageClient({
                         <button
                           key={slot.id}
                           onClick={() => {
-                            console.log("[v0] Slot clicked:", {
+                            console.log("Slot clicked:", {
                               id: slot.id,
                               name: slot.name,
                               capacity: slot.capacity,

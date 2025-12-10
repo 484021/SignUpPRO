@@ -37,11 +37,11 @@ export function SignupList({ signups, slots, eventId }: SignupListProps) {
   const router = useRouter()
 
   const handleRemove = async (signupId: string) => {
-    console.log("[v0] SignupList.handleRemove called with:", signupId)
+    console.log("SignupList.handleRemove called with:", signupId)
     setIsLoading(true)
     try {
       const result = await removeSignup(signupId, eventId)
-      console.log("[v0] SignupList.handleRemove result:", result)
+      console.log("SignupList.handleRemove result:", result)
       toast({
         title: "Signup removed",
         description: "The signup has been removed successfully.",
@@ -50,7 +50,7 @@ export function SignupList({ signups, slots, eventId }: SignupListProps) {
       setSignupToDelete(null)
       window.location.reload()
     } catch (error) {
-      console.error("[v0] SignupList.handleRemove error:", error)
+      console.error("SignupList.handleRemove error:", error)
       toast({
         title: "Error",
         description: error instanceof Error ? error.message : "Failed to remove signup",
@@ -62,13 +62,13 @@ export function SignupList({ signups, slots, eventId }: SignupListProps) {
   }
 
   const handleUpdate = async (signupId: string) => {
-    console.log("[v0] handleUpdate called with:", { signupId, notes: editNotes })
+    console.log("handleUpdate called with:", { signupId, notes: editNotes })
     setIsLoading(true)
     try {
       const result = await updateSignup(signupId, eventId, {
         notes: editNotes,
       })
-      console.log("[v0] handleUpdate result:", result)
+      console.log("handleUpdate result:", result)
       toast({
         title: "Success",
         description: "Notes have been saved successfully.",
@@ -76,7 +76,7 @@ export function SignupList({ signups, slots, eventId }: SignupListProps) {
       setEditingId(null)
       window.location.reload()
     } catch (error) {
-      console.error("[v0] handleUpdate error:", error)
+      console.error("handleUpdate error:", error)
       const errorMessage = error instanceof Error ? error.message : "Failed to update signup"
       toast({
         title: "Error",
