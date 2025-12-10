@@ -1,56 +1,67 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { ArrowRight, Check, Users, Zap, Shield, Loader2 } from "lucide-react"
-import { Logo } from "@/components/logo"
-import { createClient } from "@/lib/supabase/client"
-import { ClerkSetupBanner } from "@/components/clerk-setup-banner"
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { ArrowRight, Check, Users, Zap, Shield, Loader2 } from "lucide-react";
+import { Logo } from "@/components/logo";
+import { createClient } from "@/lib/supabase/client";
+import { ClerkSetupBanner } from "@/components/clerk-setup-banner";
 
 export default function LandingPage() {
-  const router = useRouter()
-  const searchParams = useSearchParams()
-  const [isAuthenticating, setIsAuthenticating] = useState(false)
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const [isAuthenticating, setIsAuthenticating] = useState(false);
   const hasClerkKeys =
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY !== ""
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY !== "";
 
   useEffect(() => {
     const handleAuthCode = async () => {
-      const code = searchParams.get("code")
+      const code = searchParams.get("code");
 
       if (code) {
-        setIsAuthenticating(true)
-        console.log("Auth code detected on homepage, exchanging for session...")
-        const supabase = createClient()
+        setIsAuthenticating(true);
+        console.log(
+          "Auth code detected on homepage, exchanging for session..."
+        );
+        const supabase = createClient();
 
         try {
-          const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+          const { data, error } =
+            await supabase.auth.exchangeCodeForSession(code);
 
           if (error) {
-            console.error("Code exchange error:", error)
-            setIsAuthenticating(false)
-            router.push("/sign-in")
-            return
+            console.error("Code exchange error:", error);
+            setIsAuthenticating(false);
+            router.push("/sign-in");
+            return;
           }
 
           if (data?.session) {
-            console.log("Session created successfully, redirecting to dashboard...")
-            router.push("/dashboard")
+            console.log(
+              "Session created successfully, redirecting to dashboard..."
+            );
+            router.push("/dashboard");
           }
         } catch (err) {
-          console.error("Auth code handling error:", err)
-          setIsAuthenticating(false)
-          router.push("/sign-in")
+          console.error("Auth code handling error:", err);
+          setIsAuthenticating(false);
+          router.push("/sign-in");
         }
       }
-    }
+    };
 
-    handleAuthCode()
-  }, [searchParams, router])
+    handleAuthCode();
+  }, [searchParams, router]);
 
   if (isAuthenticating) {
     return (
@@ -66,7 +77,7 @@ export default function LandingPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -78,7 +89,9 @@ export default function LandingPage() {
           <div className="flex items-center justify-between h-14 sm:h-16">
             <Link href="/" className="flex items-center gap-2">
               <Logo className="w-7 h-7 sm:w-8 sm:h-8" />
-              <span className="text-sm sm:text-base font-semibold">SignUpPRO</span>
+              <span className="text-sm sm:text-base font-semibold">
+                SignUpPRO
+              </span>
             </Link>
             <div className="flex items-center gap-2 sm:gap-4">
               <Link
@@ -162,39 +175,55 @@ export default function LandingPage() {
                           <h3 className="text-xl sm:text-2xl md:text-3xl font-bold mb-2 bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">
                             Wednesday Badminton
                           </h3>
-                          <p className="text-xs sm:text-sm text-muted-foreground">Vision Center · 7:00 PM</p>
+                          <p className="text-xs sm:text-sm text-muted-foreground">
+                            Vision Center · 7:00 PM
+                          </p>
                         </div>
 
                         <div className="grid grid-cols-3 gap-2 sm:gap-4">
                           <div className="bg-gradient-to-br from-purple-500/10 to-purple-600/10 border border-purple-500/20 rounded-xl p-4">
-                            <div className="text-xs sm:text-sm text-muted-foreground mb-1 font-medium">Signups</div>
+                            <div className="text-xs sm:text-sm text-muted-foreground mb-1 font-medium">
+                              Signups
+                            </div>
                             <div className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">
                               18/24
                             </div>
                           </div>
                           <div className="bg-gradient-to-br from-cyan-500/10 to-blue-600/10 border border-cyan-500/20 rounded-xl p-4">
-                            <div className="text-xs sm:text-sm text-muted-foreground mb-1 font-medium">Available</div>
-                            <div className="text-2xl sm:text-3xl font-bold text-cyan-600">6</div>
+                            <div className="text-xs sm:text-sm text-muted-foreground mb-1 font-medium">
+                              Available
+                            </div>
+                            <div className="text-2xl sm:text-3xl font-bold text-cyan-600">
+                              6
+                            </div>
                           </div>
                           <div className="bg-gradient-to-br from-blue-500/10 to-purple-600/10 border border-blue-500/20 rounded-xl p-4">
-                            <div className="text-xs sm:text-sm text-muted-foreground mb-1 font-medium">Waitlist</div>
-                            <div className="text-2xl sm:text-3xl font-bold text-blue-600">2</div>
+                            <div className="text-xs sm:text-sm text-muted-foreground mb-1 font-medium">
+                              Waitlist
+                            </div>
+                            <div className="text-2xl sm:text-3xl font-bold text-blue-600">
+                              2
+                            </div>
                           </div>
                         </div>
 
                         <div className="space-y-2 sm:space-y-3">
-                          {["Alex Chen", "Sarah Park", "Michael Liu"].map((name, i) => (
-                            <div
-                              key={i}
-                              className="flex items-center gap-2 sm:gap-4 p-2 sm:p-3 bg-gradient-to-r from-purple-500/5 to-blue-500/5 border border-purple-500/10 rounded-lg sm:rounded-xl hover:border-purple-500/30 transition-colors"
-                            >
-                              <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex-shrink-0" />
-                              <div className="flex-1 text-sm sm:text-base font-semibold truncate">{name}</div>
-                              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center flex-shrink-0">
-                                <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+                          {["Alex Chen", "Sarah Park", "Michael Liu"].map(
+                            (name, i) => (
+                              <div
+                                key={i}
+                                className="flex items-center gap-2 sm:gap-4 p-2 sm:p-3 bg-gradient-to-r from-purple-500/5 to-blue-500/5 border border-purple-500/10 rounded-lg sm:rounded-xl hover:border-purple-500/30 transition-colors"
+                              >
+                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-600 flex-shrink-0" />
+                                <div className="flex-1 text-sm sm:text-base font-semibold truncate">
+                                  {name}
+                                </div>
+                                <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-gradient-to-br from-cyan-500 to-cyan-600 flex items-center justify-center flex-shrink-0">
+                                  <Check className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-white" />
+                                </div>
                               </div>
-                            </div>
-                          ))}
+                            )
+                          )}
                         </div>
                       </div>
                     </div>
@@ -213,7 +242,9 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Zap className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-2xl sm:text-3xl font-bold mb-3">Instant setup</h3>
+              <h3 className="text-2xl sm:text-3xl font-bold mb-3">
+                Instant setup
+              </h3>
               <p className="text-muted-foreground leading-relaxed">
                 Create events in seconds. No configuration needed.
               </p>
@@ -223,7 +254,9 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Users className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-2xl sm:text-3xl font-bold mb-3">Live updates</h3>
+              <h3 className="text-2xl sm:text-3xl font-bold mb-3">
+                Live updates
+              </h3>
               <p className="text-muted-foreground leading-relaxed">
                 Everyone sees real-time availability. Zero confusion.
               </p>
@@ -233,7 +266,9 @@ export default function LandingPage() {
               <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-600 to-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                 <Shield className="w-6 h-6 text-white" />
               </div>
-              <h3 className="text-2xl sm:text-3xl font-bold mb-3">Always free</h3>
+              <h3 className="text-2xl sm:text-3xl font-bold mb-3">
+                Always free
+              </h3>
               <p className="text-muted-foreground leading-relaxed">
                 Unlimited everything. Built for community, not profit.
               </p>
@@ -246,9 +281,13 @@ export default function LandingPage() {
         <div className="container mx-auto max-w-3xl">
           <div className="text-center mb-12 sm:mb-16">
             <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 sm:mb-6">
-              <span className="bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">FAQ</span>
+              <span className="bg-gradient-to-r from-purple-600 to-cyan-600 bg-clip-text text-transparent">
+                FAQ
+              </span>
             </h2>
-            <p className="text-lg sm:text-xl text-muted-foreground">Everything you need to know</p>
+            <p className="text-lg sm:text-xl text-muted-foreground">
+              Everything you need to know
+            </p>
           </div>
 
           <Accordion type="single" collapsible className="space-y-4">
@@ -260,7 +299,8 @@ export default function LandingPage() {
                 Is SignUpPRO really free?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground pb-6">
-                Yes, completely free. No hidden fees, no credit card required. Unlimited events, unlimited signups.
+                Yes, completely free. No hidden fees, no credit card required.
+                Unlimited events, unlimited signups.
               </AccordionContent>
             </AccordionItem>
 
@@ -272,7 +312,8 @@ export default function LandingPage() {
                 Do attendees need to create an account?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground pb-6">
-                No. They just click your link, enter their name and email, and they're signed up. It takes 10 seconds.
+                No. They just click your link, enter their name and email, and
+                they're signed up. It takes 10 seconds.
               </AccordionContent>
             </AccordionItem>
 
@@ -284,7 +325,8 @@ export default function LandingPage() {
                 Can I manage multiple events?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground pb-6">
-                Yes. Create as many events as you need. Each gets its own shareable link and dashboard.
+                Yes. Create as many events as you need. Each gets its own
+                shareable link and dashboard.
               </AccordionContent>
             </AccordionItem>
 
@@ -296,7 +338,8 @@ export default function LandingPage() {
                 What happens when an event fills up?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground pb-6">
-                New signups automatically go to a waitlist. If someone cancels, the first waitlist person gets notified.
+                New signups automatically go to a waitlist. If someone cancels,
+                the first waitlist person gets notified.
               </AccordionContent>
             </AccordionItem>
 
@@ -308,7 +351,8 @@ export default function LandingPage() {
                 Can I export my signup list?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground pb-6">
-                Yes. Download your attendee list as a CSV file anytime from your event dashboard.
+                Yes. Download your attendee list as a CSV file anytime from your
+                event dashboard.
               </AccordionContent>
             </AccordionItem>
 
@@ -320,7 +364,8 @@ export default function LandingPage() {
                 Do you send email notifications?
               </AccordionTrigger>
               <AccordionContent className="text-muted-foreground pb-6">
-                Yes. Attendees get confirmation emails when they sign up, and organizers get notified of new signups.
+                Yes. Attendees get confirmation emails when they sign up, and
+                organizers get notified of new signups.
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -358,13 +403,21 @@ export default function LandingPage() {
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-6">
             <div className="flex items-center gap-2">
               <Logo className="w-5 h-5 sm:w-6 sm:h-6" />
-              <span className="text-xs sm:text-sm font-semibold">SignUpPRO</span>
+              <span className="text-xs sm:text-sm font-semibold">
+                SignUpPRO
+              </span>
             </div>
             <div className="flex gap-6 sm:gap-8 text-xs sm:text-sm text-muted-foreground">
-              <Link href="/sign-in" className="hover:text-foreground transition-colors">
+              <Link
+                href="/sign-in"
+                className="hover:text-foreground transition-colors"
+              >
                 Sign In
               </Link>
-              <Link href="/sign-in" className="hover:text-foreground transition-colors">
+              <Link
+                href="/sign-in"
+                className="hover:text-foreground transition-colors"
+              >
                 Get Started
               </Link>
             </div>
@@ -372,5 +425,5 @@ export default function LandingPage() {
         </div>
       </footer>
     </div>
-  )
+  );
 }

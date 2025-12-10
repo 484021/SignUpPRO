@@ -1,34 +1,67 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { Clock2 } from "lucide-react"
-import Link from "next/link"
-import { Logo } from "@/components/logo"
+import type React from "react";
+import { Clock2 } from "lucide-react";
+import Link from "next/link";
+import { Logo } from "@/components/logo";
 
-import { useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Calendar, Clock, Users, CheckCircle, Share2, AlertCircle, Link2, Mail, MessageSquare } from "lucide-react"
-import { format } from "date-fns"
-import { SignupForm } from "@/components/signup-form"
-import type { Event, Slot, Signup } from "@/lib/types"
-import { removeSelfByEmail, removeWaitlistByEmail } from "@/lib/actions/events"
-import { useToast } from "@/hooks/use-toast"
-import { useRouter } from "next/navigation"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { generateOccurrences as generateOccurrencesUtil } from "@/lib/utils/generate-occurrences"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useState } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Calendar,
+  Clock,
+  Users,
+  CheckCircle,
+  Share2,
+  AlertCircle,
+  Link2,
+  Mail,
+  MessageSquare,
+} from "lucide-react";
+import { format } from "date-fns";
+import { SignupForm } from "@/components/signup-form";
+import type { Event, Slot, Signup } from "@/lib/types";
+import { removeSelfByEmail, removeWaitlistByEmail } from "@/lib/actions/events";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { generateOccurrences as generateOccurrencesUtil } from "@/lib/utils/generate-occurrences";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface SignupPageClientProps {
-  event: Event
-  slots: Slot[] // Renamed from initialSlots
-  publicSignups?: Signup[] // Renamed from initialSignups
-  publicWaitlist?: Array<{ id: string; name: string; slot_id: string; status: string; created_at: string }> // Updated type
-  organizerPlan?: string
+  event: Event;
+  slots: Slot[]; // Renamed from initialSlots
+  publicSignups?: Signup[]; // Renamed from initialSignups
+  publicWaitlist?: Array<{
+    id: string;
+    name: string;
+    slot_id: string;
+    status: string;
+    created_at: string;
+  }>; // Updated type
+  organizerPlan?: string;
 }
 
 export function SignupPageClient({
@@ -38,43 +71,60 @@ export function SignupPageClient({
   publicWaitlist: initialPublicWaitlist,
   organizerPlan = "free",
 }: SignupPageClientProps) {
-  const slots = initialSlots || []
-  const publicSignups = initialPublicSignups || [] // Initialize publicSignups
-  const publicWaitlist = initialPublicWaitlist || []
-  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null)
-  const [selectedOccurrenceDate, setSelectedOccurrenceDate] = useState<string | null>(null)
-  const [isSubmitted, setIsSubmitted] = useState(false)
-  const [submittedData, setSubmittedData] = useState<{ name: string; email: string; slotName: string } | null>(null)
-  const [showRemoveForm, setShowRemoveForm] = useState(false)
-  const [removeEmail, setRemoveEmail] = useState("")
-  const [isRemoving, setIsRemoving] = useState(false)
-  const [multipleSignups, setMultipleSignups] = useState<Array<{ id: string; name: string; slotName: string }>>([])
-  const [selectedSignupId, setSelectedSignupId] = useState<string | null>(null)
-  const [removeType, setRemoveType] = useState<"signup" | "waitlist">("signup")
-  const [multipleWaitlist, setMultipleWaitlist] = useState<Array<{ id: string; name: string; slotName: string }>>([])
-  const [selectedWaitlistId, setSelectedWaitlistId] = useState<string | null>(null)
-  const [showWaitlistEmailDialog, setShowWaitlistEmailDialog] = useState(false)
-  const [waitlistEmailToVerify, setWaitlistEmailToVerify] = useState("")
-  const [waitlistIdToDelete, setWaitlistIdToDelete] = useState<string | null>(null)
-  const { toast } = useToast()
-  const router = useRouter()
-  const [isOccurrenceModalOpen, setIsOccurrenceModalOpen] = useState(false)
+  const slots = initialSlots || [];
+  const publicSignups = initialPublicSignups || []; // Initialize publicSignups
+  const publicWaitlist = initialPublicWaitlist || [];
+  const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
+  const [selectedOccurrenceDate, setSelectedOccurrenceDate] = useState<
+    string | null
+  >(null);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [submittedData, setSubmittedData] = useState<{
+    name: string;
+    email: string;
+    slotName: string;
+  } | null>(null);
+  const [showRemoveForm, setShowRemoveForm] = useState(false);
+  const [removeEmail, setRemoveEmail] = useState("");
+  const [isRemoving, setIsRemoving] = useState(false);
+  const [multipleSignups, setMultipleSignups] = useState<
+    Array<{ id: string; name: string; slotName: string }>
+  >([]);
+  const [selectedSignupId, setSelectedSignupId] = useState<string | null>(null);
+  const [removeType, setRemoveType] = useState<"signup" | "waitlist">("signup");
+  const [multipleWaitlist, setMultipleWaitlist] = useState<
+    Array<{ id: string; name: string; slotName: string }>
+  >([]);
+  const [selectedWaitlistId, setSelectedWaitlistId] = useState<string | null>(
+    null
+  );
+  const [showWaitlistEmailDialog, setShowWaitlistEmailDialog] = useState(false);
+  const [waitlistEmailToVerify, setWaitlistEmailToVerify] = useState("");
+  const [waitlistIdToDelete, setWaitlistIdToDelete] = useState<string | null>(
+    null
+  );
+  const { toast } = useToast();
+  const router = useRouter();
+  const [isOccurrenceModalOpen, setIsOccurrenceModalOpen] = useState(false);
 
   // State for email verification dialog
-  const [showVerifyEmail, setShowVerifyEmail] = useState(false)
+  const [showVerifyEmail, setShowVerifyEmail] = useState(false);
   const [selectedToRemove, setSelectedToRemove] = useState<{
-    id: string
-    name: string
-    type: "signup" | "waitlist"
-  } | null>(null)
-  const [selectedOccurrence, setSelectedOccurrence] = useState<{ date: string | null } | null>(null) // To hold selected occurrence date for signup removal
-  const [signupToRemove, setSignupToRemove] = useState<string | null>(null) // Declare signupToRemove
-  const [removeSignupEmail, setRemoveSignupEmail] = useState("") // Declare removeSignupEmail
-  const [isRemoveSignupDialogOpen, setIsRemoveSignupDialogOpen] = useState(false) // Declare setIsRemoveSignupDialogOpen
+    id: string;
+    name: string;
+    type: "signup" | "waitlist";
+  } | null>(null);
+  const [selectedOccurrence, setSelectedOccurrence] = useState<{
+    date: string | null;
+  } | null>(null); // To hold selected occurrence date for signup removal
+  const [signupToRemove, setSignupToRemove] = useState<string | null>(null); // Declare signupToRemove
+  const [removeSignupEmail, setRemoveSignupEmail] = useState(""); // Declare removeSignupEmail
+  const [isRemoveSignupDialogOpen, setIsRemoveSignupDialogOpen] =
+    useState(false); // Declare setIsRemoveSignupDialogOpen
 
   const handleShare = async () => {
-    const url = window.location.href
-    const shareText = `Sign up for ${event.title}`
+    const url = window.location.href;
+    const shareText = `Sign up for ${event.title}`;
 
     if (navigator.share) {
       try {
@@ -82,254 +132,306 @@ export function SignupPageClient({
           title: event.title,
           text: shareText,
           url: url,
-        })
-        toast({ title: "Shared!", description: "Event link shared successfully" })
+        });
+        toast({
+          title: "Shared!",
+          description: "Event link shared successfully",
+        });
       } catch (error) {
         if ((error as Error).name !== "AbortError") {
-          console.error("Share failed:", error)
+          console.error("Share failed:", error);
         }
       }
     }
-  }
+  };
 
   const handleCopyLink = () => {
-    navigator.clipboard.writeText(window.location.href)
-    toast({ title: "Link copied!", description: "Event link copied to clipboard" })
-  }
+    navigator.clipboard.writeText(window.location.href);
+    toast({
+      title: "Link copied!",
+      description: "Event link copied to clipboard",
+    });
+  };
 
   const handleEmailShare = () => {
-    const subject = encodeURIComponent(`Join me for ${event.title}`)
+    const subject = encodeURIComponent(`Join me for ${event.title}`);
     const body = encodeURIComponent(
-      `I thought you might be interested in this event:\n\n${event.title}\n${event.description || ""}\n\nSign up here: ${window.location.href}`,
-    )
-    window.location.href = `mailto:?subject=${subject}&body=${body}`
-  }
+      `I thought you might be interested in this event:\n\n${event.title}\n${event.description || ""}\n\nSign up here: ${window.location.href}`
+    );
+    window.location.href = `mailto:?subject=${subject}&body=${body}`;
+  };
 
   const handleSMSShare = () => {
-    const text = encodeURIComponent(`Check out this event: ${event.title}\n${window.location.href}`)
-    window.location.href = `sms:?&body=${text}`
-  }
+    const text = encodeURIComponent(
+      `Check out this event: ${event.title}\n${window.location.href}`
+    );
+    window.location.href = `sms:?&body=${text}`;
+  };
 
-  const handleSignupSuccess = (data: { name: string; email: string; slotId: string; isWaitlist: boolean }) => {
-    const slot = slots.find((s) => s.id === data.slotId)
+  const handleSignupSuccess = (data: {
+    name: string;
+    email: string;
+    slotId: string;
+    isWaitlist: boolean;
+  }) => {
+    const slot = slots.find((s) => s.id === data.slotId);
     setSubmittedData({
       name: data.name,
       email: data.email,
       slotName: slot?.name || "Unknown",
-    })
-    setIsSubmitted(true)
+    });
+    setIsSubmitted(true);
 
-    router.refresh()
-  }
+    router.refresh();
+  };
 
   const handleSelfRemove = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const trimmedEmail = removeEmail.trim()
+    const trimmedEmail = removeEmail.trim();
     if (!trimmedEmail) {
       toast({
         title: "Error",
         description: "Please enter your email address",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
       toast({
         title: "Error",
         description: "Please enter a valid email address",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    if (multipleSignups.length > 0 && !selectedSignupId && removeType === "signup") {
+    if (
+      multipleSignups.length > 0 &&
+      !selectedSignupId &&
+      removeType === "signup"
+    ) {
       toast({
         title: "Error",
         description: "Please select which signup to remove",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    if (multipleWaitlist.length > 0 && !selectedWaitlistId && removeType === "waitlist") {
+    if (
+      multipleWaitlist.length > 0 &&
+      !selectedWaitlistId &&
+      removeType === "waitlist"
+    ) {
       toast({
         title: "Error",
         description: "Please select which waitlist entry to remove",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsRemoving(true)
+    setIsRemoving(true);
     try {
-      let result
+      let result;
       if (removeType === "waitlist") {
-        result = await removeWaitlistByEmail(event.slug || "", trimmedEmail, selectedWaitlistId || undefined)
+        result = await removeWaitlistByEmail(
+          event.slug || "",
+          trimmedEmail,
+          selectedWaitlistId || undefined
+        );
 
-        if (!result.success && (result as any).error === "multiple_waitlist" && (result as any).waitlist) {
-          setMultipleWaitlist((result as any).waitlist)
+        if (
+          !result.success &&
+          (result as any).error === "multiple_waitlist" &&
+          (result as any).waitlist
+        ) {
+          setMultipleWaitlist((result as any).waitlist);
           toast({
             title: "Multiple Waitlist Entries Found",
-            description: "You have multiple waitlist entries. Please select which one to remove.",
-          })
-          setIsRemoving(false)
-          return
+            description:
+              "You have multiple waitlist entries. Please select which one to remove.",
+          });
+          setIsRemoving(false);
+          return;
         }
       } else {
-        result = await removeSelfByEmail(event.slug || "", trimmedEmail, selectedSignupId || undefined)
+        result = await removeSelfByEmail(
+          event.slug || "",
+          trimmedEmail,
+          selectedSignupId || undefined
+        );
 
-        if (!result.success && (result as any).error === "multiple_signups" && (result as any).signups) {
-          setMultipleSignups((result as any).signups)
+        if (
+          !result.success &&
+          (result as any).error === "multiple_signups" &&
+          (result as any).signups
+        ) {
+          setMultipleSignups((result as any).signups);
           toast({
             title: "Multiple Signups Found",
-            description: "You have multiple signups for this event. Please select which one to remove.",
-          })
-          setIsRemoving(false)
-          return
+            description:
+              "You have multiple signups for this event. Please select which one to remove.",
+          });
+          setIsRemoving(false);
+          return;
         }
       }
 
       if (!result.success) {
-        throw new Error(result.error || "Failed to remove")
+        throw new Error(result.error || "Failed to remove");
       }
 
       toast({
         title: "Success",
         description: result.message || "Removed successfully.",
-      })
-      setRemoveEmail("")
-      setShowRemoveForm(false)
-      setMultipleSignups([])
-      setMultipleWaitlist([])
-      setSelectedSignupId(null)
-      setSelectedWaitlistId(null)
-      router.refresh()
+      });
+      setRemoveEmail("");
+      setShowRemoveForm(false);
+      setMultipleSignups([]);
+      setMultipleWaitlist([]);
+      setSelectedSignupId(null);
+      setSelectedWaitlistId(null);
+      router.refresh();
     } catch (error) {
-      console.error("handleSelfRemove error:", error)
+      console.error("handleSelfRemove error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to remove. Please check your email and try again."
+        error instanceof Error
+          ? error.message
+          : "Failed to remove. Please check your email and try again.";
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsRemoving(false)
+      setIsRemoving(false);
     }
-  }
+  };
 
-  const handleWaitlistDeleteClick = (waitlistId: string, waitlistName: string) => {
-    setWaitlistIdToDelete(waitlistId)
-    setWaitlistEmailToVerify("")
-    setShowWaitlistEmailDialog(true)
-  }
+  const handleWaitlistDeleteClick = (
+    waitlistId: string,
+    waitlistName: string
+  ) => {
+    setWaitlistIdToDelete(waitlistId);
+    setWaitlistEmailToVerify("");
+    setShowWaitlistEmailDialog(true);
+  };
 
   const handleSignupRemoveClick = (signupId: string) => {
-    console.log("Signup remove clicked:", signupId)
-    const signup = publicSignups.find((s) => s.id === signupId)
+    console.log("Signup remove clicked:", signupId);
+    const signup = publicSignups.find((s) => s.id === signupId);
     if (signup) {
       setSelectedToRemove({
         id: signupId,
         name: signup.name,
         type: "signup",
-      })
-      setShowVerifyEmail(true)
+      });
+      setShowVerifyEmail(true);
     }
-  }
+  };
 
   const handleVerifyAndDeleteWaitlist = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
-    const trimmedEmail = waitlistEmailToVerify.trim()
+    const trimmedEmail = waitlistEmailToVerify.trim();
     if (!trimmedEmail) {
       toast({
         title: "Error",
         description: "Please enter your email address",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(trimmedEmail)) {
       toast({
         title: "Error",
         description: "Please enter a valid email address",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsRemoving(true)
+    setIsRemoving(true);
     try {
-      const result = await removeWaitlistByEmail(event.slug || "", trimmedEmail, waitlistIdToDelete || undefined)
+      const result = await removeWaitlistByEmail(
+        event.slug || "",
+        trimmedEmail,
+        waitlistIdToDelete || undefined
+      );
 
       if (!result.success) {
-        throw new Error(result.error || "Failed to remove waitlist entry")
+        throw new Error(result.error || "Failed to remove waitlist entry");
       }
 
       toast({
         title: "Success",
         description: "You've been removed from the waitlist.",
-      })
-      setShowWaitlistEmailDialog(false)
-      setWaitlistEmailToVerify("")
-      setWaitlistIdToDelete(null)
-      router.refresh()
+      });
+      setShowWaitlistEmailDialog(false);
+      setWaitlistEmailToVerify("");
+      setWaitlistIdToDelete(null);
+      router.refresh();
     } catch (error) {
-      console.error("handleVerifyAndDeleteWaitlist error:", error)
+      console.error("handleVerifyAndDeleteWaitlist error:", error);
       const errorMessage =
-        error instanceof Error ? error.message : "Failed to remove. Please check your email and try again."
+        error instanceof Error
+          ? error.message
+          : "Failed to remove. Please check your email and try again.";
       toast({
         title: "Error",
         description: errorMessage,
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsRemoving(false)
+      setIsRemoving(false);
     }
-  }
+  };
 
   const generateOccurrences = () => {
     if (!event.recurrence_rule) {
       // For non-recurring events, create a single occurrence with the event date
-      return [new Date(event.date)]
+      return [new Date(event.date)];
     }
-    return generateOccurrencesUtil(new Date(event.date), event.recurrence_rule)
-  }
+    return generateOccurrencesUtil(new Date(event.date), event.recurrence_rule);
+  };
 
-  const occurrences = generateOccurrences()
-  
+  const occurrences = generateOccurrences();
+
   // Filter occurrences to only include dates that have slots
   const occurrencesWithSlots = occurrences.filter((date) => {
-    const dateString = date.toISOString().split("T")[0]
-    return slots.some((slot) => slot.occurrence_date?.split("T")[0] === dateString)
-  })
+    const dateString = date.toISOString().split("T")[0];
+    return slots.some(
+      (slot) => slot.occurrence_date?.split("T")[0] === dateString
+    );
+  });
 
-  const isRecurring = occurrences.length > 1 // Recurring means multiple occurrences
+  const isRecurring = occurrences.length > 1; // Recurring means multiple occurrences
 
   const handleOccurrenceSelect = (date: Date) => {
-    const dateString = date.toISOString().split("T")[0]
-    console.log("Selected occurrence date string:", dateString)
-    setSelectedOccurrenceDate(date.toISOString())
-    setSelectedOccurrence({ date: date.toISOString() }) // Store selected occurrence for removal
-    setIsOccurrenceModalOpen(true)
-  }
+    const dateString = date.toISOString().split("T")[0];
+    console.log("Selected occurrence date string:", dateString);
+    setSelectedOccurrenceDate(date.toISOString());
+    setSelectedOccurrence({ date: date.toISOString() }); // Store selected occurrence for removal
+    setIsOccurrenceModalOpen(true);
+  };
 
   const handleModalClose = () => {
-    setIsOccurrenceModalOpen(false)
-    setSelectedOccurrenceDate(null)
-    setSelectedOccurrence(null)
-    setSelectedSlotId(null)
-  }
+    setIsOccurrenceModalOpen(false);
+    setSelectedOccurrenceDate(null);
+    setSelectedOccurrence(null);
+    setSelectedSlotId(null);
+  };
 
   const handleVerifyAndDelete = async () => {
-    if (!removeEmail || !selectedToRemove) return
+    if (!removeEmail || !selectedToRemove) return;
 
-    setIsRemoving(true)
+    setIsRemoving(true);
     console.log("Starting removal process:", {
       type: selectedToRemove.type,
       id: selectedToRemove.id,
@@ -337,56 +439,65 @@ export function SignupPageClient({
       email: removeEmail,
       eventSlug: event.slug,
       eventId: event.id,
-    })
+    });
 
     try {
-      let result
+      let result;
       if (selectedToRemove.type === "waitlist") {
         console.log("Calling removeWaitlistByEmail with:", {
           eventSlug: event.slug,
           email: removeEmail,
           waitlistId: selectedToRemove.id,
-        })
-        result = await removeWaitlistByEmail(event.slug || "", removeEmail, selectedToRemove.id)
+        });
+        result = await removeWaitlistByEmail(
+          event.slug || "",
+          removeEmail,
+          selectedToRemove.id
+        );
       } else {
         console.log("Calling removeSelfByEmail with:", {
           eventSlug: event.slug,
           email: removeEmail,
           signupId: selectedToRemove.id,
-        })
-        result = await removeSelfByEmail(event.slug || "", removeEmail, selectedToRemove.id)
+        });
+        result = await removeSelfByEmail(
+          event.slug || "",
+          removeEmail,
+          selectedToRemove.id
+        );
       }
 
-      console.log("Removal result:", result)
+      console.log("Removal result:", result);
 
       if (result.success) {
         toast({
           title: "Removed Successfully",
-          description: result.message || `Your ${selectedToRemove.type} has been removed`,
-        })
-        setShowVerifyEmail(false)
-        setSelectedToRemove(null)
-        setRemoveEmail("")
-        router.refresh()
+          description:
+            result.message || `Your ${selectedToRemove.type} has been removed`,
+        });
+        setShowVerifyEmail(false);
+        setSelectedToRemove(null);
+        setRemoveEmail("");
+        router.refresh();
       } else {
-        console.error("Removal failed:", result.error)
+        console.error("Removal failed:", result.error);
         toast({
           title: "Removal Failed",
           description: result.error || "Could not remove your entry",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
-      console.error("Error removing entry:", error)
+      console.error("Error removing entry:", error);
       toast({
         title: "Error",
         description: "An unexpected error occurred",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsRemoving(false)
+      setIsRemoving(false);
     }
-  }
+  };
 
   const handleConfirmSignupRemoval = async () => {
     if (!signupToRemove || !removeSignupEmail.trim()) {
@@ -394,42 +505,49 @@ export function SignupPageClient({
         title: "Email Required",
         description: "Please enter your email to verify removal",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    console.log("Confirming signup removal:", { signupId: signupToRemove, email: removeSignupEmail })
+    console.log("Confirming signup removal:", {
+      signupId: signupToRemove,
+      email: removeSignupEmail,
+    });
 
     try {
-      const result = await removeSelfByEmail(event.slug || "", removeSignupEmail.trim(), signupToRemove)
+      const result = await removeSelfByEmail(
+        event.slug || "",
+        removeSignupEmail.trim(),
+        signupToRemove
+      );
 
       if (result.success) {
         toast({
           title: "Removed Successfully",
           description: result.message || "Your signup has been removed",
-        })
-        setIsRemoveSignupDialogOpen(false)
-        setSignupToRemove(null)
-        setRemoveSignupEmail("")
+        });
+        setIsRemoveSignupDialogOpen(false);
+        setSignupToRemove(null);
+        setRemoveSignupEmail("");
 
         // Refresh the page data
-        window.location.reload()
+        window.location.reload();
       } else {
         toast({
           title: "Removal Failed",
           description: result.message || "Could not remove your signup",
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
-      console.error("Error removing signup:", error)
+      console.error("Error removing signup:", error);
       toast({
         title: "Error",
         description: "An error occurred while removing your signup",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   if (event.status === "closed") {
     return (
@@ -446,12 +564,13 @@ export function SignupPageClient({
               </Badge>
             </div>
             <p className="text-muted-foreground">
-              This event is no longer accepting signups. Contact the organizer if you have questions.
+              This event is no longer accepting signups. Contact the organizer
+              if you have questions.
             </p>
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   if (isSubmitted && submittedData) {
@@ -464,7 +583,10 @@ export function SignupPageClient({
             </div>
             <CardTitle className="text-2xl">You're all set!</CardTitle>
             <CardDescription className="text-base">
-              Confirmation sent to <span className="font-semibold text-foreground">{submittedData.email}</span>
+              Confirmation sent to{" "}
+              <span className="font-semibold text-foreground">
+                {submittedData.email}
+              </span>
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -483,7 +605,9 @@ export function SignupPageClient({
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Date</span>
-                <span className="font-semibold">{format(new Date(event.date), "PPP 'at' p")}</span>
+                <span className="font-semibold">
+                  {format(new Date(event.date), "PPP 'at' p")}
+                </span>
               </div>
             </div>
 
@@ -498,16 +622,21 @@ export function SignupPageClient({
               <Button
                 className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                 onClick={() => {
-                  setIsSubmitted(false)
-                  setSelectedSlotId(null)
+                  setIsSubmitted(false);
+                  setSelectedSlotId(null);
 
                   // Scroll to attendee list section
                   setTimeout(() => {
-                    const attendeeSection = document.querySelector("[data-attendee-list]")
+                    const attendeeSection = document.querySelector(
+                      "[data-attendee-list]"
+                    );
                     if (attendeeSection) {
-                      attendeeSection.scrollIntoView({ behavior: "smooth", block: "start" })
+                      attendeeSection.scrollIntoView({
+                        behavior: "smooth",
+                        block: "start",
+                      });
                     }
-                  }, 100)
+                  }, 100);
                 }}
               >
                 <Users className="w-4 h-4 mr-2" />
@@ -527,7 +656,7 @@ export function SignupPageClient({
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -538,7 +667,9 @@ export function SignupPageClient({
           <div className="flex items-center justify-between">
             <Link href="/" className="flex items-center gap-2">
               <Logo className="w-7 h-7 md:w-8 md:h-8" />
-              <span className="text-lg md:text-xl font-semibold">SignUpPRO</span>
+              <span className="text-lg md:text-xl font-semibold">
+                SignUpPRO
+              </span>
             </Link>
           </div>
         </div>
@@ -556,12 +687,20 @@ export function SignupPageClient({
                     {event.status}
                   </Badge>
                 </div>
-                {event.description && <p className="text-muted-foreground leading-relaxed">{event.description}</p>}
+                {event.description && (
+                  <p className="text-muted-foreground leading-relaxed">
+                    {event.description}
+                  </p>
+                )}
 
                 <div className="flex gap-2 pt-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="outline" size="sm" className="bg-transparent">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="bg-transparent"
+                      >
                         <Share2 className="w-4 h-4 mr-2" />
                         Share
                       </Button>
@@ -597,14 +736,18 @@ export function SignupPageClient({
                 <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
                   <Calendar className="w-4 h-4 text-purple-600" />
                 </div>
-                <span className="font-medium">{format(new Date(event.date), "EEEE, MMMM d, yyyy")}</span>
+                <span className="font-medium">
+                  {format(new Date(event.date), "EEEE, MMMM d, yyyy")}
+                </span>
               </div>
 
               <div className="flex items-center gap-2">
                 <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
                   <Clock className="w-4 h-4 text-blue-600" />
                 </div>
-                <span className="font-medium">{format(new Date(event.date), "h:mm a")}</span>
+                <span className="font-medium">
+                  {format(new Date(event.date), "h:mm a")}
+                </span>
               </div>
             </div>
           </CardContent>
@@ -613,7 +756,9 @@ export function SignupPageClient({
         <Card>
           <CardHeader>
             <CardTitle>Select a Date</CardTitle>
-            <CardDescription>Choose which date you want to attend:</CardDescription>
+            <CardDescription>
+              Choose which date you want to attend:
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-3">
@@ -628,8 +773,12 @@ export function SignupPageClient({
                       <Calendar className="w-6 h-6 text-purple-600" />
                     </div>
                     <div>
-                      <div className="font-semibold text-lg">{format(date, "EEEE, MMMM d, yyyy")}</div>
-                      <div className="text-sm text-muted-foreground">{format(date, "h:mm a")}</div>
+                      <div className="font-semibold text-lg">
+                        {format(date, "EEEE, MMMM d, yyyy")}
+                      </div>
+                      <div className="text-sm text-muted-foreground">
+                        {format(date, "h:mm a")}
+                      </div>
                     </div>
                   </div>
                 </button>
@@ -642,10 +791,15 @@ export function SignupPageClient({
           <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="text-2xl">
-                {selectedOccurrenceDate && format(new Date(selectedOccurrenceDate), "EEEE, MMMM d, yyyy")}
+                {selectedOccurrenceDate &&
+                  format(
+                    new Date(selectedOccurrenceDate),
+                    "EEEE, MMMM d, yyyy"
+                  )}
               </DialogTitle>
               <DialogDescription className="text-base">
-                {selectedOccurrenceDate && format(new Date(selectedOccurrenceDate), "h:mm a")}
+                {selectedOccurrenceDate &&
+                  format(new Date(selectedOccurrenceDate), "h:mm a")}
                 {/* event.location && ` • ${event.location}` */}
               </DialogDescription>
             </DialogHeader>
@@ -655,13 +809,17 @@ export function SignupPageClient({
                 <>
                   {(() => {
                     const occurrenceSignups = publicSignups.filter((s) => {
-                      const slot = slots.find((sl) => sl.id === s.slot_id)
+                      const slot = slots.find((sl) => sl.id === s.slot_id);
                       return (
                         slot?.occurrence_date &&
-                        new Date(slot.occurrence_date).toISOString().split("T")[0] ===
-                          new Date(selectedOccurrenceDate).toISOString().split("T")[0]
-                      )
-                    })
+                        new Date(slot.occurrence_date)
+                          .toISOString()
+                          .split("T")[0] ===
+                          new Date(selectedOccurrenceDate)
+                            .toISOString()
+                            .split("T")[0]
+                      );
+                    });
 
                     if (occurrenceSignups.length > 0) {
                       return (
@@ -675,14 +833,21 @@ export function SignupPageClient({
                           <CardContent>
                             <div className="grid gap-2 max-h-48 overflow-y-auto">
                               {occurrenceSignups.map((signup) => {
-                                const slot = slots.find((s) => s.id === signup.slot_id)
+                                const slot = slots.find(
+                                  (s) => s.id === signup.slot_id
+                                );
                                 return (
-                                  <div key={signup.id} className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg">
+                                  <div
+                                    key={signup.id}
+                                    className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg"
+                                  >
                                     <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-purple-600 dark:text-purple-400 font-semibold text-sm">
                                       {signup.name.charAt(0).toUpperCase()}
                                     </div>
                                     <div className="flex-1">
-                                      <div className="font-medium text-sm">{signup.name}</div>
+                                      <div className="font-medium text-sm">
+                                        {signup.name}
+                                      </div>
                                       <div className="text-xs text-muted-foreground">
                                         {slot?.name || "General Admission"}
                                       </div>
@@ -690,31 +855,37 @@ export function SignupPageClient({
                                     <Button
                                       variant="ghost"
                                       size="sm"
-                                      onClick={() => handleSignupRemoveClick(signup.id)}
+                                      onClick={() =>
+                                        handleSignupRemoveClick(signup.id)
+                                      }
                                       className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
                                     >
                                       Remove
                                     </Button>
                                   </div>
-                                )
+                                );
                               })}
                             </div>
                           </CardContent>
                         </Card>
-                      )
+                      );
                     }
-                    return null
+                    return null;
                   })()}
 
                   {(() => {
                     const occurrenceWaitlist = publicWaitlist.filter((w) => {
-                      const slot = slots.find((sl) => sl.id === w.slot_id)
+                      const slot = slots.find((sl) => sl.id === w.slot_id);
                       return (
                         slot?.occurrence_date &&
-                        new Date(slot.occurrence_date).toISOString().split("T")[0] ===
-                          new Date(selectedOccurrenceDate).toISOString().split("T")[0]
-                      )
-                    })
+                        new Date(slot.occurrence_date)
+                          .toISOString()
+                          .split("T")[0] ===
+                          new Date(selectedOccurrenceDate)
+                            .toISOString()
+                            .split("T")[0]
+                      );
+                    });
 
                     if (occurrenceWaitlist.length > 0) {
                       return (
@@ -727,39 +898,50 @@ export function SignupPageClient({
                           </CardHeader>
                           <CardContent>
                             <div className="grid gap-2 max-h-48 overflow-y-auto">
-                              {occurrenceWaitlist.map((waitlistEntry, index) => {
-                                const slot = slots.find((s) => s.id === waitlistEntry.slot_id)
-                                return (
-                                  <div
-                                    key={waitlistEntry.id}
-                                    className="flex items-center gap-3 p-2 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800"
-                                  >
-                                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 text-sm font-semibold">
-                                      {index + 1}
-                                    </div>
-                                    <div className="flex-1">
-                                      <div className="font-medium text-sm">{waitlistEntry.name}</div>
-                                      <div className="text-xs text-muted-foreground">
-                                        {slot?.name || "General Admission"}
-                                      </div>
-                                    </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() => handleWaitlistDeleteClick(waitlistEntry.id, waitlistEntry.name)}
-                                      className="text-orange-600 hover:text-orange-700 hover:bg-orange-100 dark:text-orange-400 dark:hover:text-orange-300 dark:hover:bg-orange-900/40"
+                              {occurrenceWaitlist.map(
+                                (waitlistEntry, index) => {
+                                  const slot = slots.find(
+                                    (s) => s.id === waitlistEntry.slot_id
+                                  );
+                                  return (
+                                    <div
+                                      key={waitlistEntry.id}
+                                      className="flex items-center gap-3 p-2 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800"
                                     >
-                                      Remove
-                                    </Button>
-                                  </div>
-                                )
-                              })}
+                                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 text-sm font-semibold">
+                                        {index + 1}
+                                      </div>
+                                      <div className="flex-1">
+                                        <div className="font-medium text-sm">
+                                          {waitlistEntry.name}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                          {slot?.name || "General Admission"}
+                                        </div>
+                                      </div>
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        onClick={() =>
+                                          handleWaitlistDeleteClick(
+                                            waitlistEntry.id,
+                                            waitlistEntry.name
+                                          )
+                                        }
+                                        className="text-orange-600 hover:text-orange-700 hover:bg-orange-100 dark:text-orange-400 dark:hover:text-orange-300 dark:hover:bg-orange-900/40"
+                                      >
+                                        Remove
+                                      </Button>
+                                    </div>
+                                  );
+                                }
+                              )}
                             </div>
                           </CardContent>
                         </Card>
-                      )
+                      );
                     }
-                    return null
+                    return null;
                   })()}
                 </>
               )}
@@ -770,63 +952,75 @@ export function SignupPageClient({
                   {(() => {
                     const filteredSlots = slots
                       .filter((slot) => {
-                        if (!selectedOccurrenceDate) return true
+                        if (!selectedOccurrenceDate) return true;
 
                         // Parse both dates and compare just the date components
-                        const slotDate = slot.occurrence_date ? new Date(slot.occurrence_date) : null
-                        const selectedDate = new Date(selectedOccurrenceDate)
+                        const slotDate = slot.occurrence_date
+                          ? new Date(slot.occurrence_date)
+                          : null;
+                        const selectedDate = new Date(selectedOccurrenceDate);
 
                         // If slot has no occurrence_date, it applies to all occurrences
-                        if (!slotDate) return true
+                        if (!slotDate) return true;
 
                         // Compare year, month, and day
-                        const slotYear = slotDate.getUTCFullYear()
-                        const slotMonth = slotDate.getUTCMonth()
-                        const slotDay = slotDate.getUTCDate()
+                        const slotYear = slotDate.getUTCFullYear();
+                        const slotMonth = slotDate.getUTCMonth();
+                        const slotDay = slotDate.getUTCDate();
 
-                        const selectedYear = selectedDate.getUTCFullYear()
-                        const selectedMonth = selectedDate.getUTCMonth()
-                        const selectedDay = selectedDate.getUTCDate()
+                        const selectedYear = selectedDate.getUTCFullYear();
+                        const selectedMonth = selectedDate.getUTCMonth();
+                        const selectedDay = selectedDate.getUTCDate();
 
                         const matches =
-                          slotYear === selectedYear && slotMonth === selectedMonth && slotDay === selectedDay
+                          slotYear === selectedYear &&
+                          slotMonth === selectedMonth &&
+                          slotDay === selectedDay;
 
                         console.log("Filtering slot:", {
                           slotName: slot.name,
-                          slotDate: slotDate ? `${slotYear}-${slotMonth + 1}-${slotDay}` : "null (applies to all)",
+                          slotDate: slotDate
+                            ? `${slotYear}-${slotMonth + 1}-${slotDay}`
+                            : "null (applies to all)",
                           selectedDate: `${selectedYear}-${selectedMonth + 1}-${selectedDay}`,
                           matches,
-                        })
+                        });
 
-                        return matches
+                        return matches;
                       })
                       .filter((slot) => {
-                        const isWaitlist = slot.name.toLowerCase().includes("waitlist")
+                        const isWaitlist = slot.name
+                          .toLowerCase()
+                          .includes("waitlist");
                         if (isWaitlist) {
-                          return false
+                          return false;
                         }
-                        return true
-                      })
+                        return true;
+                      });
 
-                    console.log("Filtered slots count:", filteredSlots.length)
+                    console.log("Filtered slots count:", filteredSlots.length);
                     console.log(
                       "Filtered slots:",
-                      filteredSlots.map((s) => ({ name: s.name, id: s.id })),
-                    )
+                      filteredSlots.map((s) => ({ name: s.name, id: s.id }))
+                    );
 
                     if (filteredSlots.length === 0) {
                       return (
                         <div className="text-center py-8 text-muted-foreground">
                           <p>No slots available for this date.</p>
                         </div>
-                      )
+                      );
                     }
 
                     return filteredSlots.map((slot) => {
-                      const isFull = slot.available === 0
-                      const percentFilled = ((slot.capacity - slot.available) / slot.capacity) * 100
-                      const isWaitlist = slot.name.toLowerCase().includes("waitlist")
-                      const filled = slot.capacity - slot.available
+                      const isFull = slot.available === 0;
+                      const percentFilled =
+                        ((slot.capacity - slot.available) / slot.capacity) *
+                        100;
+                      const isWaitlist = slot.name
+                        .toLowerCase()
+                        .includes("waitlist");
+                      const filled = slot.capacity - slot.available;
 
                       return (
                         <button
@@ -838,13 +1032,15 @@ export function SignupPageClient({
                               capacity: slot.capacity,
                               available: slot.available,
                               filled: slot.capacity - slot.available,
-                            })
-                            setSelectedSlotId(slot.id)
+                            });
+                            setSelectedSlotId(slot.id);
                           }}
                           className="w-full text-left p-6 rounded-xl border-2 transition-all hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 bg-card"
                         >
                           <div className="flex items-start justify-between mb-4">
-                            <h3 className="font-semibold text-lg">{slot.name}</h3>
+                            <h3 className="font-semibold text-lg">
+                              {slot.name}
+                            </h3>
                             {isFull ? (
                               <Badge variant="destructive">Full</Badge>
                             ) : (
@@ -857,7 +1053,9 @@ export function SignupPageClient({
                           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                             <Users className="w-4 h-4" />
                             <span>
-                              {isWaitlist ? `${filled} on waitlist` : `${filled} / ${slot.capacity} spots filled`}
+                              {isWaitlist
+                                ? `${filled} on waitlist`
+                                : `${filled} / ${slot.capacity} spots filled`}
                             </span>
                           </div>
 
@@ -870,12 +1068,13 @@ export function SignupPageClient({
 
                           {isFull && (
                             <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800 text-sm text-orange-700 dark:text-orange-300">
-                              Join the waitlist and we'll notify you if a spot opens up
+                              Join the waitlist and we'll notify you if a spot
+                              opens up
                             </div>
                           )}
                         </button>
-                      )
-                    })
+                      );
+                    });
                   })()}
                 </div>
               ) : (
@@ -884,7 +1083,7 @@ export function SignupPageClient({
                   slotId={selectedSlotId}
                   onSuccess={handleSignupSuccess}
                   onBack={() => {
-                    setSelectedSlotId(null)
+                    setSelectedSlotId(null);
                     // Keep selectedOccurrenceDate if it was selected
                   }}
                   occurrenceDate={selectedOccurrenceDate}
@@ -897,15 +1096,22 @@ export function SignupPageClient({
 
       {/* Email verification dialog for waitlist deletion */}
       {showWaitlistEmailDialog && (
-        <Dialog open={showWaitlistEmailDialog} onOpenChange={setShowWaitlistEmailDialog}>
+        <Dialog
+          open={showWaitlistEmailDialog}
+          onOpenChange={setShowWaitlistEmailDialog}
+        >
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle>Verify Your Email</DialogTitle>
               <DialogDescription>
-                Please enter your email address to remove yourself from the waitlist
+                Please enter your email address to remove yourself from the
+                waitlist
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleVerifyAndDeleteWaitlist} className="space-y-4">
+            <form
+              onSubmit={handleVerifyAndDeleteWaitlist}
+              className="space-y-4"
+            >
               <div className="space-y-2">
                 <Label htmlFor="waitlistEmail">Email Address</Label>
                 <Input
@@ -923,14 +1129,18 @@ export function SignupPageClient({
                   type="button"
                   variant="outline"
                   onClick={() => {
-                    setShowWaitlistEmailDialog(false)
-                    setWaitlistEmailToVerify("")
-                    setWaitlistIdToDelete(null)
+                    setShowWaitlistEmailDialog(false);
+                    setWaitlistEmailToVerify("");
+                    setWaitlistIdToDelete(null);
                   }}
                 >
                   Cancel
                 </Button>
-                <Button type="submit" variant="destructive" disabled={isRemoving}>
+                <Button
+                  type="submit"
+                  variant="destructive"
+                  disabled={isRemoving}
+                >
                   {isRemoving ? "Removing..." : "Remove from Waitlist"}
                 </Button>
               </div>
@@ -945,7 +1155,8 @@ export function SignupPageClient({
           <DialogHeader>
             <DialogTitle>Verify Your Email</DialogTitle>
             <DialogDescription>
-              Please enter your email address to confirm removal of your {selectedToRemove?.type}
+              Please enter your email address to confirm removal of your{" "}
+              {selectedToRemove?.type}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-4">
@@ -959,7 +1170,7 @@ export function SignupPageClient({
                 onChange={(e) => setRemoveEmail(e.target.value)}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") {
-                    handleVerifyAndDelete()
+                    handleVerifyAndDelete();
                   }
                 }}
                 autoFocus
@@ -970,14 +1181,18 @@ export function SignupPageClient({
             <Button
               variant="outline"
               onClick={() => {
-                setShowVerifyEmail(false)
-                setSelectedToRemove(null)
-                setRemoveEmail("")
+                setShowVerifyEmail(false);
+                setSelectedToRemove(null);
+                setRemoveEmail("");
               }}
             >
               Cancel
             </Button>
-            <Button variant="destructive" onClick={handleVerifyAndDelete} disabled={!removeEmail.trim() || isRemoving}>
+            <Button
+              variant="destructive"
+              onClick={handleVerifyAndDelete}
+              disabled={!removeEmail.trim() || isRemoving}
+            >
               {isRemoving
                 ? "Removing..."
                 : `Remove ${selectedToRemove?.type === "signup" ? "Signup" : "Waitlist Entry"}`}
@@ -986,5 +1201,5 @@ export function SignupPageClient({
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

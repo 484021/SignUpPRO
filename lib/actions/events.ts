@@ -368,10 +368,7 @@ export async function updateEvent(
           .from("slots")
           .insert(slotsToInsert);
         if (insertError) {
-          console.error(
-            "updateEvent: Error inserting slots:",
-            insertError
-          );
+          console.error("updateEvent: Error inserting slots:", insertError);
         } else {
           console.log(
             "updateEvent: Created",
@@ -425,9 +422,7 @@ export async function updateEvent(
             };
           }
 
-            console.log(
-              `updateEvent: Slot ${slotId} has ${signupCount} signups`
-            );
+          console.log(`updateEvent: Slot ${slotId} has ${signupCount} signups`);
 
           const available = newCapacity - (signupCount || 0);
 
@@ -451,10 +446,10 @@ export async function updateEvent(
             };
           }
 
-            console.log(
-              `updateEvent: Slot ${slotId} updated successfully. Available: ${available}`
-            );
-          } catch (slotUpdateError) {
+          console.log(
+            `updateEvent: Slot ${slotId} updated successfully. Available: ${available}`
+          );
+        } catch (slotUpdateError) {
           console.error(
             `updateEvent: Caught error updating slot ${slotId}:`,
             slotUpdateError
@@ -818,10 +813,7 @@ export async function updateSignup(
       .single();
 
     if (signupFetchError || !signup) {
-      console.error(
-        "updateSignup: Failed to fetch signup:",
-        signupFetchError
-      );
+      console.error("updateSignup: Failed to fetch signup:", signupFetchError);
       throw new Error("Signup not found");
     }
     console.log("updateSignup: Updating with data:", updates);
@@ -879,10 +871,7 @@ export async function removeSelfByEmail(
     }
 
     if (!event) {
-      console.error(
-        "removeSelfByEmail: Event not found for slug:",
-        eventSlug
-      );
+      console.error("removeSelfByEmail: Event not found for slug:", eventSlug);
       return { success: false, error: "Event not found" };
     }
 
@@ -907,10 +896,7 @@ export async function removeSelfByEmail(
     });
 
     if (signupsError) {
-      console.error(
-        "removeSelfByEmail: Signups query error:",
-        signupsError
-      );
+      console.error("removeSelfByEmail: Signups query error:", signupsError);
       return {
         success: false,
         error: `Failed to look up signups: ${signupsError.message}`,
@@ -918,10 +904,7 @@ export async function removeSelfByEmail(
     }
 
     if (!signups || signups.length === 0) {
-      console.error(
-        "removeSelfByEmail: No signup found for email:",
-        email
-      );
+      console.error("removeSelfByEmail: No signup found for email:", email);
       return {
         success: false,
         error: "No signup found with that email address",
@@ -965,9 +948,7 @@ export async function removeSelfByEmail(
       : confirmedSignups[0];
 
     if (!signupToDelete) {
-      console.error(
-        "removeSelfByEmail: Signup not found in filtered list"
-      );
+      console.error("removeSelfByEmail: Signup not found in filtered list");
       return { success: false, error: "Signup not found" };
     }
     console.log("removeSelfByEmail: Deleting signup:", signupToDelete.id);
@@ -1100,7 +1081,7 @@ export async function removeWaitlistByEmail(
   email: string,
   waitlistId?: string
 ) {
-    console.log("removeWaitlistByEmail called with:", {
+  console.log("removeWaitlistByEmail called with:", {
     eventSlug,
     email,
     waitlistId,
@@ -1121,15 +1102,10 @@ export async function removeWaitlistByEmail(
       .single();
 
     if (eventError || !event) {
-      console.error(
-        "removeWaitlistByEmail: Event query error:",
-        eventError
-      );
+      console.error("removeWaitlistByEmail: Event query error:", eventError);
       return { success: false, error: "Event not found" };
     }
-    console.log(
-      "removeWaitlistByEmail: Looking up waitlist entries for email"
-    );
+    console.log("removeWaitlistByEmail: Looking up waitlist entries for email");
     const { data: waitlistEntries, error: waitlistError } = await supabase
       .from("signups")
       .select("id, name, slot_id, slots(name)")
@@ -1264,10 +1240,7 @@ export async function removeSignup(signupId: string, eventId: string) {
       .single();
 
     if (signupFetchError || !signup) {
-      console.error(
-        "removeSignup: Failed to fetch signup:",
-        signupFetchError
-      );
+      console.error("removeSignup: Failed to fetch signup:", signupFetchError);
       throw new Error("Signup not found");
     }
 
@@ -1287,9 +1260,7 @@ export async function removeSignup(signupId: string, eventId: string) {
       signup.status
     );
     if (signup.slot_id && signup.status === "confirmed") {
-      console.log(
-        "removeSignup: Checking for waitlist entries to promote"
-      );
+      console.log("removeSignup: Checking for waitlist entries to promote");
       const { data: waitlistEntries, error: waitlistError } = await supabase
         .from("signups")
         .select("*")
@@ -1299,18 +1270,12 @@ export async function removeSignup(signupId: string, eventId: string) {
         .limit(1);
 
       if (waitlistError) {
-        console.error(
-          "removeSignup: Waitlist query error:",
-          waitlistError
-        );
+        console.error("removeSignup: Waitlist query error:", waitlistError);
       }
 
       if (waitlistEntries && waitlistEntries.length > 0) {
         const firstInLine = waitlistEntries[0];
-        console.log(
-          "removeSignup: Promoting waitlist entry:",
-          firstInLine.id
-        );
+        console.log("removeSignup: Promoting waitlist entry:", firstInLine.id);
 
         const { error: promoteError } = await supabase
           .from("signups")
@@ -1325,9 +1290,7 @@ export async function removeSignup(signupId: string, eventId: string) {
             promoteError
           );
         } else {
-          console.log(
-            "removeSignup: Waitlist entry promoted successfully"
-          );
+          console.log("removeSignup: Waitlist entry promoted successfully");
 
           try {
             const confirmationEmail = getSignupConfirmationEmail({
@@ -1492,10 +1455,7 @@ export async function deleteOccurrence(
       .in("id", slotIds);
 
     if (slotsDeleteError) {
-      console.error(
-        "deleteOccurrence: Slots delete error:",
-        slotsDeleteError
-      );
+      console.error("deleteOccurrence: Slots delete error:", slotsDeleteError);
       throw new Error(`Failed to delete slots: ${slotsDeleteError.message}`);
     }
 

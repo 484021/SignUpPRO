@@ -1,12 +1,12 @@
-"use server"
+"use server";
 
 export async function sendSignupConfirmation(data: {
-  to: string
-  name: string
-  eventTitle: string
-  slotName: string
-  eventDate: string
-  manageUrl: string
+  to: string;
+  name: string;
+  eventTitle: string;
+  slotName: string;
+  eventDate: string;
+  manageUrl: string;
 }) {
   // In production, integrate with Resend, SendGrid, or your email provider
   // For now, we'll log the email details
@@ -27,7 +27,7 @@ export async function sendSignupConfirmation(data: {
       
       See you there!
     `,
-  })
+  });
 
   // TODO: Replace with actual email sending
   // Example with Resend:
@@ -39,16 +39,16 @@ export async function sendSignupConfirmation(data: {
   //   html: `<p>Hi ${data.name},</p>...`
   // })
 
-  return { success: true }
+  return { success: true };
 }
 
 export async function sendWaitlistConfirmation(data: {
-  to: string
-  name: string
-  eventTitle: string
-  slotName: string
-  position: number
-  manageUrl: string
+  to: string;
+  name: string;
+  eventTitle: string;
+  slotName: string;
+  position: number;
+  manageUrl: string;
 }) {
   console.log("Waitlist email would be sent:", {
     to: data.to,
@@ -66,15 +66,15 @@ export async function sendWaitlistConfirmation(data: {
       We'll notify you if a spot opens up.
       Manage your waitlist entry: ${data.manageUrl}
     `,
-  })
+  });
 
-  return { success: true }
+  return { success: true };
 }
 
 export async function sendCancellationConfirmation(data: {
-  to: string
-  name: string
-  eventTitle: string
+  to: string;
+  name: string;
+  eventTitle: string;
 }) {
   console.log("Cancellation email would be sent:", {
     to: data.to,
@@ -86,7 +86,7 @@ export async function sendCancellationConfirmation(data: {
       
       You're welcome to sign up again if spots are available.
     `,
-  })
+  });
 
-  return { success: true }
+  return { success: true };
 }

@@ -120,15 +120,19 @@ export function EventCard({ event }: EventCardProps) {
   const getUpcomingDate = () => {
     const eventDate = new Date(event.date);
     const now = new Date();
-    
+
     console.log("[EventCard] getUpcomingDate called:", {
       eventTitle: event.title,
       eventDate: event.date,
       hasRecurrenceRule: !!(event.recurrence_rule || event.recurrenceRule),
       slotCount: event.slots?.length || 0,
-      slots: event.slots?.map(s => ({ id: s.id, occurrence_date: s.occurrence_date })) || [],
+      slots:
+        event.slots?.map((s) => ({
+          id: s.id,
+          occurrence_date: s.occurrence_date,
+        })) || [],
     });
-    
+
     // If not recurring, just use the event date
     if (!event.recurrence_rule && !event.recurrenceRule) {
       return eventDate > now ? eventDate : now;
@@ -138,13 +142,17 @@ export function EventCard({ event }: EventCardProps) {
     if (event.slots && event.slots.length > 0) {
       const upcomingSlots = event.slots
         .filter((slot) => slot.occurrence_date)
-        .sort((a, b) => new Date(a.occurrence_date!).getTime() - new Date(b.occurrence_date!).getTime())
+        .sort(
+          (a, b) =>
+            new Date(a.occurrence_date!).getTime() -
+            new Date(b.occurrence_date!).getTime()
+        )
         .filter((slot) => new Date(slot.occurrence_date!) > now);
 
       console.log("[EventCard] upcomingSlots after filtering:", {
         eventTitle: event.title,
         upcomingSlotsCount: upcomingSlots.length,
-        upcomingSlots: upcomingSlots.map(s => s.occurrence_date),
+        upcomingSlots: upcomingSlots.map((s) => s.occurrence_date),
       });
 
       if (upcomingSlots.length > 0) {
@@ -154,7 +162,7 @@ export function EventCard({ event }: EventCardProps) {
     }
 
     // Fallback to event date
-    
+
     return eventDate > now ? eventDate : now;
   };
 
@@ -209,8 +217,6 @@ export function EventCard({ event }: EventCardProps) {
     ? formatRecurrenceDetails(recurrenceRule)
     : null;
 
-  
-
   return (
     <>
       <Card className="group hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer">
@@ -240,7 +246,8 @@ export function EventCard({ event }: EventCardProps) {
                           className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all"
                           style={{
                             width: `${
-                              (totalSignups / (totalSignups + totalWaitlisted)) *
+                              (totalSignups /
+                                (totalSignups + totalWaitlisted)) *
                               100
                             }%`,
                           }}
@@ -251,7 +258,9 @@ export function EventCard({ event }: EventCardProps) {
                 ) : (
                   <div className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground">
                     <Users className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" />
-                    <span className="whitespace-nowrap">No one signed up yet</span>
+                    <span className="whitespace-nowrap">
+                      No one signed up yet
+                    </span>
                   </div>
                 )}
               </div>

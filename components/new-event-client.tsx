@@ -1,65 +1,93 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { useToast } from "@/hooks/use-toast"
-import type { RecurrenceRule } from "@/lib/types"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Plus, X, Calendar, Clock } from "lucide-react"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import type React from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
+import type { RecurrenceRule } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Plus, X, Calendar, Clock } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface SlotInput {
-  name: string
-  capacity: number
+  name: string;
+  capacity: number;
 }
 
 export function NewEventClient() {
-  const router = useRouter()
-  const { toast } = useToast()
+  const router = useRouter();
+  const { toast } = useToast();
 
-  const [title, setTitle] = useState("")
-  const [description, setDescription] = useState("")
-  const [date, setDate] = useState("")
-  const [time, setTime] = useState("")
-  const [isRecurring, setIsRecurring] = useState(false)
-  const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(null)
-  const [slots, setSlots] = useState([{ name: "General Admission", capacity: 50 }])
-  const [loading, setLoading] = useState(false)
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [date, setDate] = useState("");
+  const [time, setTime] = useState("");
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurrenceRule, setRecurrenceRule] = useState<RecurrenceRule | null>(
+    null
+  );
+  const [slots, setSlots] = useState([
+    { name: "General Admission", capacity: 50 },
+  ]);
+  const [loading, setLoading] = useState(false);
 
   const addSlot = () => {
-    setSlots([...slots, { name: "", capacity: 10 }])
-  }
+    setSlots([...slots, { name: "", capacity: 10 }]);
+  };
 
   const removeSlot = (index: number) => {
     if (slots.length > 1) {
-      setSlots(slots.filter((_, i) => i !== index))
+      setSlots(slots.filter((_, i) => i !== index));
     }
-  }
+  };
 
-  const updateSlot = (index: number, field: "name" | "capacity", value: string | number) => {
+  const updateSlot = (
+    index: number,
+    field: "name" | "capacity",
+    value: string | number
+  ) => {
     setSlots(
       slots.map((s, i) =>
-        i === index ? { ...s, [field]: field === "capacity" ? Number.parseInt(value as string) || 0 : value } : s,
-      ),
-    )
-  }
+        i === index
+          ? {
+              ...s,
+              [field]:
+                field === "capacity"
+                  ? Number.parseInt(value as string) || 0
+                  : value,
+            }
+          : s
+      )
+    );
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (!title.trim()) {
       toast({
         title: "Error",
         description: "Event title is required",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
     if (!date || !time) {
@@ -67,35 +95,35 @@ export function NewEventClient() {
         title: "Error",
         description: "Event date and time are required",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    const eventDateTime = new Date(`${date}T${time}`)
-    const now = new Date()
+    const eventDateTime = new Date(`${date}T${time}`);
+    const now = new Date();
     if (eventDateTime < now) {
       toast({
         title: "Invalid date",
         description: "Event date must be in the future",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    const validSlots = slots.filter((s) => s.name.trim() && s.capacity > 0)
+    const validSlots = slots.filter((s) => s.name.trim() && s.capacity > 0);
     if (validSlots.length === 0) {
       toast({
         title: "Error",
         description: "At least one slot with a name and capacity is required",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     try {
-      const { createEvent } = await import("@/lib/actions/events")
+      const { createEvent } = await import("@/lib/actions/events");
 
       const finalRecurrenceRule = isRecurring
         ? {
@@ -103,7 +131,7 @@ export function NewEventClient() {
             interval: recurrenceRule?.interval || 1,
             count: recurrenceRule?.count || 4,
           }
-        : undefined
+        : undefined;
 
       const eventData = {
         title,
@@ -112,49 +140,54 @@ export function NewEventClient() {
         recurrenceRule: finalRecurrenceRule,
         slots: validSlots,
         showSignups: true,
-      }
+      };
 
-      console.log("Creating event with data:", eventData)
-      const result = await createEvent(eventData)
-      console.log("Create event result:", result)
+      console.log("Creating event with data:", eventData);
+      const result = await createEvent(eventData);
+      console.log("Create event result:", result);
 
       if (!result.success) {
-        throw new Error(result.error || "Failed to create event")
+        throw new Error(result.error || "Failed to create event");
       }
 
-      const event = result.event
+      const event = result.event;
 
       if (!event || !event.id) {
-        throw new Error("Event was created but no ID was returned")
+        throw new Error("Event was created but no ID was returned");
       }
 
-      console.log("Event created successfully with ID:", event.id)
+      console.log("Event created successfully with ID:", event.id);
 
       toast({
         title: "Event created",
         description: "Your event has been created successfully.",
-      })
+      });
 
-      router.push("/dashboard")
+      router.push("/dashboard");
     } catch (error) {
-      console.error("Error in handleSubmit:", error)
-      const errorMessage = error instanceof Error ? error.message : String(error)
+      console.error("Error in handleSubmit:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
 
       toast({
         title: "Error creating event",
-        description: errorMessage || "An unknown error occurred. Check the console for details.",
+        description:
+          errorMessage ||
+          "An unknown error occurred. Check the console for details.",
         variant: "destructive",
-      })
+      });
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <main className="container mx-auto py-6 sm:py-8 px-4">
       <div className="max-w-3xl mx-auto">
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">Create New Event</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+            Create New Event
+          </h1>
           <p className="text-sm sm:text-base text-muted-foreground">
             Set up your event with custom slots and manage signups
           </p>
@@ -163,8 +196,12 @@ export function NewEventClient() {
         <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">Event Details</CardTitle>
-              <CardDescription className="text-sm">Basic information about your event</CardDescription>
+              <CardTitle className="text-lg sm:text-xl">
+                Event Details
+              </CardTitle>
+              <CardDescription className="text-sm">
+                Basic information about your event
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
@@ -237,8 +274,8 @@ export function NewEventClient() {
                   id="recurring"
                   checked={isRecurring}
                   onCheckedChange={(checked) => {
-                    setIsRecurring(checked as boolean)
-                    if (!checked) setRecurrenceRule(null)
+                    setIsRecurring(checked as boolean);
+                    if (!checked) setRecurrenceRule(null);
                   }}
                 />
                 <Label htmlFor="recurring" className="text-sm cursor-pointer">
@@ -249,7 +286,9 @@ export function NewEventClient() {
               {isRecurring && (
                 <Card className="border-2 border-primary/20">
                   <CardHeader>
-                    <CardTitle className="text-base">Recurrence Settings</CardTitle>
+                    <CardTitle className="text-base">
+                      Recurrence Settings
+                    </CardTitle>
                     <CardDescription className="text-xs sm:text-sm">
                       Configure how often this event repeats
                     </CardDescription>
@@ -262,7 +301,12 @@ export function NewEventClient() {
                         </Label>
                         <Select
                           value={recurrenceRule?.frequency || "weekly"}
-                          onValueChange={(value: any) => setRecurrenceRule({ ...recurrenceRule, frequency: value })}
+                          onValueChange={(value: any) =>
+                            setRecurrenceRule({
+                              ...recurrenceRule,
+                              frequency: value,
+                            })
+                          }
                         >
                           <SelectTrigger id="frequency" className="text-sm">
                             <SelectValue placeholder="Select frequency" />
@@ -317,8 +361,9 @@ export function NewEventClient() {
                     </div>
 
                     <p className="text-xs sm:text-sm text-muted-foreground">
-                      This will automatically create {recurrenceRule?.count || 4} separate events, repeating every{" "}
-                      {recurrenceRule?.interval || 1}{" "}
+                      This will automatically create{" "}
+                      {recurrenceRule?.count || 4} separate events, repeating
+                      every {recurrenceRule?.interval || 1}{" "}
                       {recurrenceRule?.frequency === "daily"
                         ? "day(s)"
                         : recurrenceRule?.frequency === "weekly"
@@ -333,14 +378,20 @@ export function NewEventClient() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">Signup Categories</CardTitle>
+              <CardTitle className="text-lg sm:text-xl">
+                Signup Categories
+              </CardTitle>
               <CardDescription className="text-xs sm:text-sm">
-                Create different categories for attendees (e.g., Male/Female, VIP/General, Morning/Evening)
+                Create different categories for attendees (e.g., Male/Female,
+                VIP/General, Morning/Evening)
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {slots.map((slot, index) => (
-                <div key={index} className="flex flex-col sm:flex-row gap-3 items-start">
+                <div
+                  key={index}
+                  className="flex flex-col sm:flex-row gap-3 items-start"
+                >
                   <div className="flex-1 w-full space-y-4 sm:space-y-0 sm:flex sm:gap-3">
                     <div className="flex-1 space-y-2">
                       <Label htmlFor={`slot-name-${index}`} className="text-sm">
@@ -350,13 +401,18 @@ export function NewEventClient() {
                         id={`slot-name-${index}`}
                         placeholder="e.g., Male, Female, VIP, General Admission"
                         value={slot.name}
-                        onChange={(e) => updateSlot(index, "name", e.target.value)}
+                        onChange={(e) =>
+                          updateSlot(index, "name", e.target.value)
+                        }
                         required
                         className="text-sm sm:text-base"
                       />
                     </div>
                     <div className="w-full sm:w-32 space-y-2">
-                      <Label htmlFor={`slot-capacity-${index}`} className="text-sm">
+                      <Label
+                        htmlFor={`slot-capacity-${index}`}
+                        className="text-sm"
+                      >
                         Capacity *
                       </Label>
                       <Input
@@ -364,7 +420,13 @@ export function NewEventClient() {
                         type="number"
                         min="1"
                         value={slot.capacity}
-                        onChange={(e) => updateSlot(index, "capacity", Number.parseInt(e.target.value) || 0)}
+                        onChange={(e) =>
+                          updateSlot(
+                            index,
+                            "capacity",
+                            Number.parseInt(e.target.value) || 0
+                          )
+                        }
                         required
                         className="text-sm sm:text-base"
                       />
@@ -385,7 +447,12 @@ export function NewEventClient() {
                 </div>
               ))}
 
-              <Button type="button" variant="outline" onClick={addSlot} className="w-full bg-transparent text-sm">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={addSlot}
+                className="w-full bg-transparent text-sm"
+              >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Another Category
               </Button>
@@ -402,12 +469,16 @@ export function NewEventClient() {
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading} className="w-full sm:w-auto">
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full sm:w-auto"
+            >
               {loading ? "Creating..." : "Create Event"}
             </Button>
           </div>
         </form>
       </div>
     </main>
-  )
+  );
 }

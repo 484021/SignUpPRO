@@ -50,6 +50,11 @@ export function Header() {
                 </Button>
               </Link>
             )}
+            <Button asChild variant="default">
+              <a href="mailto:support@example.com?subject=Support%20Request">
+                Contact Support
+              </a>
+            </Button>
           </nav>
 
           <button
@@ -93,6 +98,11 @@ export function Header() {
                     Settings
                   </Button>
                 </Link>
+                <Button asChild variant="default">
+                  <a href="mailto:support@example.com?subject=Support%20Request">
+                    Contact Support
+                  </a>
+                </Button>
               </>
             ) : (
               <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
