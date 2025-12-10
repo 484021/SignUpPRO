@@ -53,7 +53,7 @@ export function Header() {
               </Link>
             )}
             <a
-              href="https://instagram.com/san.growth"
+              href="https://instagram.com/santhosh.growth"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center"
