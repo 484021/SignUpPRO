@@ -4,8 +4,9 @@ import type React from "react";
 import { Clock2 } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
+import { NavPublic } from "@/components/nav-public";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -27,6 +28,7 @@ import {
   Link2,
   Mail,
   MessageSquare,
+  ChevronRight,
 } from "lucide-react";
 import { format } from "date-fns";
 import { SignupForm } from "@/components/signup-form";
@@ -74,6 +76,14 @@ export function SignupPageClient({
   const slots = initialSlots || [];
   const publicSignups = initialPublicSignups || []; // Initialize publicSignups
   const publicWaitlist = initialPublicWaitlist || [];
+  const confirmedSignups = useMemo(
+    () => (publicSignups || []).filter((s) => s.status === "confirmed"),
+    [publicSignups]
+  );
+  const waitlistedSignups = useMemo(
+    () => (publicSignups || []).filter((s) => s.status === "waitlisted"),
+    [publicSignups]
+  );
   const [selectedSlotId, setSelectedSlotId] = useState<string | null>(null);
   const [selectedOccurrenceDate, setSelectedOccurrenceDate] = useState<
     string | null
@@ -105,7 +115,8 @@ export function SignupPageClient({
   );
   const { toast } = useToast();
   const router = useRouter();
-  const [isOccurrenceModalOpen, setIsOccurrenceModalOpen] = useState(false);
+  const [showDatesOpen, setShowDatesOpen] = useState(false);
+  // occurrence modal removed — signups occur inline on the page
 
   // State for email verification dialog
   const [showVerifyEmail, setShowVerifyEmail] = useState(false);
@@ -167,6 +178,31 @@ export function SignupPageClient({
     );
     window.location.href = `sms:?&body=${text}`;
   };
+
+  // Small DateRow subcomponent
+  function DateRow({ date, onSelect }: { date: Date; onSelect: () => void }) {
+    return (
+      <button
+        onClick={onSelect}
+        className="w-full flex items-center justify-between rounded-lg px-4 py-4 hover:bg-muted/30 transition"
+      >
+        <div className="flex items-center gap-4">
+          <div className="p-2 rounded-md bg-purple-100 dark:bg-purple-900/20">
+            <Calendar className="w-5 h-5 text-purple-600" />
+          </div>
+          <div className="text-left">
+            <div className="font-semibold">
+              {format(date, "EEEE, MMMM d, yyyy")}
+            </div>
+            <div className="text-sm text-muted-foreground">
+              {format(date, "h:mm a")}
+            </div>
+          </div>
+        </div>
+        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+      </button>
+    );
+  }
 
   const handleSignupSuccess = (data: {
     name: string;
@@ -413,20 +449,62 @@ export function SignupPageClient({
 
   const isRecurring = occurrences.length > 1; // Recurring means multiple occurrences
 
+  const filteredSlots = useMemo(() => {
+    // If event is recurring, require the user to pick an occurrence date
+    if (isRecurring && !selectedOccurrenceDate) return [];
+
+    // For non-recurring events or when a date is selected, filter slots
+    if (!selectedOccurrenceDate) return slots;
+    const dateString = selectedOccurrenceDate.split("T")[0];
+    return slots.filter(
+      (s) => s.occurrence_date && s.occurrence_date.split("T")[0] === dateString
+    );
+  }, [slots, selectedOccurrenceDate, isRecurring]);
+
+  const waitlistCounts = useMemo(() => {
+    const map: Record<string, number> = {};
+    (waitlistedSignups || []).forEach((s) => {
+      if (!s || !s.slot_id) return;
+
+      // If a date is selected, only count waitlist entries for that occurrence
+      if (selectedOccurrenceDate && s.occurrence_date) {
+        const occ = s.occurrence_date.split("T")[0];
+        const sel = selectedOccurrenceDate.split("T")[0];
+        if (occ !== sel) return;
+      }
+
+      map[s.slot_id] = (map[s.slot_id] || 0) + 1;
+    });
+    return map;
+  }, [waitlistedSignups, selectedOccurrenceDate]);
+
+  // Auto-select the next available occurrence so users can sign up immediately
+  useEffect(() => {
+    if (!selectedOccurrenceDate && occurrencesWithSlots.length > 0) {
+      // pick the first upcoming occurrence that has slots
+      setSelectedOccurrenceDate(occurrencesWithSlots[0].toISOString());
+      setSelectedOccurrence({ date: occurrencesWithSlots[0].toISOString() });
+    }
+  }, [occurrencesWithSlots, selectedOccurrenceDate]);
+
   const handleOccurrenceSelect = (date: Date) => {
     const dateString = date.toISOString().split("T")[0];
     console.log("Selected occurrence date string:", dateString);
     setSelectedOccurrenceDate(date.toISOString());
-    setSelectedOccurrence({ date: date.toISOString() }); // Store selected occurrence for removal
-    setIsOccurrenceModalOpen(true);
+    setSelectedOccurrence({ date: date.toISOString() }); // store for possible removal flows
+    setSelectedSlotId(null);
+    setShowDatesOpen(false); // Close the date list after selection
+
+    // Scroll the signup card into view so the user can choose a category and sign up
+    setTimeout(() => {
+      const el = document.querySelector("[data-reserve-card]");
+      if (el && typeof (el as any).scrollIntoView === "function") {
+        (el as any).scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 70);
   };
 
-  const handleModalClose = () => {
-    setIsOccurrenceModalOpen(false);
-    setSelectedOccurrenceDate(null);
-    setSelectedOccurrence(null);
-    setSelectedSlotId(null);
-  };
+  // occurrence modal removed; no modal close handler needed
 
   const handleVerifyAndDelete = async () => {
     if (!removeEmail || !selectedToRemove) return;
@@ -660,439 +738,501 @@ export function SignupPageClient({
   }
 
   return (
-    // Background gradient for the main page
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-background to-blue-50 dark:from-purple-950/20 dark:via-background dark:to-blue-950/20">
-      <header className="border-b border-border sticky top-0 bg-background/80 backdrop-blur-xl z-50">
-        <div className="container mx-auto px-4 py-3 md:py-4">
-          <div className="flex items-center justify-between">
-            <Link href="/" className="flex items-center gap-2">
-              <Logo className="w-7 h-7 md:w-8 md:h-8" />
-              <span className="text-lg md:text-xl font-semibold">
-                SignUpPRO
-              </span>
-            </Link>
+      <NavPublic />
+
+      {/* Hero Card */}
+      <div className="container mx-auto max-w-6xl p-4 pt-24 md:pt-32">
+        <div className="bg-white/60 dark:bg-[#0b1220]/40 rounded-2xl p-6 shadow-sm border border-transparent">
+          <div className="flex items-start justify-between gap-6">
+            <div className="flex-1 min-w-0">
+              <h1 className="text-3xl md:text-4xl font-extrabold leading-tight">
+                {event.title}
+              </h1>
+              {event.description && (
+                <p className="mt-3 text-base text-muted-foreground max-w-2xl leading-relaxed">
+                  {event.description}
+                </p>
+              )}
+
+              <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/40">
+                  <Calendar className="w-4 h-4 text-purple-600" />
+                  {format(
+                    new Date(selectedOccurrenceDate || event.date),
+                    "EEEE, MMM d"
+                  )}
+                </span>
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/40">
+                  <Clock className="w-4 h-4 text-blue-600" />
+                  {format(
+                    new Date(selectedOccurrenceDate || event.date),
+                    "h:mm a"
+                  )}
+                </span>
+                <Badge className="py-1 px-3 rounded-md text-sm uppercase tracking-wide">
+                  {event.status}
+                </Badge>
+              </div>
+            </div>
+
+            <div className="flex flex-col items-end gap-3">
+              <div className="flex items-center gap-2">
+                <Button
+                  onClick={handleCopyLink}
+                  className="rounded-xl h-10 transform active:scale-95 transition"
+                >
+                  {" "}
+                  <Link2 className="w-4 h-4 mr-2" /> Copy Link
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={handleShare}
+                  className="rounded-xl h-10 transform active:scale-95 transition"
+                >
+                  {" "}
+                  <Share2 className="w-4 h-4 mr-2" /> Share
+                </Button>
+              </div>
+              <Link
+                href={`/signup/${event.slug}/manage`}
+                className="text-sm text-muted-foreground"
+              >
+                Organizer tools
+              </Link>
+            </div>
           </div>
         </div>
-      </header>
+      </div>
 
-      {/* Main content area with spacing and max width */}
-      <main className="container mx-auto max-w-4xl p-4 py-8 space-y-6">
-        <Card className="border-2 border-purple-500/20 shadow-lg">
-          <CardHeader className="space-y-4">
-            <div className="flex items-start justify-between gap-4">
-              <div className="space-y-3 flex-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-3xl font-bold">{event.title}</h1>
-                  <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0">
-                    {event.status}
-                  </Badge>
+      {/* Main content area */}
+      <main className="container mx-auto max-w-6xl p-4 pb-32">
+        <div className="grid gap-8 md:grid-cols-2">
+          {/* Left: Dates */}
+          <section className="space-y-6">
+            <div className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-transparent">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold">Date</h2>
+                  <p className="text-sm text-muted-foreground">Selected date</p>
                 </div>
-                {event.description && (
-                  <p className="text-muted-foreground leading-relaxed">
-                    {event.description}
-                  </p>
+                {occurrencesWithSlots.length > 1 && (
+                  <button
+                    onClick={() => setShowDatesOpen((v) => !v)}
+                    className="text-sm text-primary hover:underline"
+                  >
+                    {showDatesOpen ? "Hide dates ×" : "Change date ›"}
+                  </button>
                 )}
-
-                <div className="flex gap-2 pt-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="bg-transparent"
-                      >
-                        <Share2 className="w-4 h-4 mr-2" />
-                        Share
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48">
-                      {navigator.share && (
-                        <DropdownMenuItem onClick={handleShare}>
-                          <Share2 className="w-4 h-4 mr-2" />
-                          Share via...
-                        </DropdownMenuItem>
-                      )}
-                      <DropdownMenuItem onClick={handleCopyLink}>
-                        <Link2 className="w-4 h-4 mr-2" />
-                        Copy Link
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleEmailShare}>
-                        <Mail className="w-4 h-4 mr-2" />
-                        Share via Email
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={handleSMSShare}>
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Share via SMS
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap gap-6 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
-                  <Calendar className="w-4 h-4 text-purple-600" />
-                </div>
-                <span className="font-medium">
-                  {format(new Date(event.date), "EEEE, MMMM d, yyyy")}
-                </span>
               </div>
 
-              <div className="flex items-center gap-2">
-                <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
-                  <Clock className="w-4 h-4 text-blue-600" />
-                </div>
-                <span className="font-medium">
-                  {format(new Date(event.date), "h:mm a")}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Select a Date</CardTitle>
-            <CardDescription>
-              Choose which date you want to attend:
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-3">
-              {occurrencesWithSlots.map((date, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleOccurrenceSelect(date)}
-                  className="w-full text-left p-4 rounded-xl border-2 transition-all hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 hover:scale-[1.02] bg-card"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 rounded-lg bg-purple-100 dark:bg-purple-900/20">
-                      <Calendar className="w-6 h-6 text-purple-600" />
-                    </div>
+              <div className="mt-4">
+                <div className="rounded-lg p-4 bg-white dark:bg-transparent shadow-xs">
+                  <div className="flex items-center justify-between">
                     <div>
-                      <div className="font-semibold text-lg">
-                        {format(date, "EEEE, MMMM d, yyyy")}
+                      <div className="font-semibold">
+                        {format(
+                          new Date(selectedOccurrenceDate || event.date),
+                          "EEEE, MMMM d, yyyy"
+                        )}
                       </div>
                       <div className="text-sm text-muted-foreground">
-                        {format(date, "h:mm a")}
+                        {format(
+                          new Date(selectedOccurrenceDate || event.date),
+                          "h:mm a"
+                        )}
                       </div>
                     </div>
                   </div>
-                </button>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Dialog open={isOccurrenceModalOpen} onOpenChange={handleModalClose}>
-          <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle className="text-2xl">
-                {selectedOccurrenceDate &&
-                  format(
-                    new Date(selectedOccurrenceDate),
-                    "EEEE, MMMM d, yyyy"
-                  )}
-              </DialogTitle>
-              <DialogDescription className="text-base">
-                {selectedOccurrenceDate &&
-                  format(new Date(selectedOccurrenceDate), "h:mm a")}
-                {/* event.location && ` • ${event.location}` */}
-              </DialogDescription>
-            </DialogHeader>
-
-            <div className="space-y-6 py-4">
-              {selectedOccurrenceDate && (
-                <>
-                  {(() => {
-                    const occurrenceSignups = publicSignups.filter((s) => {
-                      const slot = slots.find((sl) => sl.id === s.slot_id);
-                      return (
-                        slot?.occurrence_date &&
-                        new Date(slot.occurrence_date)
-                          .toISOString()
-                          .split("T")[0] ===
-                          new Date(selectedOccurrenceDate)
-                            .toISOString()
-                            .split("T")[0]
-                      );
-                    });
-
-                    if (occurrenceSignups.length > 0) {
-                      return (
-                        <Card>
-                          <CardHeader>
-                            <CardTitle className="text-lg flex items-center gap-2">
-                              <Users className="w-5 h-5" />
-                              Who's Attending ({occurrenceSignups.length})
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid gap-2 max-h-48 overflow-y-auto">
-                              {occurrenceSignups.map((signup) => {
-                                const slot = slots.find(
-                                  (s) => s.id === signup.slot_id
-                                );
-                                return (
-                                  <div
-                                    key={signup.id}
-                                    className="flex items-center gap-3 p-2 bg-muted/50 rounded-lg"
-                                  >
-                                    <div className="w-8 h-8 rounded-full bg-purple-100 dark:bg-purple-900/40 flex items-center justify-center text-purple-600 dark:text-purple-400 font-semibold text-sm">
-                                      {signup.name.charAt(0).toUpperCase()}
-                                    </div>
-                                    <div className="flex-1">
-                                      <div className="font-medium text-sm">
-                                        {signup.name}
-                                      </div>
-                                      <div className="text-xs text-muted-foreground">
-                                        {slot?.name || "General Admission"}
-                                      </div>
-                                    </div>
-                                    <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      onClick={() =>
-                                        handleSignupRemoveClick(signup.id)
-                                      }
-                                      className="text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950"
-                                    >
-                                      Remove
-                                    </Button>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    }
-                    return null;
-                  })()}
-
-                  {(() => {
-                    const occurrenceWaitlist = publicWaitlist.filter((w) => {
-                      const slot = slots.find((sl) => sl.id === w.slot_id);
-                      return (
-                        slot?.occurrence_date &&
-                        new Date(slot.occurrence_date)
-                          .toISOString()
-                          .split("T")[0] ===
-                          new Date(selectedOccurrenceDate)
-                            .toISOString()
-                            .split("T")[0]
-                      );
-                    });
-
-                    if (occurrenceWaitlist.length > 0) {
-                      return (
-                        <Card className="border-orange-200 dark:border-orange-800">
-                          <CardHeader>
-                            <CardTitle className="text-lg flex items-center gap-2 text-orange-600 dark:text-orange-400">
-                              <Clock2 className="w-5 h-5" />
-                              Waiting for Spots ({occurrenceWaitlist.length})
-                            </CardTitle>
-                          </CardHeader>
-                          <CardContent>
-                            <div className="grid gap-2 max-h-48 overflow-y-auto">
-                              {occurrenceWaitlist.map(
-                                (waitlistEntry, index) => {
-                                  const slot = slots.find(
-                                    (s) => s.id === waitlistEntry.slot_id
-                                  );
-                                  return (
-                                    <div
-                                      key={waitlistEntry.id}
-                                      className="flex items-center gap-3 p-2 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800"
-                                    >
-                                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-orange-100 dark:bg-orange-900/40 text-orange-600 dark:text-orange-400 text-sm font-semibold">
-                                        {index + 1}
-                                      </div>
-                                      <div className="flex-1">
-                                        <div className="font-medium text-sm">
-                                          {waitlistEntry.name}
-                                        </div>
-                                        <div className="text-xs text-muted-foreground">
-                                          {slot?.name || "General Admission"}
-                                        </div>
-                                      </div>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={() =>
-                                          handleWaitlistDeleteClick(
-                                            waitlistEntry.id,
-                                            waitlistEntry.name
-                                          )
-                                        }
-                                        className="text-orange-600 hover:text-orange-700 hover:bg-orange-100 dark:text-orange-400 dark:hover:text-orange-300 dark:hover:bg-orange-900/40"
-                                      >
-                                        Remove
-                                      </Button>
-                                    </div>
-                                  );
-                                }
-                              )}
-                            </div>
-                          </CardContent>
-                        </Card>
-                      );
-                    }
-                    return null;
-                  })()}
-                </>
-              )}
-
-              {!selectedSlotId ? (
-                <div className="space-y-4">
-                  <h3 className="font-semibold text-lg">Select a Category</h3>
-                  {(() => {
-                    const filteredSlots = slots
-                      .filter((slot) => {
-                        if (!selectedOccurrenceDate) return true;
-
-                        // Parse both dates and compare just the date components
-                        const slotDate = slot.occurrence_date
-                          ? new Date(slot.occurrence_date)
-                          : null;
-                        const selectedDate = new Date(selectedOccurrenceDate);
-
-                        // If slot has no occurrence_date, it applies to all occurrences
-                        if (!slotDate) return true;
-
-                        // Compare year, month, and day
-                        const slotYear = slotDate.getUTCFullYear();
-                        const slotMonth = slotDate.getUTCMonth();
-                        const slotDay = slotDate.getUTCDate();
-
-                        const selectedYear = selectedDate.getUTCFullYear();
-                        const selectedMonth = selectedDate.getUTCMonth();
-                        const selectedDay = selectedDate.getUTCDate();
-
-                        const matches =
-                          slotYear === selectedYear &&
-                          slotMonth === selectedMonth &&
-                          slotDay === selectedDay;
-
-                        console.log("Filtering slot:", {
-                          slotName: slot.name,
-                          slotDate: slotDate
-                            ? `${slotYear}-${slotMonth + 1}-${slotDay}`
-                            : "null (applies to all)",
-                          selectedDate: `${selectedYear}-${selectedMonth + 1}-${selectedDay}`,
-                          matches,
-                        });
-
-                        return matches;
-                      })
-                      .filter((slot) => {
-                        const isWaitlist = slot.name
-                          .toLowerCase()
-                          .includes("waitlist");
-                        if (isWaitlist) {
-                          return false;
-                        }
-                        return true;
-                      });
-
-                    console.log("Filtered slots count:", filteredSlots.length);
-                    console.log(
-                      "Filtered slots:",
-                      filteredSlots.map((s) => ({ name: s.name, id: s.id }))
-                    );
-
-                    if (filteredSlots.length === 0) {
-                      return (
-                        <div className="text-center py-8 text-muted-foreground">
-                          <p>No slots available for this date.</p>
-                        </div>
-                      );
-                    }
-
-                    return filteredSlots.map((slot) => {
-                      const isFull = slot.available === 0;
-                      const percentFilled =
-                        ((slot.capacity - slot.available) / slot.capacity) *
-                        100;
-                      const isWaitlist = slot.name
-                        .toLowerCase()
-                        .includes("waitlist");
-                      const filled = slot.capacity - slot.available;
-
-                      return (
-                        <button
-                          key={slot.id}
-                          onClick={() => {
-                            console.log("Slot clicked:", {
-                              id: slot.id,
-                              name: slot.name,
-                              capacity: slot.capacity,
-                              available: slot.available,
-                              filled: slot.capacity - slot.available,
-                            });
-                            setSelectedSlotId(slot.id);
-                          }}
-                          className="w-full text-left p-6 rounded-xl border-2 transition-all hover:shadow-lg hover:border-purple-300 dark:hover:border-purple-700 bg-card"
-                        >
-                          <div className="flex items-start justify-between mb-4">
-                            <h3 className="font-semibold text-lg">
-                              {slot.name}
-                            </h3>
-                            {isFull ? (
-                              <Badge variant="destructive">Full</Badge>
-                            ) : (
-                              <Badge className="bg-gradient-to-r from-green-500 to-emerald-600 text-white border-0">
-                                Available
-                              </Badge>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
-                            <Users className="w-4 h-4" />
-                            <span>
-                              {isWaitlist
-                                ? `${filled} on waitlist`
-                                : `${filled} / ${slot.capacity} spots filled`}
-                            </span>
-                          </div>
-
-                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
-                            <div
-                              className="h-full bg-gradient-to-r from-purple-500 to-blue-500 transition-all duration-300"
-                              style={{ width: `${percentFilled}%` }}
-                            />
-                          </div>
-
-                          {isFull && (
-                            <div className="mt-4 p-3 bg-orange-50 dark:bg-orange-950/20 rounded-lg border border-orange-200 dark:border-orange-800 text-sm text-orange-700 dark:text-orange-300">
-                              Join the waitlist and we'll notify you if a spot
-                              opens up
-                            </div>
-                          )}
-                        </button>
-                      );
-                    });
-                  })()}
                 </div>
-              ) : (
-                <SignupForm
-                  eventId={event.id}
-                  slotId={selectedSlotId}
-                  onSuccess={handleSignupSuccess}
-                  onBack={() => {
-                    setSelectedSlotId(null);
-                    // Keep selectedOccurrenceDate if it was selected
-                  }}
-                  occurrenceDate={selectedOccurrenceDate}
-                />
-              )}
+              </div>
+
+              {/* Collapsible dates list */}
+              <div
+                className={`mt-4 overflow-hidden transition-all ${showDatesOpen ? "max-h-96 overflow-y-auto" : "max-h-0"}`}
+              >
+                <div className="space-y-2 pr-2">
+                  {occurrencesWithSlots.map((date, idx) => (
+                    <DateRow
+                      key={idx}
+                      date={date}
+                      onSelect={() => handleOccurrenceSelect(date)}
+                    />
+                  ))}
+                </div>
+              </div>
             </div>
-          </DialogContent>
-        </Dialog>
+          </section>
+
+          {/* Right: Signup & stats */}
+          <aside className="space-y-6">
+            <div
+              className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-transparent"
+              data-reserve-card
+            >
+              <h3 className="text-lg font-semibold">Reserve Your Spot</h3>
+              <p className="text-sm text-muted-foreground mt-1">
+                Fast, secure sign up — no account required
+              </p>
+
+              <div className="mt-4">
+                {selectedSlotId ? (
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-xl bg-muted/30">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="text-sm text-muted-foreground">
+                            Selected
+                          </div>
+                          <div className="font-semibold">
+                            {(() => {
+                              const s = slots.find(
+                                (x) => x.id === selectedSlotId
+                              );
+                              return s?.name || "Category";
+                            })()}
+                          </div>
+                        </div>
+                        <div className="text-right text-sm">
+                          {(() => {
+                            const s = slots.find(
+                              (x) => x.id === selectedSlotId
+                            );
+                            if (!s) return null;
+                            const wlCount = waitlistCounts[s.id] || 0;
+
+                            if (
+                              typeof s.available === "number" &&
+                              s.available > 0
+                            ) {
+                              return (
+                                <>
+                                  <div className="font-semibold">{`${s.capacity - s.available} / ${s.capacity}`}</div>
+                                  <div className="text-xs text-muted-foreground">
+                                    spots filled
+                                  </div>
+                                </>
+                              );
+                            }
+
+                            return (
+                              <div>
+                                {wlCount > 0 ? (
+                                  <div className="text-sm font-semibold">
+                                    {wlCount} on waitlist
+                                  </div>
+                                ) : (
+                                  <div className="text-sm font-semibold">
+                                    Join waitlist
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
+                        </div>
+                      </div>
+                    </div>
+
+                    <SignupForm
+                      eventId={event.id}
+                      slotId={selectedSlotId}
+                      onSuccess={handleSignupSuccess}
+                      onBack={() => setSelectedSlotId(null)}
+                      occurrenceDate={selectedOccurrenceDate}
+                    />
+                  </div>
+                ) : filteredSlots.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">
+                    Choose a date on the left to see available spots.
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {(() => {
+                      const regularSlots = filteredSlots.filter(
+                        (s) =>
+                          !(
+                            (s.name || "").toLowerCase().includes("waitlist") ||
+                            (s as any).is_waitlist
+                          )
+                      );
+                      return (
+                        <>
+                          {regularSlots.map((slot) => (
+                            <button
+                              key={slot.id}
+                              onClick={() => setSelectedSlotId(slot.id)}
+                              className="w-full text-left p-4 rounded-xl hover:bg-muted/30 transition"
+                            >
+                              <div className="flex items-center justify-between">
+                                <div>
+                                  <div className="font-semibold">
+                                    {slot.name}
+                                  </div>
+                                  {slot.description && (
+                                    <div className="text-sm text-muted-foreground">
+                                      {slot.description}
+                                    </div>
+                                  )}
+                                </div>
+                                <div className="text-right">
+                                  {typeof slot.available === "number" &&
+                                  slot.available > 0 ? (
+                                    <div className="text-sm font-semibold">
+                                      {slot.available} available
+                                    </div>
+                                  ) : (
+                                    <div className="text-sm font-semibold text-amber-600">
+                                      Join waitlist
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </>
+                      );
+                    })()}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Summary card */}
+            <div className="rounded-xl p-4 bg-gradient-to-br from-purple-50/50 to-blue-50/50 dark:from-purple-950/20 dark:to-blue-950/20 border border-purple-100 dark:border-purple-900/30">
+              <div className="grid grid-cols-2 gap-4 text-center">
+                <div>
+                  <div className="text-2xl font-bold text-foreground">
+                    {(() => {
+                      const waitlistSlots = filteredSlots.filter(
+                        (s) =>
+                          (s.name || "").toLowerCase().includes("waitlist") ||
+                          (s as any).is_waitlist
+                      );
+                      const filteredSlotIds = filteredSlots.map((s) => s.id);
+                      const signupsWithSpots = confirmedSignups.filter(
+                        (s) =>
+                          s.slot_id &&
+                          filteredSlotIds.includes(s.slot_id) &&
+                          !waitlistSlots.some((ws) => ws.id === s.slot_id)
+                      );
+                      return signupsWithSpots.length;
+                    })()}
+                  </div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Signed Up
+                  </div>
+                </div>
+                <div>
+                  <div className="text-2xl font-bold text-foreground">
+                    {(() => {
+                      const totalAvailable = filteredSlots
+                        .filter(
+                          (s) =>
+                            !(
+                              (s.name || "")
+                                .toLowerCase()
+                                .includes("waitlist") || (s as any).is_waitlist
+                            )
+                        )
+                        .reduce((acc, s) => acc + s.available, 0);
+                      return totalAvailable;
+                    })()}
+                  </div>
+                  <div className="text-xs text-muted-foreground uppercase tracking-wide">
+                    Spots Left
+                  </div>
+                </div>
+              </div>
+            </div>
+          </aside>
+        </div>
+
+        {/* Attendees & Waitlist Section */}
+        <div className="mt-12 space-y-8" data-attendee-list>
+          {/* Attendees by Category */}
+          {filteredSlots
+            .filter(
+              (slot) =>
+                !(
+                  (slot.name || "").toLowerCase().includes("waitlist") ||
+                  (slot as any).is_waitlist
+                )
+            )
+            .map((slot) => {
+              const slotSignups = confirmedSignups.filter(
+                (s) => s.slot_id === slot.id
+              );
+              if (slotSignups.length === 0) return null;
+
+              return (
+                <div
+                  key={slot.id}
+                  className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-transparent"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold">{slot.name}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {slotSignups.length} / {slot.capacity} attendees
+                      </p>
+                    </div>
+                    <Badge variant="secondary">
+                      {slot.capacity - slot.available} attending
+                    </Badge>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {slotSignups.map((signup, idx) => (
+                      <div
+                        key={signup.id || idx}
+                        className="p-3 rounded-lg bg-muted/30 flex items-center gap-3 group"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                          {signup.name?.charAt(0).toUpperCase() || "?"}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium text-sm truncate">
+                            {signup.name || "Anonymous"}
+                          </div>
+                        </div>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity h-8 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => handleSignupRemoveClick(signup.id)}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+
+          {/* Waitlist Section */}
+          {(() => {
+            const waitlistEntries = (waitlistedSignups || []).filter((s) => {
+              if (!s.slot_id) return false;
+              const slotMatches = filteredSlots.some(
+                (slot) => slot.id === s.slot_id
+              );
+              if (!slotMatches) return false;
+
+              if (selectedOccurrenceDate && s.occurrence_date) {
+                const occ = s.occurrence_date.split("T")[0];
+                const sel = selectedOccurrenceDate.split("T")[0];
+                if (occ !== sel) return false;
+              }
+              return true;
+            });
+
+            if (waitlistEntries.length === 0) return null;
+
+            return (
+              <div className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-amber-200 dark:border-amber-900/30">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h3 className="text-lg font-semibold">Waitlist</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {waitlistEntries.length} on waitlist
+                    </p>
+                  </div>
+                  <Badge
+                    variant="outline"
+                    className="bg-amber-50 dark:bg-amber-950/20 border-amber-300 dark:border-amber-800"
+                  >
+                    {waitlistEntries.length} waiting
+                  </Badge>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {waitlistEntries.map((signup, idx) => (
+                    <div
+                      key={signup.id || idx}
+                      className="p-3 rounded-lg bg-amber-50/50 dark:bg-amber-950/10 border border-amber-200 dark:border-amber-900/30 flex items-center gap-3 group"
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                        {signup.name?.charAt(0).toUpperCase() || "?"}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-sm truncate">
+                          {signup.name || "Anonymous"}
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="opacity-0 group-hover:opacity-100 transition-opacity h-8 px-2 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={() => handleSignupRemoveClick(signup.id)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            );
+          })()}
+        </div>
       </main>
+
+      {/* Sticky CTA (bottom) */}
+      {!selectedSlotId &&
+        filteredSlots.length > 0 &&
+        (() => {
+          const regularSlots = filteredSlots.filter(
+            (s) =>
+              !(
+                (s.name || "").toLowerCase().includes("waitlist") ||
+                (s as any).is_waitlist
+              )
+          );
+          const allRegularFull = regularSlots.every(
+            (s) => typeof s.available === "number" && s.available <= 0
+          );
+          const firstAvailable = regularSlots.find(
+            (s) => typeof s.available === "number" && s.available > 0
+          );
+          const firstRegular = regularSlots[0];
+          const isWaitlistMode = allRegularFull && !!firstRegular;
+
+          return (
+            <div className="fixed left-0 right-0 bottom-4 pointer-events-none z-50">
+              <div className="container mx-auto max-w-6xl px-4">
+                <div className="pointer-events-auto flex justify-center">
+                  <div className="w-full md:w-1/2 bg-background/95 backdrop-blur-sm rounded-xl shadow-2xl">
+                    <Button
+                      size="lg"
+                      className={`w-full rounded-xl transform active:scale-95 transition ${isWaitlistMode ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600" : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"}`}
+                      onClick={() => {
+                        // If all regular slots are full, select waitlist
+                        if (isWaitlistMode && firstRegular) {
+                          setSelectedSlotId(firstRegular.id);
+                        } else if (firstAvailable) {
+                          setSelectedSlotId(firstAvailable.id);
+                        }
+
+                        // Scroll to form
+                        setTimeout(() => {
+                          const el = document.querySelector(
+                            "[data-reserve-card]"
+                          );
+                          if (el) {
+                            el.scrollIntoView({
+                              behavior: "smooth",
+                              block: "center",
+                            });
+                          }
+                        }, 100);
+                      }}
+                    >
+                      {isWaitlistMode ? "Join Waitlist" : "Sign Up Now"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          );
+        })()}
 
       {/* Email verification dialog for waitlist deletion */}
       {showWaitlistEmailDialog && (

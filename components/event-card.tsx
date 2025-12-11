@@ -219,12 +219,12 @@ export function EventCard({ event }: EventCardProps) {
 
   return (
     <>
-      <Card className="group hover:shadow-lg hover:border-primary/50 transition-all duration-300 cursor-pointer">
+      <Card className="group rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border border-transparent hover:border-border/50">
         <Link href={`/dashboard/events/${event.id}`} className="block">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-4">
             <div className="flex items-start justify-between gap-2">
               <div className="flex-1 space-y-1 min-w-0">
-                <CardTitle className="text-base sm:text-lg line-clamp-2 group-hover:text-primary transition-colors">
+                <CardTitle className="text-lg md:text-xl font-semibold line-clamp-2 group-hover:text-primary transition-colors">
                   {event.title}
                 </CardTitle>
                 {totalSignups > 0 || totalWaitlisted > 0 ? (
@@ -264,22 +264,24 @@ export function EventCard({ event }: EventCardProps) {
                   </div>
                 )}
               </div>
-              <div className="flex flex-col gap-1.5 shrink-0">
-                <Badge
-                  className={`${statusColors[event.status]} text-white text-xs`}
-                  variant="secondary"
-                >
-                  {event.status}
-                </Badge>
-                {recurrenceRule && (
+              <div className="flex flex-col gap-2 shrink-0 items-end">
+                <div className="flex flex-col gap-2 items-end">
                   <Badge
-                    className="bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs whitespace-nowrap"
+                    className={`${statusColors[event.status]} text-white text-xs py-1 px-2 rounded-md uppercase tracking-wide`}
                     variant="secondary"
                   >
-                    <Repeat className="w-3 h-3 mr-1" />
-                    Recurring
+                    {event.status}
                   </Badge>
-                )}
+                  {recurrenceRule && (
+                    <Badge
+                      className="bg-gradient-to-r from-purple-500 to-blue-500 text-white text-xs whitespace-nowrap py-1 px-2 rounded-md"
+                      variant="secondary"
+                    >
+                      <Repeat className="w-3 h-3 mr-1" />
+                      Recurring
+                    </Badge>
+                  )}
+                </div>
               </div>
             </div>
           </CardHeader>
@@ -300,22 +302,25 @@ export function EventCard({ event }: EventCardProps) {
                 </div>
               )}
             </div>
-            <div className="flex flex-col sm:flex-row gap-2">
-              <Button
-                variant="default"
-                className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 h-9"
-                size="sm"
-                asChild
-              >
-                <span>Manage Event</span>
-              </Button>
-              <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+              <div className="flex-1">
+                <Button
+                  variant="default"
+                  className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 h-10"
+                  size="sm"
+                  asChild
+                >
+                  <span className="font-semibold">Manage Event</span>
+                </Button>
+              </div>
+
+              <div className="flex gap-2 items-center">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleCopyLink}
                   disabled={isCopying || !event.slug}
-                  className="flex-1 sm:flex-none bg-transparent h-9"
+                  className="h-10 w-10 rounded-md"
                   title="Copy signup link"
                 >
                   <Copy className="w-4 h-4" />
@@ -326,7 +331,7 @@ export function EventCard({ event }: EventCardProps) {
                   size="sm"
                   onClick={handleExternalLink}
                   disabled={!event.slug}
-                  className="flex-1 sm:flex-none bg-transparent h-9"
+                  className="h-10 w-10 rounded-md"
                   title="Open public page"
                 >
                   <ExternalLink className="w-4 h-4" />
@@ -336,7 +341,7 @@ export function EventCard({ event }: EventCardProps) {
                   variant="outline"
                   size="sm"
                   onClick={handleDeleteClick}
-                  className="flex-1 sm:flex-none bg-transparent hover:bg-destructive/10 hover:text-destructive hover:border-destructive h-9"
+                  className="h-10 w-10 rounded-md hover:bg-destructive/10 hover:text-destructive hover:border-destructive"
                   title="Delete event"
                 >
                   <Trash2 className="w-4 h-4" />

@@ -24,7 +24,6 @@ import {
   deleteOccurrence,
 } from "@/lib/actions/events";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import { LinkIcon } from "lucide-react";
 import { generateOccurrences as generateOccurrencesUtil } from "@/lib/utils/generate-occurrences";
 
 interface RecurringEventManagerProps {
@@ -32,8 +31,8 @@ interface RecurringEventManagerProps {
   slots: any[];
   signups: any[];
   waitlist: any[];
-  publicSignups: any[];
-  publicWaitlist: any[];
+  publicSignups?: any[];
+  publicWaitlist?: any[];
 }
 
 interface EventOccurrence {
@@ -74,8 +73,6 @@ export function RecurringEventManager({
   const router = useRouter();
   const { toast } = useToast();
   const [expandedDates, setExpandedDates] = useState<Set<string>>(new Set());
-  const [hidePastSpots, setHidePastSpots] = useState(false);
-  const [hideFullSpots, setHideFullSpots] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [removingSignupId, setRemovingSignupId] = useState<string | null>(null);
   const [deletingOccurrence, setDeletingOccurrence] = useState<string | null>(
@@ -218,25 +215,7 @@ export function RecurringEventManager({
       .sort((a, b) => a.date.getTime() - b.date.getTime());
   }, [safeSlots, safeSignups, safeWaitlist, event.recurrence_rule, event.date]);
 
-  const filteredOccurrences = useMemo(() => {
-    let filtered = occurrences;
-
-    if (hidePastSpots) {
-      const now = new Date();
-      filtered = filtered.filter((occ) => occ.date >= now);
-    }
-
-    if (hideFullSpots) {
-      filtered = filtered.filter((occ) => {
-        const hasAvailableSpots = occ.slots.some(
-          (slot) => !slot.isWaitlist && slot.available > 0
-        );
-        return hasAvailableSpots;
-      });
-    }
-
-    return filtered;
-  }, [occurrences, hidePastSpots, hideFullSpots]);
+  const filteredOccurrences = occurrences;
 
   if (!event) {
     return (
@@ -463,37 +442,10 @@ export function RecurringEventManager({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setHidePastSpots(!hidePastSpots)}
-            className="text-xs sm:text-sm"
-          >
-            {hidePastSpots ? "Show Past" : "Hide Past"}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setHideFullSpots(!hideFullSpots)}
-            className="text-xs sm:text-sm"
-          >
-            {hideFullSpots ? "Show Full" : "Hide Full"}
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleCopyLink}
-            className="text-xs sm:text-sm bg-transparent"
-          >
-            <LinkIcon className="mr-2 h-4 w-4" />
-            Copy Link
-          </Button>
-        </div>
+      <div className="flex justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="sm">
+            <Button variant="outline" size="sm" className="rounded-xl">
               <MoreVertical className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -514,13 +466,13 @@ export function RecurringEventManager({
       </div>
 
       {filteredOccurrences.length === 0 ? (
-        <div className="rounded-lg border border-gray-200 bg-gray-50 p-8 text-center">
-          <p className="text-sm text-gray-500">
-            {hidePastSpots || hideFullSpots
-              ? "No occurrences match your filters"
-              : "No occurrences found"}
-          </p>
-        </div>
+        <Card className="rounded-2xl shadow-sm">
+          <CardContent className="flex flex-col items-center justify-center py-16 px-6 text-center">
+            <p className="text-sm text-muted-foreground">
+              No occurrences found
+            </p>
+          </CardContent>
+        </Card>
       ) : (
         <div className="space-y-4">
           {filteredOccurrences.map((occurrence) => {
@@ -536,23 +488,26 @@ export function RecurringEventManager({
             );
 
             return (
-              <Card key={dateStr} className="overflow-hidden">
+              <Card
+                key={dateStr}
+                className="rounded-2xl shadow-sm overflow-hidden border-0 hover:shadow-md transition-shadow"
+              >
                 <CardHeader
-                  className="cursor-pointer bg-gray-50 p-4 hover:bg-gray-100"
+                  className="cursor-pointer p-6 hover:bg-muted/30 transition-colors"
                   onClick={() => toggleDate(dateStr)}
                 >
-                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-                    <div className="flex items-center gap-2">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex items-center gap-3 flex-1">
                       <ChevronDown
-                        className={`h-5 w-5 transition-transform ${isExpanded ? "rotate-180" : ""}`}
+                        className={`h-5 w-5 text-muted-foreground transition-transform shrink-0 ${isExpanded ? "rotate-180" : ""}`}
                       />
-                      <h3 className="text-base font-semibold sm:text-lg">
-                        {format(occurrence.date, "EEEE, MMM d, yyyy")}
+                      <h3 className="text-lg font-semibold">
+                        {format(occurrence.date, "EEEE, MMM d")}
                       </h3>
                     </div>
-                    <div className="flex items-center gap-2 sm:gap-4">
-                      <span className="text-sm text-gray-500 sm:text-base">
-                        {totalFilled} of {totalCapacity} filled
+                    <div className="flex items-center gap-4 sm:gap-6">
+                      <span className="text-sm font-medium text-muted-foreground">
+                        {totalFilled} / {totalCapacity} filled
                       </span>
                       <DropdownMenu>
                         <DropdownMenuTrigger
@@ -562,7 +517,7 @@ export function RecurringEventManager({
                           <Button
                             variant="ghost"
                             size="sm"
-                            className="h-8 w-8 p-0"
+                            className="h-8 w-8 p-0 hover:bg-muted/50"
                           >
                             <MoreVertical className="h-4 w-4" />
                           </Button>
@@ -586,218 +541,192 @@ export function RecurringEventManager({
                 </CardHeader>
 
                 {isExpanded && (
-                  <CardContent className="p-0">
-                    <div className="overflow-x-auto">
-                      <table className="w-full min-w-[500px]">
-                        <thead className="border-b bg-gray-50">
-                          <tr>
-                            <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500 sm:text-sm">
-                              Spot
-                            </th>
-                            <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500 sm:text-sm">
-                              Time
-                            </th>
-                            <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500 sm:text-sm">
-                              Capacity
-                            </th>
-                            <th className="px-4 py-3 text-left text-xs font-medium uppercase text-gray-500 sm:text-sm">
-                              Participants
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y">
-                          {occurrence.slots
-                            .filter((slot) => !slot.isWaitlist)
-                            .map((slot) => (
-                              <tr key={slot.id} className="hover:bg-gray-50">
-                                <td className="px-4 py-3 text-sm font-medium sm:text-base">
+                  <CardContent className="p-6 space-y-4 border-t border-border/50">
+                    {occurrence.slots.filter((slot) => !slot.isWaitlist)
+                      .length === 0 ? (
+                      <p className="text-sm text-muted-foreground text-center py-6">
+                        No slots for this date
+                      </p>
+                    ) : (
+                      occurrence.slots
+                        .filter((slot) => !slot.isWaitlist)
+                        .map((slot) => (
+                          <div
+                            key={slot.id}
+                            className="rounded-xl bg-muted/30 p-4 hover:bg-muted/50 transition-colors"
+                          >
+                            <div className="flex items-start justify-between gap-4">
+                              <div className="flex-1 min-w-0">
+                                <h4 className="font-semibold text-foreground">
                                   {slot.name}
-                                </td>
-                                <td className="px-4 py-3 text-xs text-gray-500 sm:text-sm">
-                                  {slot.time}
-                                </td>
-                                <td className="px-4 py-3 text-sm sm:text-base">
-                                  {slot.filled} / {slot.capacity}
-                                  {slot.waitlist &&
-                                    slot.waitlist.length > 0 && (
-                                      <span className="ml-1 text-orange-600">
-                                        (+{slot.waitlist.length} waitlist)
-                                      </span>
-                                    )}
-                                </td>
-                                <td className="px-4 py-3">
-                                  <Dialog>
-                                    <DialogTrigger asChild>
-                                      <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        className="text-xs text-primary hover:text-primary sm:text-sm"
-                                        onClick={() => {
-                                          setSelectedSlot(slot);
-                                          setSelectedOccurrence(occurrence);
-                                        }}
-                                      >
-                                        <Users className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
-                                        View (
-                                        {slot.filled +
-                                          (slot.waitlist?.length || 0)}
-                                        )
-                                      </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[500px]">
-                                      <DialogHeader>
-                                        <DialogTitle className="text-base sm:text-lg">
-                                          {slot.name} -{" "}
-                                          {format(
-                                            occurrence.date,
-                                            "MMM d, yyyy"
-                                          )}
-                                        </DialogTitle>
-                                      </DialogHeader>
-                                      <div className="space-y-6">
-                                        {slot.signups &&
-                                          slot.signups.length > 0 && (
-                                            <div>
-                                              <h4 className="mb-3 text-sm font-semibold text-gray-900 sm:text-base">
-                                                Confirmed ({slot.signups.length}
-                                                )
-                                              </h4>
-                                              <div className="space-y-2">
-                                                {slot.signups.map(
-                                                  (signup: any) => (
-                                                    <div
-                                                      key={signup.id}
-                                                      className="flex items-center justify-between rounded-lg border p-3"
+                                </h4>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                  {slot.filled} / {slot.capacity} filled
+                                </p>
+                                {slot.waitlist && slot.waitlist.length > 0 && (
+                                  <p className="text-xs text-orange-600 mt-1">
+                                    {slot.waitlist.length} on waitlist
+                                  </p>
+                                )}
+                              </div>
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="rounded-lg text-xs sm:text-sm"
+                                    onClick={() => {
+                                      setSelectedSlot(slot);
+                                      setSelectedOccurrence(occurrence);
+                                    }}
+                                  >
+                                    <Users className="mr-1 h-4 w-4" />
+                                    View (
+                                    {slot.filled + (slot.waitlist?.length || 0)}
+                                    )
+                                  </Button>
+                                </DialogTrigger>
+                                <DialogContent className="max-h-[80vh] overflow-y-auto sm:max-w-[500px]">
+                                  <DialogHeader>
+                                    <DialogTitle className="text-base sm:text-lg">
+                                      {slot.name} —{" "}
+                                      {format(occurrence.date, "MMM d, yyyy")}
+                                    </DialogTitle>
+                                  </DialogHeader>
+                                  <div className="space-y-6">
+                                    {slot.signups &&
+                                      slot.signups.length > 0 && (
+                                        <div>
+                                          <h4 className="mb-3 text-sm font-semibold">
+                                            Confirmed ({slot.signups.length})
+                                          </h4>
+                                          <div className="space-y-2">
+                                            {slot.signups.map((signup: any) => (
+                                              <div
+                                                key={signup.id}
+                                                className="flex items-center justify-between rounded-lg bg-muted/50 p-3"
+                                              >
+                                                <div className="flex items-center gap-3">
+                                                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-purple-100 text-xs font-medium text-purple-600">
+                                                    {signup.name?.[0]?.toUpperCase() ||
+                                                      "?"}
+                                                  </div>
+                                                  <div className="min-w-0">
+                                                    <p className="text-sm font-medium truncate">
+                                                      {signup.name}
+                                                    </p>
+                                                    <p className="text-xs text-muted-foreground truncate">
+                                                      {signup.email}
+                                                    </p>
+                                                  </div>
+                                                </div>
+                                                <DropdownMenu>
+                                                  <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                      variant="ghost"
+                                                      size="sm"
+                                                      className="h-8 w-8 p-0"
                                                     >
-                                                      <div className="flex items-center gap-3">
-                                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-xs font-medium text-primary sm:h-10 sm:w-10 sm:text-sm">
-                                                          {signup.name?.[0]?.toUpperCase() ||
-                                                            "?"}
-                                                        </div>
-                                                        <div>
-                                                          <p className="text-sm font-medium sm:text-base">
-                                                            {signup.name}
-                                                          </p>
-                                                          <p className="text-xs text-gray-500 sm:text-sm">
-                                                            {signup.email}
-                                                          </p>
-                                                        </div>
-                                                      </div>
-                                                      <DropdownMenu>
-                                                        <DropdownMenuTrigger
-                                                          asChild
-                                                        >
-                                                          <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                          >
-                                                            <MoreVertical className="h-4 w-4" />
-                                                          </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                          <DropdownMenuItem
-                                                            onClick={() =>
-                                                              handleRemoveSignup(
-                                                                signup.id,
-                                                                occurrence.date
-                                                              )
-                                                            }
-                                                            className="text-destructive"
-                                                          >
-                                                            Remove
-                                                          </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                      </DropdownMenu>
-                                                    </div>
-                                                  )
-                                                )}
-                                              </div>
-                                            </div>
-                                          )}
-
-                                        {slot.waitlist &&
-                                          slot.waitlist.length > 0 && (
-                                            <div>
-                                              <h4 className="mb-3 text-sm font-semibold text-orange-600 sm:text-base">
-                                                Waitlist ({slot.waitlist.length}
-                                                )
-                                              </h4>
-                                              <div className="space-y-2">
-                                                {slot.waitlist.map(
-                                                  (
-                                                    waitlistSignup: any,
-                                                    index: number
-                                                  ) => (
-                                                    <div
-                                                      key={waitlistSignup.id}
-                                                      className="flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 p-3"
+                                                      <MoreVertical className="h-4 w-4" />
+                                                    </Button>
+                                                  </DropdownMenuTrigger>
+                                                  <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem
+                                                      onClick={() =>
+                                                        handleRemoveSignup(
+                                                          signup.id,
+                                                          occurrence.date
+                                                        )
+                                                      }
+                                                      className="text-destructive"
                                                     >
-                                                      <div className="flex items-center gap-3">
-                                                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 text-xs font-medium text-orange-600 sm:h-10 sm:w-10 sm:text-sm">
-                                                          {index + 1}
-                                                        </div>
-                                                        <div>
-                                                          <p className="text-sm font-medium sm:text-base">
-                                                            {
-                                                              waitlistSignup.name
-                                                            }
-                                                          </p>
-                                                          <p className="text-xs text-gray-600 sm:text-sm">
-                                                            {
-                                                              waitlistSignup.email
-                                                            }
-                                                          </p>
-                                                        </div>
-                                                      </div>
-                                                      <DropdownMenu>
-                                                        <DropdownMenuTrigger
-                                                          asChild
-                                                        >
-                                                          <Button
-                                                            variant="ghost"
-                                                            size="sm"
-                                                          >
-                                                            <MoreVertical className="h-4 w-4" />
-                                                          </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end">
-                                                          <DropdownMenuItem
-                                                            onClick={() =>
-                                                              handleRemoveSignup(
-                                                                waitlistSignup.id,
-                                                                occurrence.date
-                                                              )
-                                                            }
-                                                            className="text-destructive"
-                                                          >
-                                                            Remove from Waitlist
-                                                          </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                      </DropdownMenu>
-                                                    </div>
-                                                  )
-                                                )}
+                                                      Remove
+                                                    </DropdownMenuItem>
+                                                  </DropdownMenuContent>
+                                                </DropdownMenu>
                                               </div>
-                                            </div>
-                                          )}
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
 
-                                        {(!slot.signups ||
-                                          slot.signups.length === 0) &&
-                                          (!slot.waitlist ||
-                                            slot.waitlist.length === 0) && (
-                                            <p className="text-center text-sm text-gray-500">
-                                              No participants yet
-                                            </p>
-                                          )}
-                                      </div>
-                                    </DialogContent>
-                                  </Dialog>
-                                </td>
-                              </tr>
-                            ))}
-                        </tbody>
-                      </table>
-                    </div>
+                                    {slot.waitlist &&
+                                      slot.waitlist.length > 0 && (
+                                        <div>
+                                          <h4 className="mb-3 text-sm font-semibold text-orange-600">
+                                            Waitlist ({slot.waitlist.length})
+                                          </h4>
+                                          <div className="space-y-2">
+                                            {slot.waitlist.map(
+                                              (
+                                                waitlistSignup: any,
+                                                index: number
+                                              ) => (
+                                                <div
+                                                  key={waitlistSignup.id}
+                                                  className="flex items-center justify-between rounded-lg bg-orange-50 dark:bg-orange-950/20 border border-orange-200 dark:border-orange-900/30 p-3"
+                                                >
+                                                  <div className="flex items-center gap-3">
+                                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-orange-100 text-xs font-medium text-orange-600">
+                                                      {index + 1}
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                      <p className="text-sm font-medium truncate">
+                                                        {waitlistSignup.name}
+                                                      </p>
+                                                      <p className="text-xs text-muted-foreground truncate">
+                                                        {waitlistSignup.email}
+                                                      </p>
+                                                    </div>
+                                                  </div>
+                                                  <DropdownMenu>
+                                                    <DropdownMenuTrigger
+                                                      asChild
+                                                    >
+                                                      <Button
+                                                        variant="ghost"
+                                                        size="sm"
+                                                        className="h-8 w-8 p-0"
+                                                      >
+                                                        <MoreVertical className="h-4 w-4" />
+                                                      </Button>
+                                                    </DropdownMenuTrigger>
+                                                    <DropdownMenuContent align="end">
+                                                      <DropdownMenuItem
+                                                        onClick={() =>
+                                                          handleRemoveSignup(
+                                                            waitlistSignup.id,
+                                                            occurrence.date
+                                                          )
+                                                        }
+                                                        className="text-destructive"
+                                                      >
+                                                        Remove from Waitlist
+                                                      </DropdownMenuItem>
+                                                    </DropdownMenuContent>
+                                                  </DropdownMenu>
+                                                </div>
+                                              )
+                                            )}
+                                          </div>
+                                        </div>
+                                      )}
+
+                                    {(!slot.signups ||
+                                      slot.signups.length === 0) &&
+                                      (!slot.waitlist ||
+                                        slot.waitlist.length === 0) && (
+                                        <p className="text-center text-sm text-muted-foreground py-6">
+                                          No participants yet
+                                        </p>
+                                      )}
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            </div>
+                          </div>
+                        ))
+                    )}
                   </CardContent>
                 )}
               </Card>

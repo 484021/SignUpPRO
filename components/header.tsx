@@ -3,9 +3,10 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Instagram } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { useState } from "react";
+import { useUser, UserButton } from "@clerk/nextjs";
 
 const hasClerkKeys =
   typeof window !== "undefined" &&
@@ -16,6 +17,7 @@ export function Header() {
   const pathname = usePathname();
   const isDashboard = pathname?.startsWith("/dashboard");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isSignedIn } = useUser();
 
   return (
     <header className="border-b border-border bg-background/80 backdrop-blur-xl sticky top-0 z-50">
@@ -39,12 +41,19 @@ export function Header() {
                     Dashboard
                   </Button>
                 </Link>
-                <Link href="/dashboard/settings">
-                  <Button variant="ghost" size="sm">
-                    Settings
-                  </Button>
-                </Link>
+
+                {isSignedIn ? (
+                  <UserButton />
+                ) : (
+                  <Link href="/sign-in">
+                    <Button variant="outline" size="sm">
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
               </>
+            ) : isSignedIn ? (
+              <UserButton />
             ) : (
               <Link href="/sign-in">
                 <Button variant="outline" size="sm">
@@ -52,21 +61,10 @@ export function Header() {
                 </Button>
               </Link>
             )}
-            <a
-              href="https://instagram.com/santhosh.growth"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center"
-            >
-              <Button variant="outline" size="icon">
-                <Instagram className="w-4 h-4" />
-              </Button>
-            </a>
-            <Button asChild variant="default">
-              <a href="mailto:support@example.com?subject=Support%20Request">
-                Contact Support
-              </a>
-            </Button>
+
+            <Link href="/contact">
+              <Button variant="default">Contact Support</Button>
+            </Link>
           </nav>
 
           <button
@@ -98,23 +96,31 @@ export function Header() {
                     Dashboard
                   </Button>
                 </Link>
-                <Link
-                  href="/dashboard/settings"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start"
+
+                {isSignedIn ? (
+                  <div className="w-full">
+                    <UserButton />
+                  </div>
+                ) : (
+                  <Link
+                    href="/sign-in"
+                    onClick={() => setMobileMenuOpen(false)}
                   >
-                    Settings
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full bg-transparent"
+                    >
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
+
+                <Link href="/contact">
+                  <Button asChild variant="default">
+                    <span>Contact Support</span>
                   </Button>
                 </Link>
-                <Button asChild variant="default">
-                  <a href="mailto:santhosh@hnbk.solutions?subject=Support%20Request">
-                    Contact Support
-                  </a>
-                </Button>
               </>
             ) : (
               <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>

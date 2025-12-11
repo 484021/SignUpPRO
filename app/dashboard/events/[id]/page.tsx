@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { Header } from "@/components/header";
+import { NavDashboard } from "@/components/nav-dashboard";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { ExternalLink } from "lucide-react";
 import { getEvent } from "@/lib/actions/events";
 import { format, parseISO } from "date-fns";
@@ -19,7 +20,7 @@ export default async function EventDetailPage({
   if (!eventData || !eventData.event) {
     return (
       <div className="min-h-screen bg-background">
-        <Header />
+        <NavDashboard />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Event not found</h1>
           <p className="text-muted-foreground mb-6">
@@ -51,38 +52,50 @@ export default async function EventDetailPage({
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
-      <main className="container mx-auto px-4 py-8 max-w-6xl space-y-6">
-        {/* Header */}
-        <div className="flex items-start justify-between gap-4">
-          <div className="space-y-2">
-            <div className="flex items-center gap-3">
-              <h1 className="text-3xl font-bold">{event.title}</h1>
-              <Badge>{event.status}</Badge>
-            </div>
-            <div className="text-sm text-muted-foreground">{dateRangeText}</div>
+      <NavDashboard />
+      <main className="container mx-auto px-4 py-10 max-w-6xl">
+        <div className="space-y-6">
+          {/* Header Card */}
+          <Card className="rounded-2xl shadow-md">
+            <CardContent className="py-8 px-6">
+              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                <div className="space-y-3 flex-1">
+                  <div className="flex items-center gap-3 flex-wrap">
+                    <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
+                      {event.title}
+                    </h1>
+                    <Badge className="py-1 px-3 rounded-md text-xs uppercase tracking-wide">
+                      {event.status}
+                    </Badge>
+                  </div>
+                  <div className="text-base text-muted-foreground font-medium">
+                    {dateRangeText}
+                  </div>
 
-            {event.description && (
-              <p className="text-sm text-muted-foreground max-w-3xl">
-                {event.description}
-              </p>
-            )}
-          </div>
+                  {event.description && (
+                    <p className="text-base text-muted-foreground max-w-3xl leading-relaxed">
+                      {event.description}
+                    </p>
+                  )}
+                </div>
 
-          <Link href={`/signup/${event.slug}`} target="_blank">
-            <Button variant="outline" className="bg-transparent">
-              <ExternalLink className="w-4 h-4 mr-2" />
-              View Public Page
-            </Button>
-          </Link>
+                <Link href={`/signup/${event.slug}`} target="_blank">
+                  <Button variant="outline" className="rounded-xl h-10">
+                    <ExternalLink className="w-4 h-4 mr-2" />
+                    View Public Page
+                  </Button>
+                </Link>
+              </div>
+            </CardContent>
+          </Card>
+
+          <RecurringEventManager
+            event={event}
+            slots={slots}
+            signups={signups}
+            waitlist={waitlist}
+          />
         </div>
-
-        <RecurringEventManager
-          event={event}
-          slots={slots}
-          signups={signups}
-          waitlist={waitlist}
-        />
       </main>
     </div>
   );

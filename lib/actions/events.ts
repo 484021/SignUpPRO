@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import type { Event } from "@/lib/types";
 import { getSignupConfirmationEmail, sendEmail } from "@/lib/email";
 import { generateOccurrences } from "@/lib/utils/generate-occurrences";
+import { format } from "date-fns";
 
 async function getCurrentUserId(): Promise<string | null> {
   // Check if Clerk is configured
@@ -160,14 +161,15 @@ export async function createEvent(formData: {
           });
         }
 
+        // NOTE: Waitlist is now handled via status="waitlisted" instead of separate slot
         // Automatically add a Waitlist slot for this occurrence
-        slotsToInsert.push({
-          event_id: event.id,
-          name: "Waitlist",
-          capacity: 9999, // Very high capacity for waitlist
-          available: 9999,
-          occurrence_date: occurrenceDate.toISOString(),
-        });
+        // slotsToInsert.push({
+        //   event_id: event.id,
+        //   name: "Waitlist",
+        //   capacity: 9999, // Very high capacity for waitlist
+        //   available: 9999,
+        //   occurrence_date: occurrenceDate.toISOString(),
+        // });
       }
 
       const { error: slotsError } = await supabase
@@ -354,14 +356,15 @@ export async function updateEvent(
             });
           }
 
+          // NOTE: Waitlist is now handled via status="waitlisted" instead of separate slot
           // Automatically add a Waitlist slot for this occurrence
-          slotsToInsert.push({
-            event_id: eventId,
-            name: "Waitlist",
-            capacity: 9999, // Very high capacity for waitlist
-            available: 9999,
-            occurrence_date: occurrenceDate.toISOString(),
-          });
+          // slotsToInsert.push({
+          //   event_id: eventId,
+          //   name: "Waitlist",
+          //   capacity: 9999, // Very high capacity for waitlist
+          //   available: 9999,
+          //   occurrence_date: occurrenceDate.toISOString(),
+          // });
         }
 
         const { error: insertError } = await supabase
@@ -880,9 +883,26 @@ export async function removeSelfByEmail(
 
     const { data: signups, error: signupsError } = await supabase
       .from("signups")
-      .select("id, name, email, slot_id, status, slots(name)")
+      .select("id, name, email, slot_id, status, occurrence_date, slots(name)")
       .eq("event_id", event.id)
-      .eq("email", email.trim());
+      .ilike("email", email.trim());
+
+    // Also get ALL signups for this email across all events for debugging
+    const { data: allSignupsForEmail } = await supabase
+      .from("signups")
+      .select("id, name, email, slot_id, status, event_id")
+      .ilike("email", email.trim());
+
+    console.log(
+      "removeSelfByEmail: ALL signups for this email in database:",
+      allSignupsForEmail?.map((s: any) => ({
+        id: s.id,
+        name: s.name,
+        status: s.status,
+        slot_id: s.slot_id,
+        event_id: s.event_id,
+      }))
+    );
 
     console.log("removeSelfByEmail: Signups query result:", {
       signupsFound: signups?.length || 0,
@@ -951,7 +971,12 @@ export async function removeSelfByEmail(
       console.error("removeSelfByEmail: Signup not found in filtered list");
       return { success: false, error: "Signup not found" };
     }
-    console.log("removeSelfByEmail: Deleting signup:", signupToDelete.id);
+    console.log(
+      "removeSelfByEmail: Deleting signup:",
+      signupToDelete.id,
+      "occurrence_date:",
+      signupToDelete.occurrence_date
+    );
     const { error: deleteError } = await supabase
       .from("signups")
       .delete()
@@ -969,23 +994,58 @@ export async function removeSelfByEmail(
     if (signupToDelete.slot_id) {
       console.log(
         "removeSelfByEmail: Checking for waitlist entries for slot:",
-        signupToDelete.slot_id
+        signupToDelete.slot_id,
+        "with occurrence_date:",
+        signupToDelete.occurrence_date
       );
 
-      const { data: waitlistEntries, error: waitlistError } = await supabase
+      // Look for entries with status="waitlisted" in the SAME slot
+      const { data: allWaitlist, error: allWaitlistError } = await supabase
         .from("signups")
         .select("*")
         .eq("slot_id", signupToDelete.slot_id)
         .eq("status", "waitlisted")
-        .order("created_at", { ascending: true })
-        .limit(1);
+        .order("created_at", { ascending: true });
 
-      if (waitlistError) {
+      console.log(
+        "removeSelfByEmail: Waitlist entries with status='waitlisted' for slot:",
+        allWaitlist?.map((w: any) => ({
+          id: w.id,
+          name: w.name,
+          occurrence_date: w.occurrence_date,
+          created_at: w.created_at,
+        }))
+      );
+
+      if (allWaitlistError) {
         console.error(
           "removeSelfByEmail: Waitlist query error:",
-          waitlistError
+          allWaitlistError
         );
       }
+
+      let waitlistEntries = allWaitlist || [];
+
+      // If occurrence_date exists on deleted signup, filter to matching occurrence
+      if (signupToDelete.occurrence_date && waitlistEntries.length > 0) {
+        const matchingOccurrence = waitlistEntries.filter(
+          (w: any) => w.occurrence_date === signupToDelete.occurrence_date
+        );
+        if (matchingOccurrence.length > 0) {
+          waitlistEntries = matchingOccurrence;
+        }
+      }
+
+      // Get the first person in line (already sorted by created_at)
+      if (waitlistEntries.length > 0) {
+        waitlistEntries = waitlistEntries.slice(0, 1);
+      }
+
+      console.log(
+        "removeSelfByEmail: Found",
+        waitlistEntries.length,
+        "entries in waitlist to promote"
+      );
 
       if (waitlistEntries && waitlistEntries.length > 0) {
         const firstInLine = waitlistEntries[0];
@@ -1010,55 +1070,46 @@ export async function removeSelfByEmail(
           console.log(
             "removeSelfByEmail: Promoted waitlist entry successfully"
           );
-        }
 
-        try {
-          const confirmationEmail = getSignupConfirmationEmail({
-            name: firstInLine.name,
-            email: firstInLine.email,
-            eventTitle: event.title || "Event",
-            eventDate: event.date || new Date().toISOString(),
-            slotName:
-              (signupToDelete as any).slots?.name || "General Admission",
-            manageUrl: `https://signuppro.app/signup/manage/${crypto.randomUUID()}`,
-          });
+          // Fetch slot details for the email
+          const { data: slotDetails } = await supabase
+            .from("slots")
+            .select("name")
+            .eq("id", signupToDelete.slot_id)
+            .single();
 
-          await sendEmail({
-            to: firstInLine.email,
-            subject: `You're in! Spot available for ${event.title || "Event"}`,
-            html: confirmationEmail,
-          });
+          try {
+            const confirmationEmail = getSignupConfirmationEmail({
+              name: firstInLine.name,
+              email: firstInLine.email,
+              eventTitle: event.title || "Event",
+              eventDate: event.date || new Date().toISOString(),
+              slotName: slotDetails?.name || "General Admission",
+              manageUrl: `${process.env.NEXT_PUBLIC_APP_URL || "https://signuppro.app"}/signup/${eventSlug}/manage`,
+            });
 
-          console.log(
-            "removeSelfByEmail: Confirmation email sent to promoted person"
-          );
-        } catch (emailError) {
-          console.error(
-            "removeSelfByEmail: Failed to send confirmation email:",
-            emailError
-          );
+            await sendEmail({
+              to: firstInLine.email,
+              subject: `🎉 Good news! A spot opened up for ${event.title || "Event"}`,
+              html: confirmationEmail,
+            });
+
+            console.log(
+              "removeSelfByEmail: Promotion confirmation email sent to:",
+              firstInLine.email
+            );
+          } catch (emailError) {
+            console.error(
+              "removeSelfByEmail: Failed to send confirmation email:",
+              emailError
+            );
+          }
         }
       } else {
         // No waitlist entries, just increment availability
         console.log(
           "removeSelfByEmail: No waitlist entries, updating slot availability"
         );
-        const { data: slotData, error: slotError } = await supabase
-          .from("slots")
-          .select("available, capacity")
-          .eq("id", signupToDelete.slot_id)
-          .single();
-
-        if (!slotError && slotData) {
-          const newAvailable = Math.min(
-            slotData.available + 1,
-            slotData.capacity
-          );
-          await supabase
-            .from("slots")
-            .update({ available: newAvailable })
-            .eq("id", signupToDelete.slot_id);
-        }
       }
     }
 
@@ -1110,7 +1161,7 @@ export async function removeWaitlistByEmail(
       .from("signups")
       .select("id, name, slot_id, slots(name)")
       .eq("event_id", event.id)
-      .eq("email", email.trim())
+      .ilike("email", email.trim())
       .eq("status", "waitlisted");
 
     if (waitlistError) {

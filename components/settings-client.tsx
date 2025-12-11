@@ -1,74 +1,85 @@
-"use client"
+"use client";
 
-import type React from "react"
-import { useState } from "react"
-import { Header } from "@/components/header"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { Loader2 } from "lucide-react"
-import { useToast } from "@/hooks/use-toast"
+import type React from "react";
+import { useState } from "react";
+import { NavDashboard } from "@/components/nav-dashboard";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface SettingsClientProps {
   user: {
-    id: string
-    email: string
-    plan: string
-  }
+    id: string;
+    email: string;
+    plan: string;
+  };
 }
 
 export function SettingsClient({ user }: SettingsClientProps) {
-  const { toast } = useToast()
-  const [email, setEmail] = useState(user.email)
-  const [isSaving, setIsSaving] = useState(false)
+  const { toast } = useToast();
+  const [email, setEmail] = useState(user.email);
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsSaving(true)
+    e.preventDefault();
+    setIsSaving(true);
 
     try {
       // Mock: In production, save to database
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast({
         title: "Settings saved",
         description: "Your account settings have been updated.",
-      })
+      });
     } catch (error) {
       toast({
         title: "Error",
         description: "Failed to save settings",
         variant: "destructive",
-      })
+      });
     } finally {
-      setIsSaving(false)
+      setIsSaving(false);
     }
-  }
+  };
 
   const handleResetOnboarding = () => {
-    localStorage.removeItem("onboarding_complete")
+    localStorage.removeItem("onboarding_complete");
     toast({
       title: "Onboarding reset",
-      description: "You'll see the onboarding guide next time you visit the dashboard.",
-    })
-  }
+      description:
+        "You'll see the onboarding guide next time you visit the dashboard.",
+    });
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      <Header />
+      <NavDashboard />
       <main className="container mx-auto px-4 py-8 max-w-3xl space-y-8">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold">Settings</h1>
-          <p className="text-muted-foreground">Manage your account preferences</p>
+          <p className="text-muted-foreground">
+            Manage your account preferences
+          </p>
         </div>
 
         {/* Account Information */}
         <Card>
           <CardHeader>
             <CardTitle>Account Information</CardTitle>
-            <CardDescription>Update your email address and profile</CardDescription>
+            <CardDescription>
+              Update your email address and profile
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSave} className="space-y-4">
@@ -107,9 +118,16 @@ export function SettingsClient({ user }: SettingsClientProps) {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Onboarding Guide</Label>
-                <p className="text-sm text-muted-foreground">Reset to see the welcome guide again</p>
+                <p className="text-sm text-muted-foreground">
+                  Reset to see the welcome guide again
+                </p>
               </div>
-              <Button variant="outline" size="sm" onClick={handleResetOnboarding} className="bg-transparent">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleResetOnboarding}
+                className="bg-transparent"
+              >
                 Reset
               </Button>
             </div>
@@ -127,7 +145,9 @@ export function SettingsClient({ user }: SettingsClientProps) {
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
                 <Label>Delete Account</Label>
-                <p className="text-sm text-muted-foreground">Permanently delete your account and all data</p>
+                <p className="text-sm text-muted-foreground">
+                  Permanently delete your account and all data
+                </p>
               </div>
               <Button
                 variant="destructive"
@@ -146,5 +166,5 @@ export function SettingsClient({ user }: SettingsClientProps) {
         </Card>
       </main>
     </div>
-  )
+  );
 }

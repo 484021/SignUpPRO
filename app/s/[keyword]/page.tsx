@@ -1,34 +1,44 @@
-import type { Metadata } from "next"
-import Link from "next/link"
-import { notFound } from "next/navigation"
-import { getKeywordBySlug, getAllKeywordSlugs } from "@/lib/seo/keywords"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
-import { Check, ArrowRight, Star, Users, Clock, Shield, Zap, TrendingUp, Calendar } from "lucide-react"
-import { Header } from "@/components/header"
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getKeywordBySlug, getAllKeywordSlugs } from "@/lib/seo/keywords";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import {
+  Check,
+  ArrowRight,
+  Star,
+  Users,
+  Clock,
+  Shield,
+  Zap,
+  TrendingUp,
+  Calendar,
+} from "lucide-react";
+import { NavPublic } from "@/components/nav-public";
 
-export const dynamic = "force-static"
-export const dynamicParams = false
-export const revalidate = 86400 // Revalidate once per day
+export const dynamic = "force-static";
+export const dynamicParams = false;
+export const revalidate = 86400; // Revalidate once per day
 
 export function generateStaticParams() {
-  const slugs = getAllKeywordSlugs()
-  console.log("[v0] Generating static params for", slugs.length, "SEO pages")
+  const slugs = getAllKeywordSlugs();
+  console.log("[v0] Generating static params for", slugs.length, "SEO pages");
   return slugs.map((slug) => ({
     keyword: slug,
-  }))
+  }));
 }
 
 export async function generateMetadata({
   params,
 }: {
-  params: Promise<{ keyword: string }>
+  params: Promise<{ keyword: string }>;
 }): Promise<Metadata> {
-  const { keyword } = await params
-  const keywordData = getKeywordBySlug(keyword)
+  const { keyword } = await params;
+  const keywordData = getKeywordBySlug(keyword);
 
   if (!keywordData) {
-    return { title: "Page Not Found" }
+    return { title: "Page Not Found" };
   }
 
   return {
@@ -79,15 +89,19 @@ export async function generateMetadata({
         "max-snippet": -1,
       },
     },
-  }
+  };
 }
 
-export default async function KeywordLandingPage({ params }: { params: Promise<{ keyword: string }> }) {
-  const { keyword } = await params
-  const keywordData = getKeywordBySlug(keyword)
+export default async function KeywordLandingPage({
+  params,
+}: {
+  params: Promise<{ keyword: string }>;
+}) {
+  const { keyword } = await params;
+  const keywordData = getKeywordBySlug(keyword);
 
   if (!keywordData) {
-    notFound()
+    notFound();
   }
 
   const jsonLd = {
@@ -138,12 +152,15 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
         inLanguage: "en-US",
       },
     ],
-  }
+  };
 
   return (
     <>
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <Header />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <NavPublic />
 
       <main className="min-h-screen">
         <section className="relative py-16 sm:py-20 md:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
@@ -221,7 +238,9 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
                     key={idx}
                     className="p-6 border-2 border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-transparent hover:shadow-xl hover:shadow-purple-500/10 transition-all duration-300"
                   >
-                    <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">{point}</p>
+                    <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+                      {point}
+                    </p>
                   </Card>
                 ))}
               </div>
@@ -229,7 +248,10 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
           </section>
         )}
 
-        <section id="features" className="py-16 sm:py-20 md:py-32 px-4 sm:px-6 lg:px-8">
+        <section
+          id="features"
+          className="py-16 sm:py-20 md:py-32 px-4 sm:px-6 lg:px-8"
+        >
           <div className="container mx-auto max-w-6xl">
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-12 sm:mb-16">
               Why{" "}
@@ -247,7 +269,9 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
                     <Check className="w-6 h-6 text-white" />
                   </div>
-                  <p className="text-lg font-medium leading-relaxed">{benefit}</p>
+                  <p className="text-lg font-medium leading-relaxed">
+                    {benefit}
+                  </p>
                 </Card>
               ))}
             </div>
@@ -257,7 +281,9 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
         {keywordData.use_cases.length > 0 && (
           <section className="py-12 sm:py-16 md:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-purple-500/5 via-blue-500/5 to-transparent">
             <div className="container mx-auto max-w-5xl">
-              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-10 sm:mb-12">Perfect For</h2>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-center mb-10 sm:mb-12">
+                Perfect For
+              </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 sm:gap-6">
                 {keywordData.use_cases.map((useCase, idx) => (
                   <Card
@@ -267,7 +293,9 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-600 to-cyan-600 flex items-center justify-center mx-auto mb-4">
                       <Users className="w-6 h-6 text-white" />
                     </div>
-                    <p className="font-semibold text-sm sm:text-base">{useCase}</p>
+                    <p className="font-semibold text-sm sm:text-base">
+                      {useCase}
+                    </p>
                   </Card>
                 ))}
               </div>
@@ -294,7 +322,9 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
                   <div className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-blue-600 to-cyan-600 bg-clip-text text-transparent mb-3">
                     500K+
                   </div>
-                  <p className="text-muted-foreground text-lg">Signups Processed</p>
+                  <p className="text-muted-foreground text-lg">
+                    Signups Processed
+                  </p>
                 </div>
                 <div className="text-center">
                   <div className="text-4xl sm:text-5xl md:text-6xl font-bold bg-gradient-to-r from-cyan-600 to-purple-600 bg-clip-text text-transparent mb-3">
@@ -323,9 +353,12 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-100 to-blue-100 dark:from-purple-900/20 dark:to-blue-900/20 flex items-center justify-center mx-auto mb-4">
                   <Calendar className="w-6 h-6 text-purple-600" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold mb-3">Create Event</h3>
+                <h3 className="text-xl sm:text-2xl font-bold mb-3">
+                  Create Event
+                </h3>
                 <p className="text-muted-foreground leading-relaxed">
-                  Set up your event with date, time, and capacity in under 2 minutes
+                  Set up your event with date, time, and capacity in under 2
+                  minutes
                 </p>
               </Card>
               <Card className="p-8 text-center border-2 border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-transparent">
@@ -335,7 +368,9 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-100 to-cyan-100 dark:from-blue-900/20 dark:to-cyan-900/20 flex items-center justify-center mx-auto mb-4">
                   <Zap className="w-6 h-6 text-blue-600" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold mb-3">Share Link</h3>
+                <h3 className="text-xl sm:text-2xl font-bold mb-3">
+                  Share Link
+                </h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Share your unique signup link via email, text, or social media
                 </p>
@@ -347,7 +382,9 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
                 <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-100 to-purple-100 dark:from-cyan-900/20 dark:to-purple-900/20 flex items-center justify-center mx-auto mb-4">
                   <TrendingUp className="w-6 h-6 text-cyan-600" />
                 </div>
-                <h3 className="text-xl sm:text-2xl font-bold mb-3">Manage Easily</h3>
+                <h3 className="text-xl sm:text-2xl font-bold mb-3">
+                  Manage Easily
+                </h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Track signups in real-time and send automatic reminders
                 </p>
@@ -367,7 +404,8 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
                   Ready to Simplify Your Signups?
                 </h2>
                 <p className="text-lg sm:text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed text-balance">
-                  Join thousands of organizers who trust SignUpPRO for hassle-free event management.
+                  Join thousands of organizers who trust SignUpPRO for
+                  hassle-free event management.
                 </p>
                 <div className="pt-4">
                   <Link href="/sign-in">
@@ -402,7 +440,9 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
         {keywordData.related_keywords.length > 0 && (
           <section className="py-8 sm:py-12 px-4 sm:px-6 lg:px-8 border-t bg-muted/20">
             <div className="container mx-auto max-w-5xl">
-              <h3 className="text-sm font-semibold text-muted-foreground mb-4">Related Searches:</h3>
+              <h3 className="text-sm font-semibold text-muted-foreground mb-4">
+                Related Searches:
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {keywordData.related_keywords.map((relatedKeyword, idx) => (
                   <span
@@ -418,5 +458,5 @@ export default async function KeywordLandingPage({ params }: { params: Promise<{
         )}
       </main>
     </>
-  )
+  );
 }

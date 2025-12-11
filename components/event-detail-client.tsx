@@ -201,90 +201,100 @@ export function EventDetailClient({
 
   return (
     <>
-      <div className="bg-muted/50 border border-border rounded-lg p-4">
-        <div className="flex items-center justify-between gap-4">
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium mb-1">Share this event</p>
-            <p className="text-xs text-muted-foreground truncate">
-              {signupUrl}
-            </p>
-          </div>
-          <Button variant="secondary" size="sm" onClick={handleCopyLink}>
-            <Copy className="w-4 h-4 mr-2" />
-            Copy Link
-          </Button>
-        </div>
-      </div>
-
-      {event.description && (
-        <Card>
-          <CardContent className="pt-6">
-            <p className="text-muted-foreground">{event.description}</p>
-          </CardContent>
-        </Card>
-      )}
-
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Signups</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{signups.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Available Slots
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {slots.reduce((acc, s) => acc + s.available, 0)}
+      {/* Share Section */}
+      <Card className="rounded-2xl shadow-sm border-purple-200/50 dark:border-purple-900/50 bg-gradient-to-br from-purple-50/30 to-blue-50/30 dark:from-purple-950/10 dark:to-blue-950/10">
+        <CardContent className="py-6 px-6">
+          <div className="flex items-center justify-between gap-6">
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-semibold text-foreground mb-2">
+                Signup Link
+              </p>
+              <p className="text-sm text-muted-foreground truncate font-mono">
+                {signupUrl}
+              </p>
             </div>
+            <Button
+              onClick={handleCopyLink}
+              className="rounded-xl h-10 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 shadow-md hover:shadow-lg transition-all whitespace-nowrap"
+            >
+              <Copy className="w-4 h-4 mr-2" />
+              Copy
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Stats */}
+      <div className="grid gap-4 md:grid-cols-3">
+        <Card className="rounded-2xl shadow-sm border-0">
+          <CardContent className="pt-6">
+            <p className="text-sm font-medium text-muted-foreground mb-2">
+              Total Signups
+            </p>
+            <p className="text-4xl font-bold text-foreground">
+              {signups.length}
+            </p>
           </CardContent>
         </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Waitlist</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{waitlist.length}</div>
+        <Card className="rounded-2xl shadow-sm border-0">
+          <CardContent className="pt-6">
+            <p className="text-sm font-medium text-muted-foreground mb-2">
+              Available Slots
+            </p>
+            <p className="text-4xl font-bold text-foreground">
+              {slots.reduce((acc, s) => acc + s.available, 0)}
+            </p>
+          </CardContent>
+        </Card>
+        <Card className="rounded-2xl shadow-sm border-0">
+          <CardContent className="pt-6">
+            <p className="text-sm font-medium text-muted-foreground mb-2">
+              On Waitlist
+            </p>
+            <p className="text-4xl font-bold text-foreground">
+              {waitlist.length}
+            </p>
           </CardContent>
         </Card>
       </div>
 
+      {/* Action Menu */}
       <div className="flex justify-end">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" className="bg-transparent">
+            <Button
+              variant="outline"
+              className="rounded-xl h-10 px-4 border-purple-200 hover:border-purple-400 dark:border-purple-900 dark:hover:border-purple-700"
+            >
               <MoreVertical className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={handleCopyLink}>
-              <Copy className="w-4 h-4 mr-2" />
-              Copy Signup Link
-            </DropdownMenuItem>
+          <DropdownMenuContent align="end" className="w-48">
             <DropdownMenuItem
               onClick={() => router.push(`/dashboard/events/${event.id}/edit`)}
+              className="cursor-pointer"
             >
-              <Edit className="w-4 h-4 mr-2" />
-              Edit Event
+              <Edit className="w-4 h-4 mr-3" />
+              <span>Edit</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleDuplicate}>
-              <Copy className="w-4 h-4 mr-2" />
-              Duplicate
+            <DropdownMenuItem
+              onClick={handleDuplicate}
+              className="cursor-pointer"
+            >
+              <Copy className="w-4 h-4 mr-3" />
+              <span>Duplicate</span>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleExportCSV}>
-              <Download className="w-4 h-4 mr-2" />
-              Export CSV
+            <DropdownMenuItem
+              onClick={handleExportCSV}
+              className="cursor-pointer"
+            >
+              <Download className="w-4 h-4 mr-3" />
+              <span>Export CSV</span>
             </DropdownMenuItem>
             <DropdownMenuItem
               onClick={handleCloseEvent}
               disabled={isClosing || event.status === "closed"}
+              className="cursor-pointer"
             >
               {event.status === "closed"
                 ? "Event Closed"
@@ -295,36 +305,77 @@ export function EventDetailClient({
             <DropdownMenuItem
               onClick={handleDeleteEvent}
               disabled={isDeleting}
-              className="text-destructive focus:text-destructive"
+              className="text-destructive focus:text-destructive cursor-pointer"
             >
-              <Trash2 className="w-4 h-4 mr-2" />
-              {isDeleting ? "Deleting..." : "Delete Event"}
+              <Trash2 className="w-4 h-4 mr-3" />
+              {isDeleting ? "Deleting..." : "Delete"}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
-      <Tabs defaultValue="slots" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="slots">Slots</TabsTrigger>
-          <TabsTrigger value="signups">Signups</TabsTrigger>
-          <TabsTrigger value="waitlist">
-            Waitlist ({waitlist.length})
+      {/* Tabs */}
+      <Tabs defaultValue="slots" className="space-y-6">
+        <TabsList className="bg-transparent border-b border-border rounded-none p-0 gap-6 w-full justify-start">
+          <TabsTrigger
+            value="slots"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent px-0 py-3"
+          >
+            Slots
+          </TabsTrigger>
+          <TabsTrigger
+            value="signups"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent px-0 py-3"
+          >
+            Signups
+          </TabsTrigger>
+          <TabsTrigger
+            value="waitlist"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-purple-600 data-[state=active]:bg-transparent px-0 py-3"
+          >
+            Waitlist
+            {waitlist.length > 0 && (
+              <span className="ml-2 inline-flex items-center justify-center w-5 h-5 text-xs font-semibold text-white bg-purple-600 rounded-full">
+                {waitlist.length}
+              </span>
+            )}
           </TabsTrigger>
         </TabsList>
 
         <TabsContent value="slots" className="space-y-4">
-          {slots.map((slot) => (
-            <SlotCard key={slot.id} slot={slot} />
-          ))}
+          {slots.length === 0 ? (
+            <Card className="rounded-2xl shadow-sm">
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No slots created yet</p>
+              </CardContent>
+            </Card>
+          ) : (
+            slots.map((slot) => <SlotCard key={slot.id} slot={slot} />)
+          )}
         </TabsContent>
 
         <TabsContent value="signups">
-          <SignupList signups={signups} slots={slots} eventId={event.id} />
+          {signups.length === 0 ? (
+            <Card className="rounded-2xl shadow-sm">
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No signups yet</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <SignupList signups={signups} slots={slots} eventId={event.id} />
+          )}
         </TabsContent>
 
         <TabsContent value="waitlist">
-          <WaitlistView waitlist={waitlist} slots={slots} />
+          {waitlist.length === 0 ? (
+            <Card className="rounded-2xl shadow-sm">
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No one on the waitlist</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <WaitlistView waitlist={waitlist} slots={slots} />
+          )}
         </TabsContent>
       </Tabs>
     </>
