@@ -245,7 +245,10 @@ export async function POST(request: Request) {
       .eq("id", slotId);
 
     if (availabilityError) {
-      console.error("[v0] Error recalculating availability:", availabilityError);
+      console.error(
+        "[v0] Error recalculating availability:",
+        availabilityError
+      );
     }
 
     try {

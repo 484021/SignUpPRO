@@ -31,6 +31,7 @@ export interface Event {
   description: string
   date: Date | string
   slug?: string
+  status?: EventStatus
   recurrence_rule?: RecurrenceRule // Updated to use snake_case to match database
   recurrenceRule?: RecurrenceRule // Keep camelCase for backward compatibility
   slots?: Slot[] // Added slots for populated queries
@@ -46,6 +47,7 @@ export interface Slot {
   eventId: string
   event_id?: string
   name: string
+  description?: string
   capacity: number
   available: number
   order?: number
@@ -53,7 +55,7 @@ export interface Slot {
   created_at?: string
 }
 
-export type SignupStatus = "confirmed" | "waitlist" | "cancelled"
+export type SignupStatus = "confirmed" | "waitlist" | "waitlisted" | "cancelled"
 
 export interface Signup {
   id: string
@@ -64,6 +66,7 @@ export interface Signup {
   name: string
   email: string
   status: SignupStatus
+  occurrence_date?: string
   magicLinkToken?: string
   createdAt: Date
   created_at?: string

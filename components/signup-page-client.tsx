@@ -1,10 +1,21 @@
 "use client";
 
 import type React from "react";
-import { Clock2 } from "lucide-react";
 import Link from "next/link";
 import { Logo } from "@/components/logo";
 import { NavPublic } from "@/components/nav-public";
+import { AnimatePresence, motion } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faCalendarDays,
+  faCheckCircle,
+  faChevronRight,
+  faClock,
+  faLink,
+  faShareNodes,
+  faCircleInfo,
+  faUsers,
+} from "@fortawesome/free-solid-svg-icons";
 
 import { useState, useMemo, useEffect } from "react";
 import {
@@ -18,18 +29,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Calendar,
-  Clock,
-  Users,
-  CheckCircle,
-  Share2,
-  AlertCircle,
-  Link2,
-  Mail,
-  MessageSquare,
-  ChevronRight,
-} from "lucide-react";
+// Lucide icons replaced by Font Awesome for a more cohesive set
 import { format } from "date-fns";
 import { SignupForm } from "@/components/signup-form";
 import type { Event, Slot, Signup } from "@/lib/types";
@@ -133,6 +133,16 @@ export function SignupPageClient({
   const [isRemoveSignupDialogOpen, setIsRemoveSignupDialogOpen] =
     useState(false); // Declare setIsRemoveSignupDialogOpen
 
+  const listItemVariants = {
+    hidden: { opacity: 0, y: 10 },
+    show: { opacity: 1, y: 0 },
+  };
+
+  const staggerVariants = {
+    hidden: {},
+    show: { transition: { staggerChildren: 0.05, delayChildren: 0.05 } },
+  };
+
   const handleShare = async () => {
     const url = window.location.href;
     const shareText = `Sign up for ${event.title}`;
@@ -188,7 +198,7 @@ export function SignupPageClient({
       >
         <div className="flex items-center gap-4">
           <div className="p-2 rounded-md bg-purple-100 dark:bg-purple-900/20">
-            <Calendar className="w-5 h-5 text-purple-600" />
+            <FontAwesomeIcon icon={faCalendarDays} className="w-5 h-5 text-purple-600" />
           </div>
           <div className="text-left">
             <div className="font-semibold">
@@ -199,7 +209,7 @@ export function SignupPageClient({
             </div>
           </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+        <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5 text-muted-foreground" />
       </button>
     );
   }
@@ -454,7 +464,10 @@ export function SignupPageClient({
     if (isRecurring && !selectedOccurrenceDate) return [];
 
     // For non-recurring events or when a date is selected, filter slots
-    if (!selectedOccurrenceDate) return slots;
+    if (!selectedOccurrenceDate) {
+      // For single-day events, return all slots; for recurring, wait for date selection
+      return isRecurring ? [] : slots;
+    }
     const dateString = selectedOccurrenceDate.split("T")[0];
     return slots.filter(
       (s) => s.occurrence_date && s.occurrence_date.split("T")[0] === dateString
@@ -492,11 +505,22 @@ export function SignupPageClient({
     console.log("Selected occurrence date string:", dateString);
     setSelectedOccurrenceDate(date.toISOString());
     setSelectedOccurrence({ date: date.toISOString() }); // store for possible removal flows
-    setSelectedSlotId(null);
+    setSelectedSlotId(null); // Reset slot but don't auto-select one yet
     setShowDatesOpen(false); // Close the date list after selection
 
-    // Scroll the signup card into view so the user can choose a category and sign up
+    // Auto-select the first available slot for smooth UX
     setTimeout(() => {
+      const slotsForDate = slots.filter((s) => {
+        const slotDay = (s.occurrence_date || "").split("T")[0];
+        return slotDay === dateString && !((s.name || "").toLowerCase().includes("waitlist"));
+      });
+      
+      if (slotsForDate.length > 0) {
+        // Auto-select first slot to open the form
+        setSelectedSlotId(slotsForDate[0].id);
+      }
+
+      // Scroll the signup card into view
       const el = document.querySelector("[data-reserve-card]");
       if (el && typeof (el as any).scrollIntoView === "function") {
         (el as any).scrollIntoView({ behavior: "smooth", block: "center" });
@@ -633,7 +657,7 @@ export function SignupPageClient({
         <Card className="w-full max-w-md text-center border-2">
           <CardContent className="pt-12 pb-8 space-y-6">
             <div className="mx-auto w-20 h-20 bg-muted rounded-full flex items-center justify-center">
-              <Calendar className="w-10 h-10 text-muted-foreground" />
+              <FontAwesomeIcon icon={faCalendarDays} className="w-10 h-10 text-muted-foreground" />
             </div>
             <div className="space-y-2">
               <h1 className="text-2xl font-bold">{event.title}</h1>
@@ -653,11 +677,17 @@ export function SignupPageClient({
 
   if (isSubmitted && submittedData) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 dark:from-purple-950/20 dark:via-blue-950/20 dark:to-cyan-950/20 flex items-center justify-center p-4">
-        <Card className="w-full max-w-md border-2 shadow-xl">
+      <div className="min-h-screen bg-linear-to-br from-purple-50 via-blue-50 to-cyan-50 dark:from-purple-950/20 dark:via-blue-950/20 dark:to-cyan-950/20 flex items-center justify-center p-4">
+        <motion.div
+          initial={{ opacity: 0, y: 16, scale: 0.98 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ duration: 0.45, ease: "easeOut" }}
+          className="w-full max-w-md"
+        >
+          <Card className="w-full border-2 shadow-xl">
           <CardHeader className="text-center pb-4">
-            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-green-500/25">
-              <CheckCircle className="w-10 h-10 text-white" />
+            <div className="mx-auto w-20 h-20 bg-linear-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-green-500/25">
+              <FontAwesomeIcon icon={faCheckCircle} className="w-10 h-10 text-white" />
             </div>
             <CardTitle className="text-2xl">You're all set!</CardTitle>
             <CardDescription className="text-base">
@@ -668,7 +698,7 @@ export function SignupPageClient({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="p-6 bg-gradient-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 rounded-xl space-y-3 border-2 border-purple-500/20">
+            <div className="p-6 bg-linear-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 rounded-xl space-y-3 border-2 border-purple-500/20">
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Event</span>
                 <span className="font-semibold text-right">{event.title}</span>
@@ -690,7 +720,7 @@ export function SignupPageClient({
             </div>
 
             <Alert className="border-blue-500/50 bg-blue-50 dark:bg-blue-950/20">
-              <AlertCircle className="h-4 w-4 text-blue-600" />
+              <FontAwesomeIcon icon={faCircleInfo} className="h-4 w-4 text-blue-600" />
               <AlertDescription className="text-sm text-blue-900 dark:text-blue-100">
                 Check your email for a link to edit or cancel your signup
               </AlertDescription>
@@ -698,7 +728,7 @@ export function SignupPageClient({
 
             <div className="space-y-3">
               <Button
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                className="w-full bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
                 onClick={() => {
                   setIsSubmitted(false);
                   setSelectedSlotId(null);
@@ -717,7 +747,7 @@ export function SignupPageClient({
                   }, 100);
                 }}
               >
-                <Users className="w-4 h-4 mr-2" />
+                <FontAwesomeIcon icon={faUsers} className="w-4 h-4 mr-2" />
                 View Attendee List
               </Button>
 
@@ -727,145 +757,158 @@ export function SignupPageClient({
                 onClick={() => router.push("/dashboard")}
                 className="w-full border-purple-200 hover:bg-purple-50 dark:border-purple-800 dark:hover:bg-purple-950/20 bg-transparent"
               >
-                <Calendar className="w-4 h-4 mr-2" />
+                <FontAwesomeIcon icon={faCalendarDays} className="w-4 h-4 mr-2" />
                 Organize Your Own Event
               </Button>
             </div>
           </CardContent>
-        </Card>
+          </Card>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-background to-blue-50 dark:from-purple-950/20 dark:via-background dark:to-blue-950/20">
+    <div className="min-h-screen bg-linear-to-br from-purple-50 via-background to-blue-50 dark:from-purple-950/20 dark:via-background dark:to-blue-950/20">
       <NavPublic />
 
       {/* Hero Card */}
-      <div className="container mx-auto max-w-6xl p-4 pt-24 md:pt-32">
-        <div className="bg-white/60 dark:bg-[#0b1220]/40 rounded-2xl p-6 shadow-sm border border-transparent">
-          <div className="flex items-start justify-between gap-6">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6 }}
+        className="container mx-auto max-w-6xl p-2 md:p-4 pt-20 md:pt-32"
+      >
+        <div className="bg-white/60 dark:bg-[#0b1220]/40 rounded-2xl p-4 md:p-6 shadow-sm border border-transparent">
+          <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-6">
             <div className="flex-1 min-w-0">
-              <h1 className="text-3xl md:text-4xl font-extrabold leading-tight">
+              <h1 className="text-2xl md:text-4xl font-extrabold leading-tight">
                 {event.title}
               </h1>
               {event.description && (
-                <p className="mt-3 text-base text-muted-foreground max-w-2xl leading-relaxed">
+                <div className="mt-3 text-base text-muted-foreground max-w-2xl leading-relaxed whitespace-pre-wrap wrap-break-word">
                   {event.description}
-                </p>
+                </div>
               )}
 
-              <div className="mt-4 flex items-center gap-4 text-sm text-muted-foreground">
+              <div className="mt-4 flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/40">
-                  <Calendar className="w-4 h-4 text-purple-600" />
+                  <FontAwesomeIcon icon={faCalendarDays} className="w-4 h-4 text-purple-600" />
                   {format(
                     new Date(selectedOccurrenceDate || event.date),
                     "EEEE, MMM d"
                   )}
                 </span>
                 <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/40">
-                  <Clock className="w-4 h-4 text-blue-600" />
+                  <FontAwesomeIcon icon={faClock} className="w-4 h-4 text-blue-600" />
                   {format(
                     new Date(selectedOccurrenceDate || event.date),
                     "h:mm a"
                   )}
                 </span>
-                <Badge className="py-1 px-3 rounded-md text-sm uppercase tracking-wide">
-                  {event.status}
-                </Badge>
+                {/* Status badge removed for cleaner hero */}
               </div>
             </div>
 
-            <div className="flex flex-col items-end gap-3">
-              <div className="flex items-center gap-2">
+            <div className="flex flex-col md:items-end gap-2 md:gap-3 w-full md:w-auto">
+              <div className="flex items-center gap-2 w-full md:w-auto">
                 <Button
                   onClick={handleCopyLink}
-                  className="rounded-xl h-10 transform active:scale-95 transition"
+                  className="rounded-xl h-10 transform active:scale-95 transition flex-1 md:flex-none"
                 >
-                  {" "}
-                  <Link2 className="w-4 h-4 mr-2" /> Copy Link
+                  <FontAwesomeIcon icon={faLink} className="w-4 h-4 mr-2" />
+                  Copy Link
                 </Button>
                 <Button
                   variant="outline"
                   onClick={handleShare}
-                  className="rounded-xl h-10 transform active:scale-95 transition"
+                  className="rounded-xl h-10 transform active:scale-95 transition flex-1 md:flex-none"
                 >
-                  {" "}
-                  <Share2 className="w-4 h-4 mr-2" /> Share
+                  <FontAwesomeIcon icon={faShareNodes} className="w-4 h-4 mr-2" />
+                  Share
                 </Button>
               </div>
-              <Link
-                href={`/signup/${event.slug}/manage`}
-                className="text-sm text-muted-foreground"
-              >
-                Organizer tools
-              </Link>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
       {/* Main content area */}
       <main className="container mx-auto max-w-6xl p-4 pb-32">
-        <div className="grid gap-8 md:grid-cols-2">
-          {/* Left: Dates */}
-          <section className="space-y-6">
-            <div className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-transparent">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-lg font-semibold">Date</h2>
-                  <p className="text-sm text-muted-foreground">Selected date</p>
-                </div>
-                {occurrencesWithSlots.length > 1 && (
+        <motion.div
+          className={`grid gap-8 ${occurrencesWithSlots.length > 1 ? 'lg:grid-cols-2' : ''}`}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          {/* Left: Dates or Event Info */}
+          {occurrencesWithSlots.length > 1 && (
+            <section className="space-y-6 lg:space-y-6 order-2 lg:order-1">
+              {occurrencesWithSlots.length > 1 ? (
+              <div className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-transparent">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold">Date</h2>
+                    <p className="text-sm text-muted-foreground">Selected date</p>
+                  </div>
                   <button
                     onClick={() => setShowDatesOpen((v) => !v)}
                     className="text-sm text-primary hover:underline"
                   >
                     {showDatesOpen ? "Hide dates ×" : "Change date ›"}
                   </button>
-                )}
-              </div>
+                </div>
 
-              <div className="mt-4">
-                <div className="rounded-lg p-4 bg-white dark:bg-transparent shadow-xs">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <div className="font-semibold">
-                        {format(
-                          new Date(selectedOccurrenceDate || event.date),
-                          "EEEE, MMMM d, yyyy"
-                        )}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {format(
-                          new Date(selectedOccurrenceDate || event.date),
-                          "h:mm a"
-                        )}
+                <div className="mt-4">
+                  <div className="rounded-lg p-4 bg-white dark:bg-transparent shadow-xs">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <div className="font-semibold">
+                          {format(
+                            new Date(selectedOccurrenceDate || event.date),
+                            "EEEE, MMMM d, yyyy"
+                          )}
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {format(
+                            new Date(selectedOccurrenceDate || event.date),
+                            "h:mm a"
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
 
-              {/* Collapsible dates list */}
-              <div
-                className={`mt-4 overflow-hidden transition-all ${showDatesOpen ? "max-h-96 overflow-y-auto" : "max-h-0"}`}
-              >
-                <div className="space-y-2 pr-2">
-                  {occurrencesWithSlots.map((date, idx) => (
-                    <DateRow
-                      key={idx}
-                      date={date}
-                      onSelect={() => handleOccurrenceSelect(date)}
-                    />
-                  ))}
-                </div>
+                {/* Collapsible dates list with smoother motion */}
+                <motion.div
+                  initial={false}
+                  animate={showDatesOpen ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
+                  transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="mt-4 overflow-hidden"
+                >
+                  <motion.div
+                    initial={false}
+                    animate={showDatesOpen ? { opacity: 1, y: 0 } : { opacity: 0, y: -6 }}
+                    transition={{ duration: 0.25, ease: "easeOut" }}
+                    className="space-y-2 pr-2"
+                  >
+                    {occurrencesWithSlots.map((date, idx) => (
+                      <DateRow
+                        key={idx}
+                        date={date}
+                        onSelect={() => handleOccurrenceSelect(date)}
+                      />
+                    ))}
+                  </motion.div>
+                </motion.div>
               </div>
-            </div>
-          </section>
+            ) : null}
+            </section>
+          )}
 
           {/* Right: Signup & stats */}
-          <aside className="space-y-6">
+          <aside className={`space-y-6 ${occurrencesWithSlots.length > 1 ? 'order-1 lg:order-2' : 'max-w-2xl mx-auto'}`}>
             <div
               className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-transparent"
               data-reserve-card
@@ -876,129 +919,151 @@ export function SignupPageClient({
               </p>
 
               <div className="mt-4">
-                {selectedSlotId ? (
-                  <div className="space-y-4">
-                    <div className="p-4 rounded-xl bg-muted/30">
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-sm text-muted-foreground">
-                            Selected
+                <AnimatePresence mode="wait">
+                  {selectedSlotId ? (
+                    <motion.div
+                      key="form"
+                      initial={{ opacity: 0, scale: 0.98, y: 8 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.98, y: -8 }}
+                      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                      className="space-y-4"
+                    >
+                      <motion.div
+                        className="p-4 rounded-xl bg-muted/30"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.2, delay: 0.1 }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-sm text-muted-foreground">
+                              Selected
+                            </div>
+                            <div className="font-semibold">
+                              {(() => {
+                                const s = slots.find((x) => x.id === selectedSlotId);
+                                return s?.name || "Category";
+                              })()}
+                            </div>
                           </div>
-                          <div className="font-semibold">
+                          <div className="text-right text-sm">
                             {(() => {
-                              const s = slots.find(
-                                (x) => x.id === selectedSlotId
+                              const s = slots.find((x) => x.id === selectedSlotId);
+                              if (!s) return null;
+                              const wlCount = waitlistCounts[s.id] || 0;
+
+                              if (typeof s.available === "number" && s.available > 0) {
+                                return (
+                                  <>
+                                    <div className="font-semibold">{`${s.capacity - s.available} / ${s.capacity}`}</div>
+                                    <div className="text-xs text-muted-foreground">spots filled</div>
+                                  </>
+                                );
+                              }
+
+                              return (
+                                <div>
+                                  {wlCount > 0 ? (
+                                    <div className="text-sm font-semibold">{wlCount} on waitlist</div>
+                                  ) : (
+                                    <div className="text-sm font-semibold">Join waitlist</div>
+                                  )}
+                                </div>
                               );
-                              return s?.name || "Category";
                             })()}
                           </div>
                         </div>
-                        <div className="text-right text-sm">
-                          {(() => {
-                            const s = slots.find(
-                              (x) => x.id === selectedSlotId
-                            );
-                            if (!s) return null;
-                            const wlCount = waitlistCounts[s.id] || 0;
+                      </motion.div>
 
-                            if (
-                              typeof s.available === "number" &&
-                              s.available > 0
-                            ) {
-                              return (
-                                <>
-                                  <div className="font-semibold">{`${s.capacity - s.available} / ${s.capacity}`}</div>
-                                  <div className="text-xs text-muted-foreground">
-                                    spots filled
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.25, delay: 0.15 }}
+                      >
+                        <SignupForm
+                          eventId={event.id}
+                          slotId={selectedSlotId}
+                          onSuccess={handleSignupSuccess}
+                          onBack={() => setSelectedSlotId(null)}
+                          occurrenceDate={selectedOccurrenceDate}
+                        />
+                      </motion.div>
+                    </motion.div>
+                  ) : filteredSlots.length === 0 ? (
+                    <motion.div
+                      key="empty"
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      transition={{ duration: 0.2, ease: "easeOut" }}
+                      className="text-sm text-muted-foreground"
+                    >
+                      Choose a date on the left to see available spots.
+                    </motion.div>
+                  ) : (
+                    <motion.div
+                      key="slots"
+                      initial={{ opacity: 0, scale: 0.98 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.98 }}
+                      transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                      className="space-y-3"
+                    >
+                      {(() => {
+                        const regularSlots = filteredSlots.filter(
+                          (s) =>
+                            !(
+                              (s.name || "").toLowerCase().includes("waitlist") ||
+                              (s as any).is_waitlist
+                            )
+                        );
+                        return (
+                          <motion.div
+                            variants={staggerVariants}
+                            initial="hidden"
+                            animate="show"
+                            className="space-y-2"
+                          >
+                            {regularSlots.map((slot) => (
+                              <motion.button
+                                key={slot.id}
+                                variants={listItemVariants}
+                                onClick={() => setSelectedSlotId(slot.id)}
+                                className="w-full text-left p-4 rounded-xl hover:bg-muted/30 transition-colors"
+                                whileHover={{ y: -2, scale: 1.01 }}
+                                whileTap={{ scale: 0.97 }}
+                              >
+                                <div className="flex items-center justify-between">
+                                  <div>
+                                    <div className="font-semibold">{slot.name}</div>
+                                    {slot.description && (
+                                      <div className="text-sm text-muted-foreground">
+                                        {slot.description}
+                                      </div>
+                                    )}
                                   </div>
-                                </>
-                              );
-                            }
-
-                            return (
-                              <div>
-                                {wlCount > 0 ? (
-                                  <div className="text-sm font-semibold">
-                                    {wlCount} on waitlist
+                                  <div className="text-right">
+                                    {typeof slot.available === "number" && slot.available > 0 ? (
+                                      <div className="text-sm font-semibold">{slot.available} available</div>
+                                    ) : (
+                                      <div className="text-sm font-semibold text-amber-600">Join waitlist</div>
+                                    )}
                                   </div>
-                                ) : (
-                                  <div className="text-sm font-semibold">
-                                    Join waitlist
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })()}
-                        </div>
-                      </div>
-                    </div>
-
-                    <SignupForm
-                      eventId={event.id}
-                      slotId={selectedSlotId}
-                      onSuccess={handleSignupSuccess}
-                      onBack={() => setSelectedSlotId(null)}
-                      occurrenceDate={selectedOccurrenceDate}
-                    />
-                  </div>
-                ) : filteredSlots.length === 0 ? (
-                  <div className="text-sm text-muted-foreground">
-                    Choose a date on the left to see available spots.
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {(() => {
-                      const regularSlots = filteredSlots.filter(
-                        (s) =>
-                          !(
-                            (s.name || "").toLowerCase().includes("waitlist") ||
-                            (s as any).is_waitlist
-                          )
-                      );
-                      return (
-                        <>
-                          {regularSlots.map((slot) => (
-                            <button
-                              key={slot.id}
-                              onClick={() => setSelectedSlotId(slot.id)}
-                              className="w-full text-left p-4 rounded-xl hover:bg-muted/30 transition"
-                            >
-                              <div className="flex items-center justify-between">
-                                <div>
-                                  <div className="font-semibold">
-                                    {slot.name}
-                                  </div>
-                                  {slot.description && (
-                                    <div className="text-sm text-muted-foreground">
-                                      {slot.description}
-                                    </div>
-                                  )}
                                 </div>
-                                <div className="text-right">
-                                  {typeof slot.available === "number" &&
-                                  slot.available > 0 ? (
-                                    <div className="text-sm font-semibold">
-                                      {slot.available} available
-                                    </div>
-                                  ) : (
-                                    <div className="text-sm font-semibold text-amber-600">
-                                      Join waitlist
-                                    </div>
-                                  )}
-                                </div>
-                              </div>
-                            </button>
-                          ))}
-                        </>
-                      );
-                    })()}
-                  </div>
-                )}
+                              </motion.button>
+                            ))}
+                          </motion.div>
+                        );
+                      })()}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             </div>
 
             {/* Summary card */}
-            <div className="rounded-xl p-4 bg-gradient-to-br from-purple-50/50 to-blue-50/50 dark:from-purple-950/20 dark:to-blue-950/20 border border-purple-100 dark:border-purple-900/30">
+            <div className="rounded-xl p-4 bg-linear-to-br from-purple-50/50 to-blue-50/50 dark:from-purple-950/20 dark:to-blue-950/20 border border-purple-100 dark:border-purple-900/30">
               <div className="grid grid-cols-2 gap-4 text-center">
                 <div>
                   <div className="text-2xl font-bold text-foreground">
@@ -1045,10 +1110,16 @@ export function SignupPageClient({
               </div>
             </div>
           </aside>
-        </div>
+        </motion.div>
 
         {/* Attendees & Waitlist Section */}
-        <div className="mt-12 space-y-8" data-attendee-list>
+        <motion.div
+          className="mt-12 space-y-8"
+          data-attendee-list
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.4 }}
+        >
           {/* Attendees by Category */}
           {filteredSlots
             .filter(
@@ -1065,8 +1136,11 @@ export function SignupPageClient({
               if (slotSignups.length === 0) return null;
 
               return (
-                <div
+                <motion.div
                   key={slot.id}
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.35, ease: "easeOut" }}
                   className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-transparent"
                 >
                   <div className="flex items-center justify-between mb-4">
@@ -1082,11 +1156,15 @@ export function SignupPageClient({
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                     {slotSignups.map((signup, idx) => (
-                      <div
+                      <motion.div
                         key={signup.id || idx}
                         className="p-3 rounded-lg bg-muted/30 flex items-center gap-3 group"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.25, ease: "easeOut", delay: idx * 0.05 }}
+                        whileHover={{ y: -2, scale: 1.01 }}
                       >
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-linear-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-sm font-semibold shrink-0">
                           {signup.name?.charAt(0).toUpperCase() || "?"}
                         </div>
                         <div className="flex-1 min-w-0">
@@ -1102,10 +1180,10 @@ export function SignupPageClient({
                         >
                           Remove
                         </Button>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
-                </div>
+                </motion.div>
               );
             })}
 
@@ -1129,7 +1207,12 @@ export function SignupPageClient({
             if (waitlistEntries.length === 0) return null;
 
             return (
-              <div className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-amber-200 dark:border-amber-900/30">
+              <motion.div
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-amber-200 dark:border-amber-900/30"
+              >
                 <div className="flex items-center justify-between mb-4">
                   <div>
                     <h3 className="text-lg font-semibold">Waitlist</h3>
@@ -1146,11 +1229,15 @@ export function SignupPageClient({
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                   {waitlistEntries.map((signup, idx) => (
-                    <div
+                    <motion.div
                       key={signup.id || idx}
                       className="p-3 rounded-lg bg-amber-50/50 dark:bg-amber-950/10 border border-amber-200 dark:border-amber-900/30 flex items-center gap-3 group"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25, ease: "easeOut", delay: idx * 0.05 }}
+                      whileHover={{ y: -2, scale: 1.01 }}
                     >
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-sm font-semibold flex-shrink-0">
+                      <div className="w-8 h-8 rounded-full bg-linear-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-sm font-semibold shrink-0">
                         {signup.name?.charAt(0).toUpperCase() || "?"}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -1166,73 +1253,87 @@ export function SignupPageClient({
                       >
                         Remove
                       </Button>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
-              </div>
+              </motion.div>
             );
           })()}
-        </div>
+        </motion.div>
       </main>
 
       {/* Sticky CTA (bottom) */}
-      {!selectedSlotId &&
-        filteredSlots.length > 0 &&
-        (() => {
-          const regularSlots = filteredSlots.filter(
-            (s) =>
-              !(
-                (s.name || "").toLowerCase().includes("waitlist") ||
-                (s as any).is_waitlist
-              )
-          );
-          const allRegularFull = regularSlots.every(
-            (s) => typeof s.available === "number" && s.available <= 0
-          );
-          const firstAvailable = regularSlots.find(
-            (s) => typeof s.available === "number" && s.available > 0
-          );
-          const firstRegular = regularSlots[0];
-          const isWaitlistMode = allRegularFull && !!firstRegular;
+      <AnimatePresence>
+        {!selectedSlotId &&
+          filteredSlots.length > 0 &&
+          (() => {
+            const regularSlots = filteredSlots.filter(
+              (s) =>
+                !(
+                  (s.name || "").toLowerCase().includes("waitlist") ||
+                  (s as any).is_waitlist
+                )
+            );
+            const allRegularFull = regularSlots.every(
+              (s) => typeof s.available === "number" && s.available <= 0
+            );
+            const firstAvailable = regularSlots.find(
+              (s) => typeof s.available === "number" && s.available > 0
+            );
+            const firstRegular = regularSlots[0];
+            const isWaitlistMode = allRegularFull && !!firstRegular;
 
-          return (
-            <div className="fixed left-0 right-0 bottom-4 pointer-events-none z-50">
-              <div className="container mx-auto max-w-6xl px-4">
-                <div className="pointer-events-auto flex justify-center">
-                  <div className="w-full md:w-1/2 bg-background/95 backdrop-blur-sm rounded-xl shadow-2xl">
-                    <Button
-                      size="lg"
-                      className={`w-full rounded-xl transform active:scale-95 transition ${isWaitlistMode ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600" : "bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"}`}
-                      onClick={() => {
-                        // If all regular slots are full, select waitlist
-                        if (isWaitlistMode && firstRegular) {
-                          setSelectedSlotId(firstRegular.id);
-                        } else if (firstAvailable) {
-                          setSelectedSlotId(firstAvailable.id);
-                        }
-
-                        // Scroll to form
-                        setTimeout(() => {
-                          const el = document.querySelector(
-                            "[data-reserve-card]"
-                          );
-                          if (el) {
-                            el.scrollIntoView({
-                              behavior: "smooth",
-                              block: "center",
-                            });
-                          }
-                        }, 100);
-                      }}
+            return (
+              <motion.div
+                key="sticky-cta"
+                initial={{ opacity: 0, y: 32 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 32 }}
+                transition={{ duration: 0.35, ease: "easeOut" }}
+                className="fixed left-0 right-0 bottom-4 pointer-events-none z-50"
+              >
+                <div className="container mx-auto max-w-6xl px-4">
+                  <div className="pointer-events-auto flex justify-center">
+                    <motion.div
+                      className="w-full md:w-1/2 bg-background/95 backdrop-blur-sm rounded-xl shadow-2xl"
+                      initial={{ opacity: 0.85 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3, ease: "easeOut" }}
+                      whileHover={{ scale: 1.01 }}
+                      whileTap={{ scale: 0.99 }}
                     >
-                      {isWaitlistMode ? "Join Waitlist" : "Sign Up Now"}
-                    </Button>
+                      <Button
+                        size="lg"
+                        className={`w-full rounded-xl transform active:scale-95 transition ${isWaitlistMode ? "bg-linear-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600" : "bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"}`}
+                        onClick={() => {
+                          if (isWaitlistMode && firstRegular) {
+                            setSelectedSlotId(firstRegular.id);
+                          } else if (firstAvailable) {
+                            setSelectedSlotId(firstAvailable.id);
+                          }
+
+                          setTimeout(() => {
+                            const el = document.querySelector(
+                              "[data-reserve-card]"
+                            );
+                            if (el) {
+                              el.scrollIntoView({
+                                behavior: "smooth",
+                                block: "center",
+                              });
+                            }
+                          }, 100);
+                        }}
+                      >
+                        {isWaitlistMode ? "Join Waitlist" : "Sign Up Now"}
+                      </Button>
+                    </motion.div>
                   </div>
                 </div>
-              </div>
-            </div>
-          );
-        })()}
+              </motion.div>
+            );
+          })()}
+      </AnimatePresence>
 
       {/* Email verification dialog for waitlist deletion */}
       {showWaitlistEmailDialog && (
