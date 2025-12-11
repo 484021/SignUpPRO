@@ -162,11 +162,8 @@ export default async function KeywordLandingPage({
       />
       <NavPublic />
 
-      <main className="min-h-screen">
+      <main className="min-h-screen app-bg">
         <section className="relative py-16 sm:py-20 md:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 dark:from-purple-950/30 dark:via-blue-950/30 dark:to-cyan-950/30" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(168,85,247,0.15),transparent_50%)]" />
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(6,182,212,0.15),transparent_50%)]" />
 
           <div className="container mx-auto max-w-5xl relative">
             <div className="text-center space-y-6 sm:space-y-8">

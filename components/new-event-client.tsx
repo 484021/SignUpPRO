@@ -25,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { motion } from "framer-motion";
 
 interface SlotInput {
   name: string;
@@ -182,27 +183,37 @@ export function NewEventClient() {
   };
 
   return (
-    <main className="container mx-auto py-6 sm:py-8 px-4">
+    <main className="container mx-auto px-4 pt-28 pb-12">
       <div className="max-w-3xl mx-auto">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold mb-2">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-8"
+        >
+          <h1 className="text-4xl font-black tracking-tight mb-2">
             Create New Event
           </h1>
-          <p className="text-sm sm:text-base text-muted-foreground">
+          <p className="text-lg text-muted-foreground">
             Set up your event with custom slots and manage signups
           </p>
-        </div>
+        </motion.div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">
-                Event Details
-              </CardTitle>
-              <CardDescription className="text-sm">
-                Basic information about your event
-              </CardDescription>
-            </CardHeader>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+          >
+            <Card className="border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl shadow-lg rounded-2xl">
+              <CardHeader className="pb-4">
+                <CardTitle className="text-xl font-bold">
+                  Event Details
+                </CardTitle>
+                <CardDescription className="text-sm">
+                  Basic information about your event
+                </CardDescription>
+              </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="title" className="text-sm">
@@ -284,12 +295,12 @@ export function NewEventClient() {
               </div>
 
               {isRecurring && (
-                <Card className="border-2 border-primary/20">
+                <Card className="border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded-xl">
                   <CardHeader>
-                    <CardTitle className="text-base">
+                    <CardTitle className="text-base font-semibold">
                       Recurrence Settings
                     </CardTitle>
-                    <CardDescription className="text-xs sm:text-sm">
+                    <CardDescription className="text-sm">
                       Configure how often this event repeats
                     </CardDescription>
                   </CardHeader>
@@ -375,13 +386,19 @@ export function NewEventClient() {
               )}
             </CardContent>
           </Card>
+          </motion.div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-lg sm:text-xl">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+          <Card className="border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl shadow-lg rounded-2xl">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl font-bold">
                 Signup Categories
               </CardTitle>
-              <CardDescription className="text-xs sm:text-sm">
+              <CardDescription className="text-sm">
                 Create different categories for attendees (e.g., Male/Female,
                 VIP/General, Morning/Evening)
               </CardDescription>
@@ -451,32 +468,38 @@ export function NewEventClient() {
                 type="button"
                 variant="outline"
                 onClick={addSlot}
-                className="w-full bg-transparent text-sm"
+                className="w-full border-slate-300 dark:border-white/20 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 Add Another Category
               </Button>
             </CardContent>
           </Card>
+          </motion.div>
 
-          <div className="flex flex-col-reverse sm:flex-row gap-3 justify-end">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="flex flex-col-reverse sm:flex-row gap-3 justify-end pt-2"
+          >
             <Button
               type="button"
               variant="outline"
               onClick={() => router.push("/dashboard")}
               disabled={loading}
-              className="w-full sm:w-auto bg-transparent"
+              className="w-full sm:w-auto rounded-xl border-slate-300 dark:border-white/20 hover:bg-slate-50 dark:hover:bg-white/5 h-11"
             >
               Cancel
             </Button>
             <Button
               type="submit"
               disabled={loading}
-              className="w-full sm:w-auto"
+              className="w-full sm:w-auto rounded-xl bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 font-semibold h-11 px-8 shadow-lg"
             >
               {loading ? "Creating..." : "Create Event"}
             </Button>
-          </div>
+          </motion.div>
         </form>
       </div>
     </main>

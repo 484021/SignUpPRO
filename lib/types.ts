@@ -35,6 +35,7 @@ export interface Event {
   recurrence_rule?: RecurrenceRule // Updated to use snake_case to match database
   recurrenceRule?: RecurrenceRule // Keep camelCase for backward compatibility
   slots?: Slot[] // Added slots for populated queries
+  signups?: Signup[] // Added signups for populated queries
   show_signups?: boolean
   createdAt?: Date
   updatedAt?: Date

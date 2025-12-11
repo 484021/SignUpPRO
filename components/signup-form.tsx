@@ -144,7 +144,7 @@ export function SignupForm({
           </div>
 
           <div className="flex gap-2">
-            <Button type="submit" className="flex-1" disabled={isSubmitting}>
+            <Button type="submit" className="flex-1 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 font-semibold shadow-md" disabled={isSubmitting}>
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -160,6 +160,7 @@ export function SignupForm({
                 variant="outline"
                 onClick={onBack}
                 disabled={isSubmitting}
+                className="border-slate-300 dark:border-white/20 hover:bg-slate-100 dark:hover:bg-white/10 font-semibold"
               >
                 Back
               </Button>

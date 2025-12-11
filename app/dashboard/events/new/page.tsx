@@ -70,7 +70,7 @@ export default async function NewEventPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen app-bg">
       <NavDashboard />
       <NewEventClient user={userWithStats} />
     </div>

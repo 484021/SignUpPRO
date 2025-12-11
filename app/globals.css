@@ -200,6 +200,16 @@
   }
 }
 
+@layer components {
+  .app-bg {
+    @apply bg-gradient-to-b from-white via-[#f5f7fb] to-white text-slate-900;
+  }
+
+  .dark .app-bg {
+    @apply from-black via-[#0b0f14] to-black text-white;
+  }
+}
+
 /* ============================================
    ANIMATIONS
    ============================================ */

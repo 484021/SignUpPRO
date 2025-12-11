@@ -14,7 +14,7 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen app-bg">
       <NavPublic />
       <div className="pt-24 py-12">
         <div className="container mx-auto px-4">

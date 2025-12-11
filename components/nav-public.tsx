@@ -5,8 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/logo";
 import { useUser } from "@clerk/nextjs";
 import { motion } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
+import { useThemeToggle } from "@/hooks/use-theme-toggle";
 
 export function NavPublic() {
+  const { isDark, toggleTheme } = useThemeToggle();
   const { isSignedIn } = useUser();
 
   return (
@@ -30,30 +34,26 @@ export function NavPublic() {
             </Link>
 
             <div className="flex items-center gap-3 sm:gap-5 text-xs sm:text-sm">
-              <Link
-                href="/contact"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-              >
-                Support
-              </Link>
               {isSignedIn ? (
-                <Link href="/dashboard">
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    className="rounded-full h-9 px-4 bg-linear-to-r from-purple-600/80 to-blue-600/80 text-white shadow-md shadow-purple-500/20 hover:from-purple-600 hover:to-blue-600"
-                  >
-                    Dashboard
-                  </Button>
-                </Link>
-              ) : (
                 <>
                   <Link
-                    href="/sign-in"
+                    href="/contact"
                     className="text-muted-foreground hover:text-foreground transition-colors"
                   >
-                    Sign in
+                    Support
                   </Link>
+                  <Link href="/dashboard">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      className="rounded-full h-9 px-4 bg-linear-to-r from-purple-600/80 to-blue-600/80 text-white shadow-md shadow-purple-500/20 hover:from-purple-600 hover:to-blue-600"
+                    >
+                      Dashboard
+                    </Button>
+                  </Link>
+                </>
+              ) : (
+                <>
                   <Link href="/sign-in">
                     <Button
                       size="sm"
@@ -64,6 +64,15 @@ export function NavPublic() {
                   </Link>
                 </>
               )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleTheme}
+                className="rounded-full h-9 px-3 border-white/20 text-foreground hover:bg-white/10"
+                aria-label="Toggle theme"
+              >
+                <FontAwesomeIcon icon={isDark ? faSun : faMoon} className="w-4 h-4" />
+              </Button>
             </div>
           </div>
         </motion.div>

@@ -19,7 +19,7 @@ export default async function EventDetailPage({
 
   if (!eventData || !eventData.event) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen app-bg">
         <NavDashboard />
         <div className="container mx-auto px-4 py-16 text-center">
           <h1 className="text-2xl font-bold mb-4">Event not found</h1>
@@ -51,7 +51,7 @@ export default async function EventDetailPage({
       : format(parseISO(event.date), "PPP p");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen app-bg">
       <NavDashboard />
       <main className="container mx-auto px-4 py-10 max-w-6xl">
         <div className="space-y-6">

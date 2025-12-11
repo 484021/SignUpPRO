@@ -653,7 +653,7 @@ export function SignupPageClient({
 
   if (event.status === "closed") {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen app-bg flex items-center justify-center p-4">
         <Card className="w-full max-w-md text-center border-2">
           <CardContent className="pt-12 pb-8 space-y-6">
             <div className="mx-auto w-20 h-20 bg-muted rounded-full flex items-center justify-center">
@@ -677,7 +677,7 @@ export function SignupPageClient({
 
   if (isSubmitted && submittedData) {
     return (
-      <div className="min-h-screen bg-linear-to-br from-purple-50 via-blue-50 to-cyan-50 dark:from-purple-950/20 dark:via-blue-950/20 dark:to-cyan-950/20 flex items-center justify-center p-4">
+      <div className="min-h-screen app-bg flex items-center justify-center p-4">
         <motion.div
           initial={{ opacity: 0, y: 16, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -769,7 +769,7 @@ export function SignupPageClient({
   }
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-purple-50 via-background to-blue-50 dark:from-purple-950/20 dark:via-background dark:to-blue-950/20">
+    <div className="min-h-screen app-bg">
       <NavPublic />
 
       {/* Hero Card */}
@@ -779,7 +779,7 @@ export function SignupPageClient({
         transition={{ duration: 0.6 }}
         className="container mx-auto max-w-6xl p-2 md:p-4 pt-20 md:pt-32"
       >
-        <div className="bg-white/60 dark:bg-[#0b1220]/40 rounded-2xl p-4 md:p-6 shadow-sm border border-transparent">
+        <div className="bg-white/60 dark:bg-white/5 rounded-2xl p-4 md:p-6 shadow-lg border border-slate-200 dark:border-white/10 backdrop-blur-xl">
           <div className="flex flex-col md:flex-row items-start justify-between gap-4 md:gap-6">
             <div className="flex-1 min-w-0">
               <h1 className="text-2xl md:text-4xl font-extrabold leading-tight">
@@ -792,15 +792,15 @@ export function SignupPageClient({
               )}
 
               <div className="mt-4 flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-sm text-muted-foreground">
-                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/40">
-                  <FontAwesomeIcon icon={faCalendarDays} className="w-4 h-4 text-purple-600" />
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 dark:bg-white/10 dark:border-white/10 text-slate-700 dark:text-white/80">
+                  <FontAwesomeIcon icon={faCalendarDays} className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   {format(
                     new Date(selectedOccurrenceDate || event.date),
                     "EEEE, MMM d"
                   )}
                 </span>
-                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted/40">
-                  <FontAwesomeIcon icon={faClock} className="w-4 h-4 text-blue-600" />
+                <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 dark:bg-white/10 dark:border-white/10 text-slate-700 dark:text-white/80">
+                  <FontAwesomeIcon icon={faClock} className="w-4 h-4 text-blue-600 dark:text-blue-400" />
                   {format(
                     new Date(selectedOccurrenceDate || event.date),
                     "h:mm a"
@@ -814,7 +814,7 @@ export function SignupPageClient({
               <div className="flex items-center gap-2 w-full md:w-auto">
                 <Button
                   onClick={handleCopyLink}
-                  className="rounded-xl h-10 transform active:scale-95 transition flex-1 md:flex-none"
+                  className="rounded-xl h-10 transform active:scale-95 transition flex-1 md:flex-none bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 font-semibold shadow-md"
                 >
                   <FontAwesomeIcon icon={faLink} className="w-4 h-4 mr-2" />
                   Copy Link
@@ -822,7 +822,7 @@ export function SignupPageClient({
                 <Button
                   variant="outline"
                   onClick={handleShare}
-                  className="rounded-xl h-10 transform active:scale-95 transition flex-1 md:flex-none"
+                  className="rounded-xl h-10 transform active:scale-95 transition flex-1 md:flex-none border-slate-300 dark:border-white/20 hover:bg-slate-100 dark:hover:bg-white/10 font-semibold"
                 >
                   <FontAwesomeIcon icon={faShareNodes} className="w-4 h-4 mr-2" />
                   Share
@@ -845,7 +845,7 @@ export function SignupPageClient({
           {occurrencesWithSlots.length > 1 && (
             <section className="space-y-6 lg:space-y-6 order-2 lg:order-1">
               {occurrencesWithSlots.length > 1 ? (
-              <div className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-transparent">
+              <div className="rounded-2xl bg-white/60 dark:bg-white/5 p-6 shadow-lg border border-slate-200 dark:border-white/10 backdrop-blur-xl">
                 <div className="flex items-center justify-between">
                   <div>
                     <h2 className="text-lg font-semibold">Date</h2>
@@ -910,7 +910,7 @@ export function SignupPageClient({
           {/* Right: Signup & stats */}
           <aside className={`space-y-6 ${occurrencesWithSlots.length > 1 ? 'order-1 lg:order-2' : 'max-w-2xl mx-auto'}`}>
             <div
-              className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-transparent"
+              className="rounded-2xl bg-white/60 dark:bg-white/5 p-6 shadow-lg border border-slate-200 dark:border-white/10 backdrop-blur-xl"
               data-reserve-card
             >
               <h3 className="text-lg font-semibold">Reserve Your Spot</h3>
@@ -1141,7 +1141,7 @@ export function SignupPageClient({
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.35, ease: "easeOut" }}
-                  className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-transparent"
+                  className="rounded-2xl bg-white/60 dark:bg-white/5 p-6 shadow-lg border border-slate-200 dark:border-white/10 backdrop-blur-xl"
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div>
@@ -1211,7 +1211,7 @@ export function SignupPageClient({
                 initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.35, ease: "easeOut" }}
-                className="rounded-2xl bg-white/60 dark:bg-[#061223]/30 p-6 shadow-sm border border-amber-200 dark:border-amber-900/30"
+                className="rounded-2xl bg-white/60 dark:bg-white/5 p-6 shadow-lg border border-slate-200 dark:border-white/10 backdrop-blur-xl"
               >
                 <div className="flex items-center justify-between mb-4">
                   <div>

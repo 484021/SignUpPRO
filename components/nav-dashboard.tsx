@@ -1,18 +1,20 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { Logo } from "@/components/logo";
 import { useState } from "react";
 import { useUser, UserButton } from "@clerk/nextjs";
 import { motion, AnimatePresence } from "framer-motion";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
+import { useThemeToggle } from "@/hooks/use-theme-toggle";
 
 export function NavDashboard() {
-  const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isSignedIn } = useUser();
+  const { isDark, toggleTheme } = useThemeToggle();
 
   return (
     <motion.header
@@ -54,6 +56,16 @@ export function NavDashboard() {
                 </Button>
               </Link>
 
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleTheme}
+                className="rounded-full h-9 px-3 border-white/20 text-foreground hover:bg-white/10"
+                aria-label="Toggle theme"
+              >
+                <FontAwesomeIcon icon={isDark ? faSun : faMoon} className="w-4 h-4" />
+              </Button>
+
               <div className="flex items-center gap-3">
                 {isSignedIn ? (
                   <UserButton />
@@ -88,50 +100,53 @@ export function NavDashboard() {
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.nav
-              initial={{ opacity: 0, y: -10, scale: 0.95 }}
+              initial={{ opacity: 0, y: -10, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.95 }}
+              exit={{ opacity: 0, y: -10, scale: 0.97 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
               className="md:hidden mt-3 rounded-2xl bg-background/95 backdrop-blur-2xl border border-white/10 shadow-lg shadow-purple-500/10 overflow-hidden"
             >
-              <div className="p-4 space-y-2">
-                <Link
-                  href="/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start"
-                  >
-                    Dashboard
-                  </Button>
-                </Link>
-                <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full justify-start"
-                  >
-                    Support
-                  </Button>
-                </Link>
+              <div className="p-4 space-y-3">
+                <div className="rounded-2xl border border-white/10 bg-white/5">
+                  <div className="p-2 space-y-2">
+                    <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-between rounded-xl px-4 py-3 bg-white/0 hover:bg-white/10 text-foreground text-sm font-medium"
+                      >
+                        Dashboard
+                      </Button>
+                    </Link>
+                    <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="w-full justify-between rounded-xl px-4 py-3 bg-white/0 hover:bg-white/10 text-foreground text-sm font-medium"
+                      >
+                        Support
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full justify-between rounded-xl px-4 py-3 text-sm border-white/30 bg-white/5 hover:bg-white/15 hover:border-white/50 hover:text-foreground"
+                      onClick={toggleTheme}
+                    >
+                      <span>{isDark ? "Light mode" : "Dark mode"}</span>
+                      <FontAwesomeIcon icon={isDark ? faSun : faMoon} className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
 
-                <div className="border-t pt-4 mt-4">
+                <div className="rounded-2xl border border-white/10 bg-white/5 p-3">
                   {isSignedIn ? (
-                    <div className="w-full py-2">
+                    <div className="w-full flex justify-center">
                       <UserButton />
                     </div>
                   ) : (
-                    <Link
-                      href="/sign-in"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        className="w-full rounded-full"
-                      >
+                    <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
+                      <Button variant="outline" size="sm" className="w-full rounded-xl">
                         Sign In
                       </Button>
                     </Link>

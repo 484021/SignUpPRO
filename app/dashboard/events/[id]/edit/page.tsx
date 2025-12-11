@@ -67,7 +67,7 @@ export default async function EditEventPage({
   console.log("[v0] EditEventPage: Found", slots?.length || 0, "slots");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen app-bg">
       <NavDashboard />
       <EditEventClient
         event={event}

@@ -1,7 +1,6 @@
 "use client";
 
 import { Badge } from "@/components/ui/badge";
-
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -12,13 +11,15 @@ import {
   CardTitle,
   CardDescription,
 } from "@/components/ui/card";
-import { Plus, Calendar, Sparkles } from "lucide-react";
+import { Plus, Calendar, Users, TrendingUp, Zap } from "lucide-react";
 import { EventCard } from "@/components/event-card";
 import { OnboardingModal } from "@/components/onboarding-modal";
 import { NavDashboard } from "@/components/nav-dashboard";
+import { motion } from "framer-motion";
+import type { Event } from "@/lib/types";
 
 interface DashboardClientProps {
-  events: any[];
+  events: Event[];
 }
 
 export function DashboardClient({ events }: DashboardClientProps) {
@@ -32,78 +33,170 @@ export function DashboardClient({ events }: DashboardClientProps) {
   }, []);
 
   const eventCount = events.length;
+  
+  // Calculate quick stats
+  const activeEvents = events.filter(e => e.status === 'open').length;
+  
+  const totalSignups = events.reduce((sum, event) => {
+    const eventSignups = event.signups?.filter(s => s.status === 'confirmed').length || 0;
+    return sum + eventSignups;
+  }, 0);
+  
+  const todaySignups = events.reduce((sum, event) => {
+    const today = new Date().toDateString();
+    const todayCount = (event.signups || []).filter((s) => {
+      if (s.status !== 'confirmed') return false;
+      const signupDate = new Date(s.created_at || s.createdAt || '').toDateString();
+      return signupDate === today;
+    }).length;
+    return sum + todayCount;
+  }, 0);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen app-bg">
       <NavDashboard />
-      <main className="container mx-auto px-4 pt-24 pb-10">
-        <div className="max-w-6xl mx-auto space-y-8">
-          <Card className="rounded-2xl shadow-md">
-            <CardContent className="py-8 px-6">
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
-                <div>
-                  <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
-                    Dashboard
-                  </h1>
-                  <p className="text-muted-foreground mt-2 text-lg">
-                    {eventCount === 0
-                      ? "Ready to create your first event?"
-                      : `Managing ${eventCount} ${eventCount === 1 ? "event" : "events"}`}
-                  </p>
-                </div>
+      <main className="container mx-auto px-4 pt-28 pb-10">
+        <div className="max-w-7xl mx-auto space-y-6">
+          {/* Header with CTA */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+            className="flex flex-col md:flex-row md:items-center md:justify-between gap-6"
+          >
+            <div>
+              <h1 className="text-4xl md:text-5xl font-black tracking-tight">
+                Dashboard
+              </h1>
+              <p className="text-muted-foreground mt-2 text-lg">
+                {eventCount === 0
+                  ? "Create your first event to get started"
+                  : `${eventCount} ${eventCount === 1 ? "event" : "events"} • ${totalSignups} total signups`}
+              </p>
+            </div>
 
-                <div className="flex items-center gap-4">
-                  {eventCount === 0 && (
-                    <Badge className="bg-linear-to-r from-purple-500 to-blue-500 text-white border-0">
-                      <Sparkles className="w-3 h-3 mr-1" />
-                      New
-                    </Badge>
-                  )}
+            <Link href="/dashboard/events/new" className="shrink-0">
+              <Button
+                size="lg"
+                className="rounded-xl h-12 px-6 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 font-semibold shadow-lg w-full md:w-auto"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Create Event
+              </Button>
+            </Link>
+          </motion.div>
 
-                  <Link href="/dashboard/events/new">
-                    <Button className="rounded-xl bg-linear-to-r from-purple-600 to-blue-600 shadow-lg shadow-purple-500/20">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Event
-                    </Button>
-                  </Link>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Quick Stats Grid */}
+          {eventCount > 0 && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-4"
+            >
+              {[
+                {
+                  label: "Active Events",
+                  value: activeEvents,
+                  icon: Calendar,
+                  color: "text-blue-600 dark:text-blue-400",
+                },
+                {
+                  label: "Total Signups",
+                  value: totalSignups,
+                  icon: Users,
+                  color: "text-purple-600 dark:text-purple-400",
+                },
+                {
+                  label: "Today",
+                  value: todaySignups,
+                  icon: TrendingUp,
+                  color: "text-emerald-600 dark:text-emerald-400",
+                },
+              ].map((stat, idx) => {
+                const Icon = stat.icon;
+                return (
+                  <motion.div
+                    key={stat.label}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.15 + idx * 0.05 }}
+                  >
+                    <Card className="rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl shadow-sm">
+                      <CardContent className="p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground font-medium">
+                            {stat.label}
+                          </span>
+                          <Icon className={`w-4 h-4 ${stat.color}`} />
+                        </div>
+                        <div className="text-3xl font-black tracking-tight">
+                          {stat.value}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
+          )}
 
-          <section className="space-y-6">
-            <h2 className="text-2xl font-semibold">Your Events</h2>
+          {/* Events Section */}
+          <motion.section
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="space-y-6"
+          >
+            <h2 className="text-2xl font-bold tracking-tight">Events</h2>
 
             {events.length === 0 ? (
-              <Card className="border-2 border-dashed border-muted-foreground/20 rounded-xl">
-                <CardContent className="flex flex-col items-center justify-center py-20 px-6 text-center">
-                  <div className="w-24 h-24 rounded-full bg-linear-to-br from-purple-500/15 to-blue-500/15 flex items-center justify-center mb-6">
-                    <Calendar className="w-12 h-12 text-purple-600" />
-                  </div>
-                  <h3 className="text-2xl font-semibold mb-2">No events yet</h3>
-                  <p className="text-muted-foreground mb-6 max-w-lg">
-                    Create your first event and start collecting signups in
-                    seconds. No credit card required.
-                  </p>
-                  <Link href="/dashboard/events/new">
-                    <Button
-                      size="lg"
-                      className="rounded-xl bg-linear-to-r from-purple-600 to-blue-600"
-                    >
-                      <Plus className="w-5 h-5 mr-2" />
-                      Create Your First Event
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
+              <motion.div
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.4 }}
+              >
+                <Card className="border-2 border-dashed border-slate-300 dark:border-white/10 rounded-2xl overflow-hidden">
+                  <CardContent className="flex flex-col items-center justify-center py-24 px-6 text-center">
+                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-purple-500/10 to-blue-500/10 flex items-center justify-center mb-6 border border-purple-200 dark:border-purple-500/20">
+                      <Calendar className="w-10 h-10 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <h3 className="text-2xl font-bold mb-2">No events yet</h3>
+                    <p className="text-muted-foreground mb-8 max-w-sm text-base">
+                      Start by creating your first event. You'll be able to share a link, track signups, and manage attendees in real time.
+                    </p>
+                    <Link href="/dashboard/events/new">
+                      <Button
+                        size="lg"
+                        className="rounded-xl bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 font-semibold h-11 px-6"
+                      >
+                        <Plus className="w-5 h-5 mr-2" />
+                        Create Your First Event
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+              </motion.div>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                {events.map((event) => (
-                  <EventCard key={event.id} event={event} />
+              <motion.div
+                className="grid gap-4 sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4, delay: 0.1 }}
+              >
+                {events.map((event, idx) => (
+                  <motion.div
+                    key={event.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3, delay: 0.05 + idx * 0.03 }}
+                  >
+                    <EventCard event={event} />
+                  </motion.div>
                 ))}
-              </div>
+              </motion.div>
             )}
-          </section>
+          </motion.section>
 
           <OnboardingModal
             open={showOnboarding}

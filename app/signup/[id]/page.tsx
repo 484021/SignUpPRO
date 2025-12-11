@@ -32,7 +32,7 @@ export default async function SignupPage({
 
   if (eventError || !event) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen app-bg flex items-center justify-center p-4">
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-6">
             <h1 className="text-2xl font-bold mb-2">Event not found</h1>
@@ -65,7 +65,7 @@ export default async function SignupPage({
 
   if (slotsError || !slots || slots.length === 0) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      <div className="min-h-screen app-bg flex items-center justify-center p-4">
         <Card className="w-full max-w-md text-center">
           <CardContent className="pt-6">
             <h1 className="text-2xl font-bold mb-2">No slots available</h1>
