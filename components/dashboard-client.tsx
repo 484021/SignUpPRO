@@ -104,7 +104,7 @@ export function DashboardClient({ events }: DashboardClientProps) {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.1 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-4"
+              className="grid grid-cols-3 gap-3 sm:gap-4"
             >
               {[
                 {
@@ -135,14 +135,14 @@ export function DashboardClient({ events }: DashboardClientProps) {
                     transition={{ duration: 0.3, delay: 0.15 + idx * 0.05 }}
                   >
                     <Card className="rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl shadow-sm">
-                      <CardContent className="p-4 space-y-2">
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm text-muted-foreground font-medium">
+                      <CardContent className="p-3 sm:p-4 space-y-1.5 sm:space-y-2">
+                        <div className="flex items-center justify-between gap-1">
+                          <span className="text-xs sm:text-sm text-muted-foreground font-medium leading-tight">
                             {stat.label}
                           </span>
-                          <Icon className={`w-4 h-4 ${stat.color}`} />
+                          <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 ${stat.color}`} />
                         </div>
-                        <div className="text-3xl font-black tracking-tight">
+                        <div className="text-2xl sm:text-3xl font-black tracking-tight">
                           {stat.value}
                         </div>
                       </CardContent>

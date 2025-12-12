@@ -61,6 +61,7 @@ export function NewEventClient() {
     { name: "General Admission", capacity: "50" },
   ]);
   const [loading, setLoading] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
 
   // Day/Month/Year dropdown model
   const monthNames = [
@@ -445,13 +446,13 @@ export function NewEventClient() {
             <Card className="border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl shadow-lg rounded-2xl">
               <CardHeader className="pb-4">
                 <CardTitle className="text-xl font-bold">
-                  Event Details
+                  Create Your Event
                 </CardTitle>
                 <CardDescription className="text-sm">
-                  Basic information about your event
+                  Just the essentials to get started
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-5">
                 <div className="space-y-2">
                   <Label htmlFor="title" className="text-sm">
                     Event Title *
@@ -462,7 +463,7 @@ export function NewEventClient() {
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
-                    className="text-sm sm:text-base"
+                    className="text-sm sm:text-base rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5"
                   />
                 </div>
 
@@ -476,7 +477,7 @@ export function NewEventClient() {
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     rows={4}
-                    className="text-sm sm:text-base"
+                    className="text-sm sm:text-base rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 resize-none"
                   />
                 </div>
 
@@ -571,11 +572,6 @@ export function NewEventClient() {
                     <p className="text-xs font-medium text-foreground mt-1">
                       {displaySummary}
                     </p>
-                    {process.env.NODE_ENV === "development" && (
-                      <p className="text-[11px] text-muted-foreground">
-                        debug date={date || "(empty)"} time={time || "(empty)"}
-                      </p>
-                    )}
                   </div>
 
                   <div className="space-y-3">
@@ -713,11 +709,108 @@ export function NewEventClient() {
                   </div>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label htmlFor="endTime" className="text-sm">
-                      End Time (optional)
-                    </Label>
+                {/* Signup Categories inline */}
+                <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-white/10">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <Label className="text-sm font-semibold">Signup Categories</Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">Add categories for attendees</p>
+                    </div>
+                  </div>
+                  {slots.map((slot, index) => (
+                    <div
+                      key={index}
+                      className="flex flex-col sm:flex-row gap-2 items-start"
+                    >
+                      <div className="flex-1 w-full space-y-3 sm:space-y-0 sm:flex sm:gap-2">
+                        <div className="flex-1">
+                          <Input
+                            id={`slot-name-${index}`}
+                            placeholder="Category name (e.g., General Admission)"
+                            value={slot.name}
+                            onChange={(e) =>
+                              updateSlot(index, "name", e.target.value)
+                            }
+                            required
+                            className="text-sm h-10 rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5"
+                          />
+                        </div>
+                        <div className="w-full sm:w-28">
+                          <Input
+                            id={`slot-capacity-${index}`}
+                            type="number"
+                            min="1"
+                            placeholder="Capacity"
+                            value={slot.capacity}
+                            onChange={(e) =>
+                              updateSlot(index, "capacity", e.target.value)
+                            }
+                            required
+                            className="text-sm h-10 rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          />
+                        </div>
+                      </div>
+                      {slots.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => removeSlot(index)}
+                          className="h-10 w-10 self-end sm:self-auto"
+                        >
+                          <X className="h-4 w-4" />
+                          <span className="sr-only">Remove</span>
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={addSlot}
+                    size="sm"
+                    className="w-full border-dashed border-slate-300 dark:border-white/20 rounded-xl hover:bg-slate-50 dark:hover:bg-white/5 h-9"
+                  >
+                    <Plus className="h-3.5 w-3.5 mr-1.5" />
+                    Add Category
+                  </Button>
+                </div>
+
+                {/* Advanced Options - Collapsible */}
+                <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-white/10">
+                  <button
+                    type="button"
+                    onClick={() => setShowAdvanced(!showAdvanced)}
+                    className="flex items-center justify-between w-full text-left group"
+                  >
+                    <div>
+                      <Label className="text-sm font-semibold cursor-pointer group-hover:text-slate-900 dark:group-hover:text-white transition-colors">
+                        Advanced Options
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        End time, timezone, recurring events
+                      </p>
+                    </div>
+                    <div className={`transform transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>
+                      <svg className="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </button>
+
+                  {showAdvanced && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="space-y-4 pt-3"
+                    >
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <div className="space-y-2">
+                          <Label htmlFor="endTime" className="text-sm">
+                            End Time (optional)
+                          </Label>
                     <div
                       className={`grid gap-2 ${is24h ? "grid-cols-2" : "grid-cols-3"}`}
                     >
@@ -879,7 +972,7 @@ export function NewEventClient() {
                 </div>
 
                 <div className="space-y-3">
-                  <Label className="text-sm font-medium">Event Repeat</Label>
+                  <Label className="text-sm font-semibold">Event Repeat</Label>
                   <div className="flex gap-2">
                     <button
                       type="button"
@@ -949,7 +1042,7 @@ export function NewEventClient() {
                             count,
                           });
                         }}
-                        className="w-16 h-8 text-center"
+                        className="w-16 h-8 text-center [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                       />
                       <span>
                         {recurrenceRule?.frequency === "daily"
@@ -1012,7 +1105,7 @@ export function NewEventClient() {
                                 interval: Number.parseInt(e.target.value) || 1,
                               })
                             }
-                            className="text-sm sm:text-base"
+                            className="text-sm sm:text-base [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           />
                         </div>
 
@@ -1032,7 +1125,7 @@ export function NewEventClient() {
                                 count: Number.parseInt(e.target.value) || 4,
                               })
                             }
-                            className="text-sm sm:text-base"
+                            className="text-sm sm:text-base [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           />
                         </div>
                       </div>
@@ -1050,94 +1143,9 @@ export function NewEventClient() {
                     </CardContent>
                   </Card>
                 )}
-              </CardContent>
-            </Card>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.2 }}
-          >
-            <Card className="border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl shadow-lg rounded-2xl">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-xl font-bold">
-                  Signup Categories
-                </CardTitle>
-                <CardDescription className="text-sm">
-                  Create different categories for attendees (e.g., Male/Female,
-                  VIP/General, Morning/Evening)
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {slots.map((slot, index) => (
-                  <div
-                    key={index}
-                    className="flex flex-col sm:flex-row gap-3 items-start"
-                  >
-                    <div className="flex-1 w-full space-y-4 sm:space-y-0 sm:flex sm:gap-3">
-                      <div className="flex-1 space-y-2">
-                        <Label
-                          htmlFor={`slot-name-${index}`}
-                          className="text-sm"
-                        >
-                          Category Name *
-                        </Label>
-                        <Input
-                          id={`slot-name-${index}`}
-                          placeholder="e.g., Male, Female, VIP, General Admission"
-                          value={slot.name}
-                          onChange={(e) =>
-                            updateSlot(index, "name", e.target.value)
-                          }
-                          required
-                          className="text-sm sm:text-base"
-                        />
-                      </div>
-                      <div className="w-full sm:w-32 space-y-2">
-                        <Label
-                          htmlFor={`slot-capacity-${index}`}
-                          className="text-sm"
-                        >
-                          Capacity *
-                        </Label>
-                        <Input
-                          id={`slot-capacity-${index}`}
-                          type="number"
-                          min="1"
-                          value={slot.capacity}
-                          onChange={(e) =>
-                            updateSlot(index, "capacity", e.target.value)
-                          }
-                          required
-                          className="text-sm sm:text-base"
-                        />
-                      </div>
-                    </div>
-                    {slots.length > 1 && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeSlot(index)}
-                        className="mt-0 sm:mt-8 self-end sm:self-auto"
-                      >
-                        <X className="h-4 w-4" />
-                        <span className="sr-only">Remove category</span>
-                      </Button>
-                    )}
-                  </div>
-                ))}
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={addSlot}
-                  className="w-full border-slate-300 dark:border-white/20 rounded-lg hover:bg-slate-50 dark:hover:bg-white/5"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Another Category
-                </Button>
+                    </motion.div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </motion.div>
