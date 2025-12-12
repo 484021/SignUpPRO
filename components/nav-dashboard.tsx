@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
-import { Logo } from "@/components/logo";
 import { useState } from "react";
 import { useUser, UserButton } from "@clerk/nextjs";
 import { motion, AnimatePresence } from "framer-motion";
@@ -29,9 +28,8 @@ export function NavDashboard() {
           className="bg-linear-to-r from-purple-600/20 via-blue-600/10 to-cyan-500/20 p-px rounded-full shadow-lg shadow-purple-500/10"
         >
           <div className="flex items-center justify-between h-14 sm:h-16 rounded-full bg-background/90 backdrop-blur-2xl border border-white/10 px-4 sm:px-6">
-            <Link href="/dashboard" className="flex items-center gap-2">
-              <Logo className="w-7 h-7 sm:w-8 sm:h-8" />
-              <span className="text-sm sm:text-base font-semibold">
+            <Link href="/dashboard" className="flex items-center">
+              <span className="text-lg sm:text-xl font-bold bg-linear-to-r from-purple-600 via-blue-600 to-cyan-500 bg-clip-text text-transparent tracking-tight">
                 SignUpPRO
               </span>
             </Link>
@@ -63,7 +61,10 @@ export function NavDashboard() {
                 className="rounded-full h-9 px-3 border-white/20 text-foreground hover:bg-white/10"
                 aria-label="Toggle theme"
               >
-                <FontAwesomeIcon icon={isDark ? faSun : faMoon} className="w-4 h-4" />
+                <FontAwesomeIcon
+                  icon={isDark ? faSun : faMoon}
+                  className="w-4 h-4"
+                />
               </Button>
 
               <div className="flex items-center gap-3">
@@ -109,7 +110,10 @@ export function NavDashboard() {
               <div className="p-4 space-y-3">
                 <div className="rounded-2xl border border-white/10 bg-white/5">
                   <div className="p-2 space-y-2">
-                    <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)}>
+                    <Link
+                      href="/dashboard"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
                       <Button
                         variant="ghost"
                         size="sm"
@@ -118,7 +122,10 @@ export function NavDashboard() {
                         Dashboard
                       </Button>
                     </Link>
-                    <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
+                    <Link
+                      href="/contact"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
                       <Button
                         variant="ghost"
                         size="sm"
@@ -134,7 +141,10 @@ export function NavDashboard() {
                       onClick={toggleTheme}
                     >
                       <span>{isDark ? "Light mode" : "Dark mode"}</span>
-                      <FontAwesomeIcon icon={isDark ? faSun : faMoon} className="w-4 h-4" />
+                      <FontAwesomeIcon
+                        icon={isDark ? faSun : faMoon}
+                        className="w-4 h-4"
+                      />
                     </Button>
                   </div>
                 </div>
@@ -145,8 +155,15 @@ export function NavDashboard() {
                       <UserButton />
                     </div>
                   ) : (
-                    <Link href="/sign-in" onClick={() => setMobileMenuOpen(false)}>
-                      <Button variant="outline" size="sm" className="w-full rounded-xl">
+                    <Link
+                      href="/sign-in"
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="w-full rounded-xl"
+                      >
                         Sign In
                       </Button>
                     </Link>

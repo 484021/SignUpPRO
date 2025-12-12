@@ -25,6 +25,15 @@ interface DashboardClientProps {
 export function DashboardClient({ events }: DashboardClientProps) {
   const [showOnboarding, setShowOnboarding] = useState(false);
 
+  const isExpired = (event: Event) => {
+    const end = event.end_time
+      ? new Date(event.end_time)
+      : new Date(event.date);
+    return end.getTime() < Date.now();
+  };
+
+  const upcomingEvents = events.filter((event) => !isExpired(event));
+
   useEffect(() => {
     const hasSeenOnboarding = localStorage.getItem("onboarding_complete");
     if (!hasSeenOnboarding) {
@@ -32,21 +41,24 @@ export function DashboardClient({ events }: DashboardClientProps) {
     }
   }, []);
 
-  const eventCount = events.length;
-  
+  const eventCount = upcomingEvents.length;
+
   // Calculate quick stats
-  const activeEvents = events.filter(e => e.status === 'open').length;
-  
-  const totalSignups = events.reduce((sum, event) => {
-    const eventSignups = event.signups?.filter(s => s.status === 'confirmed').length || 0;
+  const activeEvents = upcomingEvents.filter((e) => e.status === "open").length;
+
+  const totalSignups = upcomingEvents.reduce((sum, event) => {
+    const eventSignups =
+      event.signups?.filter((s) => s.status === "confirmed").length || 0;
     return sum + eventSignups;
   }, 0);
-  
-  const todaySignups = events.reduce((sum, event) => {
+
+  const todaySignups = upcomingEvents.reduce((sum, event) => {
     const today = new Date().toDateString();
     const todayCount = (event.signups || []).filter((s) => {
-      if (s.status !== 'confirmed') return false;
-      const signupDate = new Date(s.created_at || s.createdAt || '').toDateString();
+      if (s.status !== "confirmed") return false;
+      const signupDate = new Date(
+        s.created_at || s.createdAt || ""
+      ).toDateString();
       return signupDate === today;
     }).length;
     return sum + todayCount;
@@ -150,7 +162,7 @@ export function DashboardClient({ events }: DashboardClientProps) {
           >
             <h2 className="text-2xl font-bold tracking-tight">Events</h2>
 
-            {events.length === 0 ? (
+            {upcomingEvents.length === 0 ? (
               <motion.div
                 initial={{ opacity: 0, scale: 0.98 }}
                 animate={{ opacity: 1, scale: 1 }}
@@ -163,7 +175,9 @@ export function DashboardClient({ events }: DashboardClientProps) {
                     </div>
                     <h3 className="text-2xl font-bold mb-2">No events yet</h3>
                     <p className="text-muted-foreground mb-8 max-w-sm text-base">
-                      Start by creating your first event. You'll be able to share a link, track signups, and manage attendees in real time.
+                      Start by creating your first event. You'll be able to
+                      share a link, track signups, and manage attendees in real
+                      time.
                     </p>
                     <Link href="/dashboard/events/new">
                       <Button
@@ -184,7 +198,7 @@ export function DashboardClient({ events }: DashboardClientProps) {
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.4, delay: 0.1 }}
               >
-                {events.map((event, idx) => (
+                {upcomingEvents.map((event, idx) => (
                   <motion.div
                     key={event.id}
                     initial={{ opacity: 0, y: 10 }}

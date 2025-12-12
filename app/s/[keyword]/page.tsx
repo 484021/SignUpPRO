@@ -164,7 +164,6 @@ export default async function KeywordLandingPage({
 
       <main className="min-h-screen app-bg">
         <section className="relative py-16 sm:py-20 md:py-28 px-4 sm:px-6 lg:px-8 overflow-hidden">
-
           <div className="container mx-auto max-w-5xl relative">
             <div className="text-center space-y-6 sm:space-y-8">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-cyan-500/10 border border-purple-500/20 text-sm font-medium mb-4">

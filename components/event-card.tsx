@@ -169,6 +169,23 @@ export function EventCard({ event }: EventCardProps) {
   const upcomingDate = getUpcomingDate();
   const upcomingDateString = upcomingDate.toISOString().split("T")[0];
 
+  const applyTimeFromSource = (targetDate: Date, sourceDate: Date) => {
+    // Preserve time (in UTC) from sourceDate onto targetDate's calendar day
+    const t = new Date(targetDate);
+    t.setUTCHours(
+      sourceDate.getUTCHours(),
+      sourceDate.getUTCMinutes(),
+      sourceDate.getUTCSeconds(),
+      sourceDate.getUTCMilliseconds()
+    );
+    return t;
+  };
+
+  const baseStart = event.date ? new Date(event.date) : null;
+  const baseEnd = event.end_datetime ? new Date(event.end_datetime) : null;
+  const displayStart = baseStart ? applyTimeFromSource(upcomingDate, baseStart) : null;
+  const displayEnd = baseEnd ? applyTimeFromSource(upcomingDate, baseEnd) : null;
+
   // Calculate confirmed signups and waitlisted for the upcoming occurrence
   const { confirmed: totalSignups, waitlisted: totalWaitlisted } = (
     event.slots || []
@@ -228,20 +245,27 @@ export function EventCard({ event }: EventCardProps) {
                   {event.title}
                 </CardTitle>
                 <div className="flex items-center gap-2 flex-wrap">
-                  <Badge 
+                  <Badge
                     variant="outline"
                     className={`text-xs px-2 py-0.5 rounded-full font-medium ${
-                      event.status === 'open' 
-                        ? 'bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-300'
-                        : event.status === 'closed'
-                        ? 'bg-red-50 border-red-200 text-red-700 dark:bg-red-950/30 dark:border-red-800 dark:text-red-300'
-                        : 'bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300'
+                      event.status === "open"
+                        ? "bg-emerald-50 border-emerald-200 text-emerald-700 dark:bg-emerald-950/30 dark:border-emerald-800 dark:text-emerald-300"
+                        : event.status === "closed"
+                          ? "bg-red-50 border-red-200 text-red-700 dark:bg-red-950/30 dark:border-red-800 dark:text-red-300"
+                          : "bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300"
                     }`}
                   >
-                    {event.status === 'open' ? '● Active' : event.status === 'closed' ? '● Closed' : '● Draft'}
+                    {event.status === "open"
+                      ? "● Active"
+                      : event.status === "closed"
+                        ? "● Closed"
+                        : "● Draft"}
                   </Badge>
                   {recurrenceDetails && (
-                    <Badge variant="secondary" className="text-xs px-2 py-0.5 rounded-full">
+                    <Badge
+                      variant="secondary"
+                      className="text-xs px-2 py-0.5 rounded-full"
+                    >
                       {recurrenceDetails}
                     </Badge>
                   )}
@@ -286,12 +310,19 @@ export function EventCard({ event }: EventCardProps) {
               </div>
             )}
 
-            {/* Date Info */}
+            {/* Date & Time Info */}
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="w-4 h-4" />
-              <span className="font-medium">
-                {format(upcomingDate, "MMM d")}
-              </span>
+              <div className="flex flex-col leading-tight">
+                <span className="font-medium">{format(upcomingDate, "MMM d")}</span>
+                {displayStart && (
+                  <span className="text-xs text-foreground">
+                    {displayEnd
+                      ? `${format(displayStart, "h:mm a")} – ${format(displayEnd, "h:mm a")}`
+                      : format(displayStart, "h:mm a")}
+                  </span>
+                )}
+              </div>
             </div>
           </CardContent>
         </Link>
@@ -304,9 +335,7 @@ export function EventCard({ event }: EventCardProps) {
             size="sm"
             asChild
           >
-            <Link href={`/dashboard/events/${event.id}`}>
-              Manage Event
-            </Link>
+            <Link href={`/dashboard/events/${event.id}`}>Manage Event</Link>
           </Button>
 
           <div className="flex gap-2">

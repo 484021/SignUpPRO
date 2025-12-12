@@ -1,4 +1,4 @@
-import { SignUp } from "@clerk/nextjs"
+import { SignUp } from "@clerk/nextjs";
 
 export default function SignUpPage() {
   return (
@@ -12,7 +12,8 @@ export default function SignUpPage() {
               headerTitle: "text-2xl font-bold",
               headerSubtitle: "text-gray-600",
               socialButtonsBlockButton: "border-2 hover:bg-gray-50",
-              formButtonPrimary: "bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700",
+              formButtonPrimary:
+                "bg-gradient-to-r from-purple-600 to-cyan-600 hover:from-purple-700 hover:to-cyan-700",
               footerActionLink: "text-purple-600 hover:text-purple-700",
               // Remove Clerk branding
               footer: "hidden",
@@ -31,5 +32,5 @@ export default function SignUpPage() {
         />
       </div>
     </div>
-  )
+  );
 }

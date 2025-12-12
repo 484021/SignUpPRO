@@ -30,6 +30,8 @@ export async function createEvent(formData: {
   title: string;
   description: string;
   date: string;
+  end_time?: string; // ISO string for end datetime
+  timezone?: string;
   recurrenceRule?: any;
   slots: { name: string; capacity: number }[];
   showSignups?: boolean;
@@ -105,12 +107,48 @@ export async function createEvent(formData: {
 
     console.log("Creating event with slug:", slug);
 
+    // Parse the dates to extract time components with validation
+    const startDateObj = new Date(formData.date);
+    if (isNaN(startDateObj.getTime())) {
+      return {
+        success: false,
+        error: "Invalid start date/time",
+      };
+    }
+
+    const startTimeStr = format(startDateObj, "HH:mm"); // HH:mm format
+    
+    let endTimeStr: string | undefined;
+    let endDatetimeStr: string | undefined;
+    
+    if (formData.end_time) {
+      const endDateObj = new Date(formData.end_time);
+      if (isNaN(endDateObj.getTime())) {
+        return {
+          success: false,
+          error: "Invalid end time",
+        };
+      }
+      endTimeStr = format(endDateObj, "HH:mm"); // HH:mm format (deprecated field)
+      endDatetimeStr = formData.end_time; // Full ISO datetime (preferred field)
+      if (endDateObj <= startDateObj) {
+        return {
+          success: false,
+          error: "End time must be after start time",
+        };
+      }
+    }
+
     const { data: event, error: eventError } = await supabase
       .from("events")
       .insert({
         title: formData.title,
         description: formData.description,
         date: formData.date,
+        start_time: startTimeStr,  // Add start_time as HH:mm
+        end_time: endTimeStr,  // End time as HH:mm (deprecated, for backward compatibility)
+        end_datetime: endDatetimeStr,  // Full end datetime (preferred)
+        timezone: formData.timezone || "UTC",
         recurrence_rule: formData.recurrenceRule,
         show_signups: formData.showSignups ?? true, // Default to true to always show attendees
         clerk_id: userId, // Use Clerk ID directly

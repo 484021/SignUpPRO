@@ -2,7 +2,6 @@
 
 import type React from "react";
 import Link from "next/link";
-import { Logo } from "@/components/logo";
 import { NavPublic } from "@/components/nav-public";
 import { AnimatePresence, motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -198,7 +197,10 @@ export function SignupPageClient({
       >
         <div className="flex items-center gap-4">
           <div className="p-2 rounded-md bg-purple-100 dark:bg-purple-900/20">
-            <FontAwesomeIcon icon={faCalendarDays} className="w-5 h-5 text-purple-600" />
+            <FontAwesomeIcon
+              icon={faCalendarDays}
+              className="w-5 h-5 text-purple-600"
+            />
           </div>
           <div className="text-left">
             <div className="font-semibold">
@@ -209,7 +211,10 @@ export function SignupPageClient({
             </div>
           </div>
         </div>
-        <FontAwesomeIcon icon={faChevronRight} className="w-5 h-5 text-muted-foreground" />
+        <FontAwesomeIcon
+          icon={faChevronRight}
+          className="w-5 h-5 text-muted-foreground"
+        />
       </button>
     );
   }
@@ -512,9 +517,12 @@ export function SignupPageClient({
     setTimeout(() => {
       const slotsForDate = slots.filter((s) => {
         const slotDay = (s.occurrence_date || "").split("T")[0];
-        return slotDay === dateString && !((s.name || "").toLowerCase().includes("waitlist"));
+        return (
+          slotDay === dateString &&
+          !(s.name || "").toLowerCase().includes("waitlist")
+        );
       });
-      
+
       if (slotsForDate.length > 0) {
         // Auto-select first slot to open the form
         setSelectedSlotId(slotsForDate[0].id);
@@ -657,7 +665,10 @@ export function SignupPageClient({
         <Card className="w-full max-w-md text-center border-2">
           <CardContent className="pt-12 pb-8 space-y-6">
             <div className="mx-auto w-20 h-20 bg-muted rounded-full flex items-center justify-center">
-              <FontAwesomeIcon icon={faCalendarDays} className="w-10 h-10 text-muted-foreground" />
+              <FontAwesomeIcon
+                icon={faCalendarDays}
+                className="w-10 h-10 text-muted-foreground"
+              />
             </div>
             <div className="space-y-2">
               <h1 className="text-2xl font-bold">{event.title}</h1>
@@ -685,83 +696,96 @@ export function SignupPageClient({
           className="w-full max-w-md"
         >
           <Card className="w-full border-2 shadow-xl">
-          <CardHeader className="text-center pb-4">
-            <div className="mx-auto w-20 h-20 bg-linear-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-green-500/25">
-              <FontAwesomeIcon icon={faCheckCircle} className="w-10 h-10 text-white" />
-            </div>
-            <CardTitle className="text-2xl">You're all set!</CardTitle>
-            <CardDescription className="text-base">
-              Confirmation sent to{" "}
-              <span className="font-semibold text-foreground">
-                {submittedData.email}
-              </span>
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <div className="p-6 bg-linear-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 rounded-xl space-y-3 border-2 border-purple-500/20">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Event</span>
-                <span className="font-semibold text-right">{event.title}</span>
+            <CardHeader className="text-center pb-4">
+              <div className="mx-auto w-20 h-20 bg-linear-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-green-500/25">
+                <FontAwesomeIcon
+                  icon={faCheckCircle}
+                  className="w-10 h-10 text-white"
+                />
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Category</span>
-                <span className="font-semibold">{submittedData.slotName}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Name</span>
-                <span className="font-semibold">{submittedData.name}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Date</span>
-                <span className="font-semibold">
-                  {format(new Date(event.date), "PPP 'at' p")}
+              <CardTitle className="text-2xl">You're all set!</CardTitle>
+              <CardDescription className="text-base">
+                Confirmation sent to{" "}
+                <span className="font-semibold text-foreground">
+                  {submittedData.email}
                 </span>
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="p-6 bg-linear-to-br from-purple-50 to-blue-50 dark:from-purple-950/20 dark:to-blue-950/20 rounded-xl space-y-3 border-2 border-purple-500/20">
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Event</span>
+                  <span className="font-semibold text-right">
+                    {event.title}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Category</span>
+                  <span className="font-semibold">
+                    {submittedData.slotName}
+                  </span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Name</span>
+                  <span className="font-semibold">{submittedData.name}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Date</span>
+                  <span className="font-semibold">
+                    {format(new Date(event.date), "PPP 'at' p")}
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <Alert className="border-blue-500/50 bg-blue-50 dark:bg-blue-950/20">
-              <FontAwesomeIcon icon={faCircleInfo} className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-sm text-blue-900 dark:text-blue-100">
-                Check your email for a link to edit or cancel your signup
-              </AlertDescription>
-            </Alert>
+              <Alert className="border-blue-500/50 bg-blue-50 dark:bg-blue-950/20">
+                <FontAwesomeIcon
+                  icon={faCircleInfo}
+                  className="h-4 w-4 text-blue-600"
+                />
+                <AlertDescription className="text-sm text-blue-900 dark:text-blue-100">
+                  Check your email for a link to edit or cancel your signup
+                </AlertDescription>
+              </Alert>
 
-            <div className="space-y-3">
-              <Button
-                className="w-full bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                onClick={() => {
-                  setIsSubmitted(false);
-                  setSelectedSlotId(null);
+              <div className="space-y-3">
+                <Button
+                  className="w-full bg-linear-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                  onClick={() => {
+                    setIsSubmitted(false);
+                    setSelectedSlotId(null);
 
-                  // Scroll to attendee list section
-                  setTimeout(() => {
-                    const attendeeSection = document.querySelector(
-                      "[data-attendee-list]"
-                    );
-                    if (attendeeSection) {
-                      attendeeSection.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start",
-                      });
-                    }
-                  }, 100);
-                }}
-              >
-                <FontAwesomeIcon icon={faUsers} className="w-4 h-4 mr-2" />
-                View Attendee List
-              </Button>
+                    // Scroll to attendee list section
+                    setTimeout(() => {
+                      const attendeeSection = document.querySelector(
+                        "[data-attendee-list]"
+                      );
+                      if (attendeeSection) {
+                        attendeeSection.scrollIntoView({
+                          behavior: "smooth",
+                          block: "start",
+                        });
+                      }
+                    }, 100);
+                  }}
+                >
+                  <FontAwesomeIcon icon={faUsers} className="w-4 h-4 mr-2" />
+                  View Attendee List
+                </Button>
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => router.push("/dashboard")}
-                className="w-full border-purple-200 hover:bg-purple-50 dark:border-purple-800 dark:hover:bg-purple-950/20 bg-transparent"
-              >
-                <FontAwesomeIcon icon={faCalendarDays} className="w-4 h-4 mr-2" />
-                Organize Your Own Event
-              </Button>
-            </div>
-          </CardContent>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => router.push("/dashboard")}
+                  className="w-full border-purple-200 hover:bg-purple-50 dark:border-purple-800 dark:hover:bg-purple-950/20 bg-transparent"
+                >
+                  <FontAwesomeIcon
+                    icon={faCalendarDays}
+                    className="w-4 h-4 mr-2"
+                  />
+                  Organize Your Own Event
+                </Button>
+              </div>
+            </CardContent>
           </Card>
         </motion.div>
       </div>
@@ -793,18 +817,70 @@ export function SignupPageClient({
 
               <div className="mt-4 flex flex-col md:flex-row md:items-center gap-2 md:gap-4 text-sm text-muted-foreground">
                 <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 dark:bg-white/10 dark:border-white/10 text-slate-700 dark:text-white/80">
-                  <FontAwesomeIcon icon={faCalendarDays} className="w-4 h-4 text-purple-600 dark:text-purple-400" />
+                  <FontAwesomeIcon
+                    icon={faCalendarDays}
+                    className="w-4 h-4 text-purple-600 dark:text-purple-400"
+                  />
                   {format(
                     new Date(selectedOccurrenceDate || event.date),
                     "EEEE, MMM d"
                   )}
                 </span>
                 <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 dark:bg-white/10 dark:border-white/10 text-slate-700 dark:text-white/80">
-                  <FontAwesomeIcon icon={faClock} className="w-4 h-4 text-blue-600 dark:text-blue-400" />
-                  {format(
-                    new Date(selectedOccurrenceDate || event.date),
-                    "h:mm a"
-                  )}
+                  <FontAwesomeIcon
+                    icon={faClock}
+                    className="w-4 h-4 text-blue-600 dark:text-blue-400"
+                  />
+                  {(() => {
+                    try {
+                      const startDate = new Date(
+                        selectedOccurrenceDate || event.date
+                      );
+                      const startTime = format(startDate, "h:mm a");
+
+                      // Check for end_datetime (preferred) or end_time (fallback)
+                      let endDate: Date | null = null;
+
+                      if (event.end_datetime) {
+                        // Use end_datetime if available (new field)
+                        endDate = new Date(event.end_datetime);
+                      } else if (event.end_time) {
+                        // Fall back to end_time (deprecated field)
+                        const timeParts = event.end_time.split(":");
+                        if (timeParts.length === 2) {
+                          const hours = parseInt(timeParts[0], 10);
+                          const minutes = parseInt(timeParts[1], 10);
+
+                          if (!isNaN(hours) && !isNaN(minutes)) {
+                            if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+                              endDate = new Date(startDate);
+                              endDate.setHours(hours, minutes, 0, 0);
+                            }
+                          }
+                        }
+                      }
+
+                      // Log for debugging
+                      if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
+                        console.log('Event time debug:', {
+                          end_datetime: event.end_datetime,
+                          end_time: event.end_time,
+                          endDate,
+                          startTime,
+                        });
+                      }
+
+                      // If no valid end time, just return start time
+                      if (!endDate) return startTime;
+
+                      const endTime = format(endDate, "h:mm a");
+                      return `${startTime} — ${endTime}`;
+                    } catch (error) {
+                      // Fallback if any error occurs
+                      const startDate = new Date(selectedOccurrenceDate || event.date);
+                      return format(startDate, "h:mm a");
+                    }
+                  })()}
                 </span>
                 {/* Status badge removed for cleaner hero */}
               </div>
@@ -824,7 +900,10 @@ export function SignupPageClient({
                   onClick={handleShare}
                   className="rounded-xl h-10 transform active:scale-95 transition flex-1 md:flex-none border-slate-300 dark:border-white/20 hover:bg-slate-100 dark:hover:bg-white/10 font-semibold"
                 >
-                  <FontAwesomeIcon icon={faShareNodes} className="w-4 h-4 mr-2" />
+                  <FontAwesomeIcon
+                    icon={faShareNodes}
+                    className="w-4 h-4 mr-2"
+                  />
                   Share
                 </Button>
               </div>
@@ -836,7 +915,7 @@ export function SignupPageClient({
       {/* Main content area */}
       <main className="container mx-auto max-w-6xl p-4 pb-32">
         <motion.div
-          className={`grid gap-8 ${occurrencesWithSlots.length > 1 ? 'lg:grid-cols-2' : ''}`}
+          className={`grid gap-8 ${occurrencesWithSlots.length > 1 ? "lg:grid-cols-2" : ""}`}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5, delay: 0.2 }}
@@ -845,70 +924,82 @@ export function SignupPageClient({
           {occurrencesWithSlots.length > 1 && (
             <section className="space-y-6 lg:space-y-6 order-2 lg:order-1">
               {occurrencesWithSlots.length > 1 ? (
-              <div className="rounded-2xl bg-white/60 dark:bg-white/5 p-6 shadow-lg border border-slate-200 dark:border-white/10 backdrop-blur-xl">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-semibold">Date</h2>
-                    <p className="text-sm text-muted-foreground">Selected date</p>
+                <div className="rounded-2xl bg-white/60 dark:bg-white/5 p-6 shadow-lg border border-slate-200 dark:border-white/10 backdrop-blur-xl">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h2 className="text-lg font-semibold">Date</h2>
+                      <p className="text-sm text-muted-foreground">
+                        Selected date
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setShowDatesOpen((v) => !v)}
+                      className="text-sm text-primary hover:underline"
+                    >
+                      {showDatesOpen ? "Hide dates ×" : "Change date ›"}
+                    </button>
                   </div>
-                  <button
-                    onClick={() => setShowDatesOpen((v) => !v)}
-                    className="text-sm text-primary hover:underline"
-                  >
-                    {showDatesOpen ? "Hide dates ×" : "Change date ›"}
-                  </button>
-                </div>
 
-                <div className="mt-4">
-                  <div className="rounded-lg p-4 bg-white dark:bg-transparent shadow-xs">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <div className="font-semibold">
-                          {format(
-                            new Date(selectedOccurrenceDate || event.date),
-                            "EEEE, MMMM d, yyyy"
-                          )}
-                        </div>
-                        <div className="text-sm text-muted-foreground">
-                          {format(
-                            new Date(selectedOccurrenceDate || event.date),
-                            "h:mm a"
-                          )}
+                  <div className="mt-4">
+                    <div className="rounded-lg p-4 bg-white dark:bg-transparent shadow-xs">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-semibold">
+                            {format(
+                              new Date(selectedOccurrenceDate || event.date),
+                              "EEEE, MMMM d, yyyy"
+                            )}
+                          </div>
+                          <div className="text-sm text-muted-foreground">
+                            {format(
+                              new Date(selectedOccurrenceDate || event.date),
+                              "h:mm a"
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Collapsible dates list with smoother motion */}
-                <motion.div
-                  initial={false}
-                  animate={showDatesOpen ? { height: "auto", opacity: 1 } : { height: 0, opacity: 0 }}
-                  transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="mt-4 overflow-hidden"
-                >
+                  {/* Collapsible dates list with smoother motion */}
                   <motion.div
                     initial={false}
-                    animate={showDatesOpen ? { opacity: 1, y: 0 } : { opacity: 0, y: -6 }}
-                    transition={{ duration: 0.25, ease: "easeOut" }}
-                    className="space-y-2 pr-2"
+                    animate={
+                      showDatesOpen
+                        ? { height: "auto", opacity: 1 }
+                        : { height: 0, opacity: 0 }
+                    }
+                    transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1] }}
+                    className="mt-4 overflow-hidden"
                   >
-                    {occurrencesWithSlots.map((date, idx) => (
-                      <DateRow
-                        key={idx}
-                        date={date}
-                        onSelect={() => handleOccurrenceSelect(date)}
-                      />
-                    ))}
+                    <motion.div
+                      initial={false}
+                      animate={
+                        showDatesOpen
+                          ? { opacity: 1, y: 0 }
+                          : { opacity: 0, y: -6 }
+                      }
+                      transition={{ duration: 0.25, ease: "easeOut" }}
+                      className="space-y-2 pr-2"
+                    >
+                      {occurrencesWithSlots.map((date, idx) => (
+                        <DateRow
+                          key={idx}
+                          date={date}
+                          onSelect={() => handleOccurrenceSelect(date)}
+                        />
+                      ))}
+                    </motion.div>
                   </motion.div>
-                </motion.div>
-              </div>
-            ) : null}
+                </div>
+              ) : null}
             </section>
           )}
 
           {/* Right: Signup & stats */}
-          <aside className={`space-y-6 ${occurrencesWithSlots.length > 1 ? 'order-1 lg:order-2' : 'max-w-2xl mx-auto'}`}>
+          <aside
+            className={`space-y-6 ${occurrencesWithSlots.length > 1 ? "order-1 lg:order-2" : "max-w-2xl mx-auto"}`}
+          >
             <div
               className="rounded-2xl bg-white/60 dark:bg-white/5 p-6 shadow-lg border border-slate-200 dark:border-white/10 backdrop-blur-xl"
               data-reserve-card
@@ -942,22 +1033,31 @@ export function SignupPageClient({
                             </div>
                             <div className="font-semibold">
                               {(() => {
-                                const s = slots.find((x) => x.id === selectedSlotId);
+                                const s = slots.find(
+                                  (x) => x.id === selectedSlotId
+                                );
                                 return s?.name || "Category";
                               })()}
                             </div>
                           </div>
                           <div className="text-right text-sm">
                             {(() => {
-                              const s = slots.find((x) => x.id === selectedSlotId);
+                              const s = slots.find(
+                                (x) => x.id === selectedSlotId
+                              );
                               if (!s) return null;
                               const wlCount = waitlistCounts[s.id] || 0;
 
-                              if (typeof s.available === "number" && s.available > 0) {
+                              if (
+                                typeof s.available === "number" &&
+                                s.available > 0
+                              ) {
                                 return (
                                   <>
                                     <div className="font-semibold">{`${s.capacity - s.available} / ${s.capacity}`}</div>
-                                    <div className="text-xs text-muted-foreground">spots filled</div>
+                                    <div className="text-xs text-muted-foreground">
+                                      spots filled
+                                    </div>
                                   </>
                                 );
                               }
@@ -965,9 +1065,13 @@ export function SignupPageClient({
                               return (
                                 <div>
                                   {wlCount > 0 ? (
-                                    <div className="text-sm font-semibold">{wlCount} on waitlist</div>
+                                    <div className="text-sm font-semibold">
+                                      {wlCount} on waitlist
+                                    </div>
                                   ) : (
-                                    <div className="text-sm font-semibold">Join waitlist</div>
+                                    <div className="text-sm font-semibold">
+                                      Join waitlist
+                                    </div>
                                   )}
                                 </div>
                               );
@@ -1014,8 +1118,9 @@ export function SignupPageClient({
                         const regularSlots = filteredSlots.filter(
                           (s) =>
                             !(
-                              (s.name || "").toLowerCase().includes("waitlist") ||
-                              (s as any).is_waitlist
+                              (s.name || "")
+                                .toLowerCase()
+                                .includes("waitlist") || (s as any).is_waitlist
                             )
                         );
                         return (
@@ -1036,7 +1141,9 @@ export function SignupPageClient({
                               >
                                 <div className="flex items-center justify-between">
                                   <div>
-                                    <div className="font-semibold">{slot.name}</div>
+                                    <div className="font-semibold">
+                                      {slot.name}
+                                    </div>
                                     {slot.description && (
                                       <div className="text-sm text-muted-foreground">
                                         {slot.description}
@@ -1044,10 +1151,15 @@ export function SignupPageClient({
                                     )}
                                   </div>
                                   <div className="text-right">
-                                    {typeof slot.available === "number" && slot.available > 0 ? (
-                                      <div className="text-sm font-semibold">{slot.available} available</div>
+                                    {typeof slot.available === "number" &&
+                                    slot.available > 0 ? (
+                                      <div className="text-sm font-semibold">
+                                        {slot.available} available
+                                      </div>
                                     ) : (
-                                      <div className="text-sm font-semibold text-amber-600">Join waitlist</div>
+                                      <div className="text-sm font-semibold text-amber-600">
+                                        Join waitlist
+                                      </div>
                                     )}
                                   </div>
                                 </div>
@@ -1161,7 +1273,11 @@ export function SignupPageClient({
                         className="p-3 rounded-lg bg-muted/30 flex items-center gap-3 group"
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.25, ease: "easeOut", delay: idx * 0.05 }}
+                        transition={{
+                          duration: 0.25,
+                          ease: "easeOut",
+                          delay: idx * 0.05,
+                        }}
                         whileHover={{ y: -2, scale: 1.01 }}
                       >
                         <div className="w-8 h-8 rounded-full bg-linear-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white text-sm font-semibold shrink-0">
@@ -1234,7 +1350,11 @@ export function SignupPageClient({
                       className="p-3 rounded-lg bg-amber-50/50 dark:bg-amber-950/10 border border-amber-200 dark:border-amber-900/30 flex items-center gap-3 group"
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.25, ease: "easeOut", delay: idx * 0.05 }}
+                      transition={{
+                        duration: 0.25,
+                        ease: "easeOut",
+                        delay: idx * 0.05,
+                      }}
                       whileHover={{ y: -2, scale: 1.01 }}
                     >
                       <div className="w-8 h-8 rounded-full bg-linear-to-br from-amber-500 to-orange-500 flex items-center justify-center text-white text-sm font-semibold shrink-0">

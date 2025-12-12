@@ -1,18 +1,22 @@
-import { Card, CardContent } from "@/components/ui/card"
-import { AlertCircle } from "lucide-react"
-import { ManageSignupClient } from "@/components/manage-signup-client"
-import { createClient } from "@/lib/supabase/server"
+import { Card, CardContent } from "@/components/ui/card";
+import { AlertCircle } from "lucide-react";
+import { ManageSignupClient } from "@/components/manage-signup-client";
+import { createClient } from "@/lib/supabase/server";
 
-export default async function ManageSignupPage({ params }: { params: Promise<{ token: string }> }) {
-  const { token } = await params
-  const supabase = await createClient()
+export default async function ManageSignupPage({
+  params,
+}: {
+  params: Promise<{ token: string }>;
+}) {
+  const { token } = await params;
+  const supabase = await createClient();
 
   // Try to find signup first
   const { data: signup } = await supabase
     .from("signups")
     .select("*, events(*), slots(*)")
     .eq("manage_token", token)
-    .single()
+    .single();
 
   // If not found in signups, check waitlist
   if (!signup) {
@@ -20,7 +24,7 @@ export default async function ManageSignupPage({ params }: { params: Promise<{ t
       .from("waitlist")
       .select("*, events(*), slots(*)")
       .eq("manage_token", token)
-      .single()
+      .single();
 
     if (!waitlistEntry) {
       return (
@@ -32,12 +36,14 @@ export default async function ManageSignupPage({ params }: { params: Promise<{ t
               </div>
               <div>
                 <h1 className="text-2xl font-bold mb-2">Invalid Link</h1>
-                <p className="text-muted-foreground">This signup link is invalid or has expired.</p>
+                <p className="text-muted-foreground">
+                  This signup link is invalid or has expired.
+                </p>
               </div>
             </CardContent>
           </Card>
         </div>
-      )
+      );
     }
 
     // Return waitlist management view
@@ -48,8 +54,15 @@ export default async function ManageSignupPage({ params }: { params: Promise<{ t
         slot={waitlistEntry.slots}
         isWaitlist={true}
       />
-    )
+    );
   }
 
-  return <ManageSignupClient signup={signup} event={signup.events} slot={signup.slots} isWaitlist={false} />
+  return (
+    <ManageSignupClient
+      signup={signup}
+      event={signup.events}
+      slot={signup.slots}
+      isWaitlist={false}
+    />
+  );
 }

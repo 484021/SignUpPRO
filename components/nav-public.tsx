@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/logo";
 import { useUser } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -26,43 +25,31 @@ export function NavPublic() {
           className="bg-linear-to-r from-purple-600/20 via-blue-600/10 to-cyan-500/20 p-px rounded-full shadow-lg shadow-purple-500/10"
         >
           <div className="flex items-center justify-between h-14 sm:h-16 rounded-full bg-background/90 backdrop-blur-2xl border border-white/10 px-4 sm:px-6">
-            <Link href="/" className="flex items-center gap-2">
-              <Logo className="w-7 h-7 sm:w-8 sm:h-8" />
-              <span className="text-sm sm:text-base font-semibold">
+            <Link href="/" className="flex items-center">
+              <span className="text-lg sm:text-xl font-bold bg-linear-to-r from-purple-600 via-blue-600 to-cyan-500 bg-clip-text text-transparent tracking-tight">
                 SignUpPRO
               </span>
             </Link>
 
-            <div className="flex items-center gap-3 sm:gap-5 text-xs sm:text-sm">
+            <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm">
               {isSignedIn ? (
-                <>
-                  <Link
-                    href="/contact"
-                    className="text-muted-foreground hover:text-foreground transition-colors"
+                <Link href="/dashboard">
+                  <Button
+                    size="sm"
+                    className="rounded-full h-9 px-3 sm:px-4 bg-linear-to-r from-purple-600/80 to-blue-600/80 text-white shadow-md shadow-purple-500/20 hover:from-purple-600 hover:to-blue-600"
                   >
-                    Support
-                  </Link>
-                  <Link href="/dashboard">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      className="rounded-full h-9 px-4 bg-linear-to-r from-purple-600/80 to-blue-600/80 text-white shadow-md shadow-purple-500/20 hover:from-purple-600 hover:to-blue-600"
-                    >
-                      Dashboard
-                    </Button>
-                  </Link>
-                </>
+                    Dashboard
+                  </Button>
+                </Link>
               ) : (
-                <>
-                  <Link href="/sign-in">
-                    <Button
-                      size="sm"
-                      className="rounded-full h-9 px-4 bg-linear-to-r from-purple-600 to-blue-600 text-white shadow-md shadow-purple-500/20 hover:from-purple-700 hover:to-blue-700"
-                    >
-                      Get started
-                    </Button>
-                  </Link>
-                </>
+                <Link href="/sign-in">
+                  <Button
+                    size="sm"
+                    className="rounded-full h-9 px-3 sm:px-4 bg-linear-to-r from-purple-600 to-blue-600 text-white shadow-md shadow-purple-500/20 hover:from-purple-700 hover:to-blue-700"
+                  >
+                    Get started
+                  </Button>
+                </Link>
               )}
               <Button
                 variant="outline"
@@ -71,7 +58,10 @@ export function NavPublic() {
                 className="rounded-full h-9 px-3 border-white/20 text-foreground hover:bg-white/10"
                 aria-label="Toggle theme"
               >
-                <FontAwesomeIcon icon={isDark ? faSun : faMoon} className="w-4 h-4" />
+                <FontAwesomeIcon
+                  icon={isDark ? faSun : faMoon}
+                  className="w-4 h-4"
+                />
               </Button>
             </div>
           </div>
