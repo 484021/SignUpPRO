@@ -1,14 +1,14 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
-import { Analytics } from "@vercel/analytics/next"
-import { Toaster } from "@/components/ui/toaster"
-import { ClerkProvider } from "@clerk/nextjs"
-import { Footer } from "@/components/footer"
-import "./globals.css"
+import type React from "react";
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { Toaster } from "@/components/ui/toaster";
+import { ClerkProvider } from "@clerk/nextjs";
+import { Footer } from "@/components/footer";
+import "./globals.css";
 
-const _geist = Geist({ subsets: ["latin"] })
-const _geistMono = Geist_Mono({ subsets: ["latin"] })
+const _geist = Geist({ subsets: ["latin"] });
+const _geistMono = Geist_Mono({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "SignUpPRO - Simple Event Management",
@@ -22,15 +22,16 @@ export const metadata: Metadata = {
     ],
     apple: "/icon.svg",
   },
-}
+};
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   const hasClerkKeys =
-    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY && process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY !== ""
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY &&
+    process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY !== "";
 
   const content = (
     <html lang="en">
@@ -41,7 +42,7 @@ export default function RootLayout({
         <Analytics />
       </body>
     </html>
-  )
+  );
 
   // If Clerk keys are present, wrap with ClerkProvider
   if (hasClerkKeys) {
@@ -56,9 +57,9 @@ export default function RootLayout({
       >
         {content}
       </ClerkProvider>
-    )
+    );
   }
 
   // Otherwise render without ClerkProvider
-  return content
+  return content;
 }

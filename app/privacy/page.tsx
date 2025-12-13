@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "Privacy Policy - SignUpPRO",
-  description: "Learn how SignUpPRO protects your data and respects your privacy.",
+  description:
+    "Learn how SignUpPRO protects your data and respects your privacy.",
 };
 
 export default function PrivacyPage() {
@@ -42,8 +43,9 @@ export default function PrivacyPage() {
           <div className="prose prose-slate dark:prose-invert max-w-none">
             <h2>1. Information We Collect</h2>
             <p>
-              SignUpPRO collects information you provide when creating an account,
-              organizing events, or signing up for events. This includes:
+              SignUpPRO collects information you provide when creating an
+              account, organizing events, or signing up for events. This
+              includes:
             </p>
             <ul>
               <li>Email address and name</li>
@@ -64,29 +66,30 @@ export default function PrivacyPage() {
 
             <h2>3. Data Sharing and Disclosure</h2>
             <p>
-              We do not sell your personal information. We may share your information
-              with:
+              We do not sell your personal information. We may share your
+              information with:
             </p>
             <ul>
               <li>
-                <strong>Event organizers:</strong> When you sign up for an event, your
-                signup information is shared with the organizer
+                <strong>Event organizers:</strong> When you sign up for an
+                event, your signup information is shared with the organizer
               </li>
               <li>
-                <strong>Service providers:</strong> Third-party services like Stripe
-                for payment processing and hosting providers
+                <strong>Service providers:</strong> Third-party services like
+                Stripe for payment processing and hosting providers
               </li>
               <li>
-                <strong>Legal requirements:</strong> When required by law or to protect
-                our rights
+                <strong>Legal requirements:</strong> When required by law or to
+                protect our rights
               </li>
             </ul>
 
             <h2>4. Data Security</h2>
             <p>
-              We implement industry-standard security measures to protect your data,
-              including encryption, secure hosting, and regular security audits.
-              However, no method of transmission over the internet is 100% secure.
+              We implement industry-standard security measures to protect your
+              data, including encryption, secure hosting, and regular security
+              audits. However, no method of transmission over the internet is
+              100% secure.
             </p>
 
             <h2>5. Your Rights</h2>
@@ -108,20 +111,20 @@ export default function PrivacyPage() {
 
             <h2>7. Children's Privacy</h2>
             <p>
-              SignUpPRO is not intended for users under 13 years of age. We do not
-              knowingly collect information from children under 13.
+              SignUpPRO is not intended for users under 13 years of age. We do
+              not knowingly collect information from children under 13.
             </p>
 
             <h2>8. Changes to This Policy</h2>
             <p>
-              We may update this privacy policy from time to time. We will notify you
-              of significant changes by email or through our service.
+              We may update this privacy policy from time to time. We will
+              notify you of significant changes by email or through our service.
             </p>
 
             <h2>9. Contact Us</h2>
             <p>
-              If you have questions about this privacy policy or our data practices,
-              please contact us at:{" "}
+              If you have questions about this privacy policy or our data
+              practices, please contact us at:{" "}
               <Link
                 href="/contact"
                 className="text-purple-600 hover:text-purple-700 font-medium"

@@ -66,8 +66,18 @@ export default async function EventDetailPage({
                     </h1>
                   </div>
                   <div className="text-sm sm:text-base text-muted-foreground font-medium flex items-center gap-2">
-                    <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    <svg
+                      className="w-4 h-4 flex-shrink-0"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                      />
                     </svg>
                     {dateRangeText}
                   </div>
@@ -79,7 +89,11 @@ export default async function EventDetailPage({
                   )}
                 </div>
 
-                <Link href={`/signup/${event.slug}`} target="_blank" className="shrink-0">
+                <Link
+                  href={`/signup/${event.slug}`}
+                  target="_blank"
+                  className="shrink-0"
+                >
                   <Button className="rounded-xl h-11 px-5 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 font-semibold shadow-lg w-full md:w-auto">
                     <ExternalLink className="w-4 h-4 mr-2" />
                     View Public Page

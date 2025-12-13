@@ -189,13 +189,22 @@ export default function LandingPage() {
                     },
                   }}
                 >
-                  Signups,
-                  <span className="block text-[min(11vw,60px)] sm:text-[min(13vw,68px)] leading-snug sm:leading-tight bg-[linear-gradient(120deg,#0f172a,#2563eb,#1e293b)] dark:bg-[linear-gradient(120deg,#e8ecf3,#6ab8ff,#9cc7ff)] bg-clip-text text-transparent">
-                    re-engineered.
+                  Stop managing signups in{" "}
+                  <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent">
+                    Instagram
                   </span>
+                  ,{" "}
+                  <span className="bg-gradient-to-r from-green-600 to-emerald-500 bg-clip-text text-transparent">
+                    WhatsApp
+                  </span>
+                  , or{" "}
+                  <span className="bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
+                    Messenger
+                  </span>
+                  .
                 </motion.h1>
                 <motion.p
-                  className="text-sm sm:text-base md:text-lg lg:text-xl text-slate-600 dark:text-white/70 max-w-2xl leading-relaxed"
+                  className="text-base sm:text-lg md:text-xl lg:text-2xl text-slate-700 dark:text-white/80 max-w-2xl leading-relaxed font-medium"
                   variants={{
                     hidden: { opacity: 0, y: 30 },
                     visible: {
@@ -209,9 +218,7 @@ export default function LandingPage() {
                     },
                   }}
                 >
-                  Create and share clean sign-up lists in seconds — without the
-                  chaos of group chats. Built for organizers who value
-                  precision, speed, and calm.
+                  SignUpPro helps organizers manage event signup lists without wasting time in chats. Stop reposting lists — create one clean link and share it once.
                 </motion.p>
               </motion.div>
               <motion.div
@@ -275,8 +282,12 @@ export default function LandingPage() {
                     icon={faUsers}
                     className="w-4 h-4 flex-shrink-0 text-blue-500 dark:text-blue-300"
                   />
-                  <span className="hidden sm:inline">Trusted by sports clubs, classes, and community organizers</span>
-                  <span className="sm:hidden">Trusted by sports clubs & community</span>
+                  <span className="hidden sm:inline">
+                    Trusted by sports clubs, classes, and community organizers
+                  </span>
+                  <span className="sm:hidden">
+                    Trusted by sports clubs & community
+                  </span>
                 </span>
                 <span className="inline-flex items-center gap-2">
                   <FontAwesomeIcon

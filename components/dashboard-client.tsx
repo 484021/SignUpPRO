@@ -82,7 +82,7 @@ export function DashboardClient({ events }: DashboardClientProps) {
               </h1>
               <p className="text-muted-foreground mt-2 text-lg">
                 {eventCount === 0
-                  ? "Create your first event to get started"
+                  ? "Create your first event and stop managing signups in Instagram, WhatsApp, or Messenger"
                   : `${eventCount} ${eventCount === 1 ? "event" : "events"} • ${totalSignups} total signups`}
               </p>
             </div>
@@ -140,7 +140,9 @@ export function DashboardClient({ events }: DashboardClientProps) {
                           <span className="text-xs sm:text-sm text-muted-foreground font-medium leading-tight">
                             {stat.label}
                           </span>
-                          <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 ${stat.color}`} />
+                          <Icon
+                            className={`w-3.5 h-3.5 sm:w-4 sm:h-4 flex-shrink-0 ${stat.color}`}
+                          />
                         </div>
                         <div className="text-2xl sm:text-3xl font-black tracking-tight">
                           {stat.value}
@@ -175,9 +177,7 @@ export function DashboardClient({ events }: DashboardClientProps) {
                     </div>
                     <h3 className="text-2xl font-bold mb-2">No events yet</h3>
                     <p className="text-muted-foreground mb-8 max-w-sm text-base">
-                      Start by creating your first event. You'll be able to
-                      share a link, track signups, and manage attendees in real
-                      time.
+                      Create your first event and stop managing signup lists in Instagram, WhatsApp, or Messenger. Share one clean link instead of reposting lists over and over.
                     </p>
                     <Link href="/dashboard/events/new">
                       <Button

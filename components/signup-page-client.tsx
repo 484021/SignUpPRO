@@ -852,7 +852,12 @@ export function SignupPageClient({
                           const minutes = parseInt(timeParts[1], 10);
 
                           if (!isNaN(hours) && !isNaN(minutes)) {
-                            if (hours >= 0 && hours <= 23 && minutes >= 0 && minutes <= 59) {
+                            if (
+                              hours >= 0 &&
+                              hours <= 23 &&
+                              minutes >= 0 &&
+                              minutes <= 59
+                            ) {
                               endDate = new Date(startDate);
                               endDate.setHours(hours, minutes, 0, 0);
                             }
@@ -861,8 +866,11 @@ export function SignupPageClient({
                       }
 
                       // Log for debugging
-                      if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-                        console.log('Event time debug:', {
+                      if (
+                        typeof window !== "undefined" &&
+                        process.env.NODE_ENV === "development"
+                      ) {
+                        console.log("Event time debug:", {
                           end_datetime: event.end_datetime,
                           end_time: event.end_time,
                           endDate,
@@ -877,7 +885,9 @@ export function SignupPageClient({
                       return `${startTime} — ${endTime}`;
                     } catch (error) {
                       // Fallback if any error occurs
-                      const startDate = new Date(selectedOccurrenceDate || event.date);
+                      const startDate = new Date(
+                        selectedOccurrenceDate || event.date
+                      );
                       return format(startDate, "h:mm a");
                     }
                   })()}
@@ -1381,6 +1391,13 @@ export function SignupPageClient({
           })()}
         </motion.div>
       </main>
+
+      {/* Footer Attribution */}
+      <footer className="py-8 text-center">
+        <p className="text-xs text-muted-foreground max-w-xl mx-auto px-4">
+          This event is organized with SignUpPro — a better way to manage signups than group chats.
+        </p>
+      </footer>
 
       {/* Sticky CTA (bottom) */}
       <AnimatePresence>

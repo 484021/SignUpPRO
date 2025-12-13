@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
 
     // Update user in database
     const supabase = createServiceRoleClient();
-    
+
     console.log("Updating user plan:", {
       clerk_id: user.id,
       plan: "monthly",
@@ -68,7 +68,10 @@ export async function POST(req: NextRequest) {
 
     if (updateError) {
       console.error("Error updating user plan:", updateError);
-      console.error("Update error details:", JSON.stringify(updateError, null, 2));
+      console.error(
+        "Update error details:",
+        JSON.stringify(updateError, null, 2)
+      );
       return NextResponse.json(
         { error: "Failed to update user plan", details: updateError.message },
         { status: 500 }

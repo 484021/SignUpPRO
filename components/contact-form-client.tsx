@@ -123,7 +123,9 @@ export default function ContactFormClient() {
 
       <Button
         type="submit"
-        disabled={status === "sending" || !name || !email || !subject || !message}
+        disabled={
+          status === "sending" || !name || !email || !subject || !message
+        }
         className="w-full h-12 text-base font-bold rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
       >
         {status === "sending" ? (

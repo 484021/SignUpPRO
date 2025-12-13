@@ -44,6 +44,7 @@ psql $DATABASE_URL -f scripts/029_add_stripe_monthly_billing.sql
 ```
 
 Or via Supabase Dashboard:
+
 - Go to SQL Editor
 - Paste contents of `scripts/029_add_stripe_monthly_billing.sql`
 - Run the query
@@ -66,12 +67,14 @@ Or via Supabase Dashboard:
 ### Files Changed/Created
 
 **Modified:**
+
 - `lib/types.ts` - Added `monthly` plan type, Stripe fields
 - `lib/actions/events.ts` - Added 1-event limit guard for free users
 - `components/new-event-client.tsx` - Added upgrade redirect on limit
 - `package.json` - (Add `stripe` dependency)
 
 **Created:**
+
 - `scripts/029_add_stripe_monthly_billing.sql` - Database migration
 - `app/upgrade/page.tsx` - Upgrade page UI
 - `app/api/billing/create-checkout/route.ts` - Stripe Checkout API
@@ -85,11 +88,13 @@ Or via Supabase Dashboard:
 ## Business Logic
 
 ### Free Plan
+
 - Default for all new organizers
 - Can create **1 active event**
 - Attempting 2nd event redirects to `/upgrade`
 
 ### Monthly Plan ($19/month)
+
 - **Unlimited active events**
 - Stripe subscription auto-renews monthly
 - Stored in DB: `plan = 'monthly'`, `stripe_subscription_id`
@@ -99,11 +104,13 @@ Or via Supabase Dashboard:
 ## API Routes
 
 ### POST `/api/billing/create-checkout`
+
 - Creates Stripe Checkout Session
 - Requires: Authenticated user
 - Returns: `{ url: string }` → redirect to Stripe
 
 ### POST `/api/billing/process-success`
+
 - Verifies payment after Stripe redirect
 - Updates user: `plan = 'monthly'`
 - Saves `stripe_customer_id` and `stripe_subscription_id`
@@ -134,15 +141,18 @@ Or via Supabase Dashboard:
 ## Troubleshooting
 
 **"Unauthorized" error on checkout:**
+
 - Ensure user is logged in via Clerk
 - Check Clerk environment variables
 
 **Payment succeeds but plan doesn't update:**
+
 - Check browser console for API errors
 - Verify `STRIPE_SECRET_KEY` is correct
 - Check Supabase logs for DB update errors
 
 **Stripe checkout fails:**
+
 - Verify `STRIPE_PRICE_MONTHLY` matches your price ID
 - Ensure price is set to "Recurring" not "One-time"
 - Check Stripe API version compatibility

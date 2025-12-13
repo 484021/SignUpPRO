@@ -190,7 +190,11 @@ export function NewEventClient() {
     });
     const now = new Date();
     if (!eventDateTime) {
-      logValidationState("handleSubmit_invalid_start", { date, time, timezone });
+      logValidationState("handleSubmit_invalid_start", {
+        date,
+        time,
+        timezone,
+      });
       toast({
         title: "Invalid date/time",
         description: "Please choose a valid start date and time",
@@ -291,7 +295,8 @@ export function NewEventClient() {
         if (result.error === "UPGRADE_REQUIRED" || result.upgradeRequired) {
           toast({
             title: "Upgrade Required",
-            description: result.message || "Free plan limited to 1 active event.",
+            description:
+              result.message || "Free plan limited to 1 active event.",
             variant: "destructive",
           });
           router.push("/upgrade");
@@ -443,7 +448,7 @@ export function NewEventClient() {
             Create New Event
           </h1>
           <p className="text-lg text-muted-foreground">
-            Set up your event with custom slots and manage signups
+            Create a clean signup link and stop reposting lists in chats.
           </p>
         </motion.div>
 
@@ -723,8 +728,12 @@ export function NewEventClient() {
                 <div className="space-y-3 pt-2 border-t border-slate-200 dark:border-white/10">
                   <div className="flex items-center justify-between">
                     <div>
-                      <Label className="text-sm font-semibold">Signup Categories</Label>
-                      <p className="text-xs text-muted-foreground mt-0.5">Add categories for attendees</p>
+                      <Label className="text-sm font-semibold">
+                        Signup Categories
+                      </Label>
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        Add categories for attendees
+                      </p>
                     </div>
                   </div>
                   {slots.map((slot, index) => (
@@ -801,9 +810,21 @@ export function NewEventClient() {
                         End time, timezone, recurring events
                       </p>
                     </div>
-                    <div className={`transform transition-transform ${showAdvanced ? 'rotate-180' : ''}`}>
-                      <svg className="w-5 h-5 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    <div
+                      className={`transform transition-transform ${showAdvanced ? "rotate-180" : ""}`}
+                    >
+                      <svg
+                        className="w-5 h-5 text-muted-foreground"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
                       </svg>
                     </div>
                   </button>
@@ -811,7 +832,7 @@ export function NewEventClient() {
                   {showAdvanced && (
                     <motion.div
                       initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: 'auto' }}
+                      animate={{ opacity: 1, height: "auto" }}
                       exit={{ opacity: 0, height: 0 }}
                       transition={{ duration: 0.2 }}
                       className="space-y-4 pt-3"
@@ -821,338 +842,358 @@ export function NewEventClient() {
                           <Label htmlFor="endTime" className="text-sm">
                             End Time (optional)
                           </Label>
-                    <div
-                      className={`grid gap-2 ${is24h ? "grid-cols-2" : "grid-cols-3"}`}
-                    >
-                      {is24h ? (
-                        <>
-                          <Select
-                            value={getHour(endTime) || undefined}
-                            onValueChange={(h) =>
-                              setEndTime(padTime(h, getMinute(endTime) || "00"))
-                            }
+                          <div
+                            className={`grid gap-2 ${is24h ? "grid-cols-2" : "grid-cols-3"}`}
                           >
-                            <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 text-sm">
-                              <div className="flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-muted-foreground" />
-                                <SelectValue placeholder="Hour" />
-                              </div>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {hours.map((h) => (
-                                <SelectItem key={h} value={h}>
-                                  {h}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                            {is24h ? (
+                              <>
+                                <Select
+                                  value={getHour(endTime) || undefined}
+                                  onValueChange={(h) =>
+                                    setEndTime(
+                                      padTime(h, getMinute(endTime) || "00")
+                                    )
+                                  }
+                                >
+                                  <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 text-sm">
+                                    <div className="flex items-center gap-2">
+                                      <Clock className="w-4 h-4 text-muted-foreground" />
+                                      <SelectValue placeholder="Hour" />
+                                    </div>
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {hours.map((h) => (
+                                      <SelectItem key={h} value={h}>
+                                        {h}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
 
-                          <Select
-                            value={getMinute(endTime) || undefined}
-                            onValueChange={(m) =>
-                              setEndTime(padTime(getHour(endTime) || "09", m))
-                            }
-                          >
-                            <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 text-sm">
-                              <SelectValue placeholder="Min" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {minutes.map((m) => (
-                                <SelectItem key={m} value={m}>
-                                  {m}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </>
-                      ) : (
-                        <>
-                          <Select
-                            value={
-                              endTime
-                                ? convertTo12h(getHour(endTime)).hour
-                                : undefined
-                            }
-                            onValueChange={(h) => {
-                              const h24 = convertTo24h(
-                                h,
-                                endTime
-                                  ? convertTo12h(getHour(endTime)).period
-                                  : "AM"
-                              );
-                              setEndTime(
-                                padTime(h24, getMinute(endTime) || "00")
-                              );
-                            }}
-                          >
-                            <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 text-sm">
-                              <div className="flex items-center gap-2">
-                                <Clock className="w-4 h-4 text-muted-foreground" />
-                                <SelectValue placeholder="Hour" />
-                              </div>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {hours12.map((h) => (
-                                <SelectItem key={h} value={h}>
-                                  {h}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                                <Select
+                                  value={getMinute(endTime) || undefined}
+                                  onValueChange={(m) =>
+                                    setEndTime(
+                                      padTime(getHour(endTime) || "09", m)
+                                    )
+                                  }
+                                >
+                                  <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 text-sm">
+                                    <SelectValue placeholder="Min" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {minutes.map((m) => (
+                                      <SelectItem key={m} value={m}>
+                                        {m}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </>
+                            ) : (
+                              <>
+                                <Select
+                                  value={
+                                    endTime
+                                      ? convertTo12h(getHour(endTime)).hour
+                                      : undefined
+                                  }
+                                  onValueChange={(h) => {
+                                    const h24 = convertTo24h(
+                                      h,
+                                      endTime
+                                        ? convertTo12h(getHour(endTime)).period
+                                        : "AM"
+                                    );
+                                    setEndTime(
+                                      padTime(h24, getMinute(endTime) || "00")
+                                    );
+                                  }}
+                                >
+                                  <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 text-sm">
+                                    <div className="flex items-center gap-2">
+                                      <Clock className="w-4 h-4 text-muted-foreground" />
+                                      <SelectValue placeholder="Hour" />
+                                    </div>
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {hours12.map((h) => (
+                                      <SelectItem key={h} value={h}>
+                                        {h}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
 
-                          <Select
-                            value={getMinute(endTime) || undefined}
-                            onValueChange={(m) =>
-                              setEndTime(padTime(getHour(endTime) || "09", m))
-                            }
-                          >
-                            <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 text-sm">
-                              <SelectValue placeholder="Min" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {minutes.map((m) => (
-                                <SelectItem key={m} value={m}>
-                                  {m}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                                <Select
+                                  value={getMinute(endTime) || undefined}
+                                  onValueChange={(m) =>
+                                    setEndTime(
+                                      padTime(getHour(endTime) || "09", m)
+                                    )
+                                  }
+                                >
+                                  <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 text-sm">
+                                    <SelectValue placeholder="Min" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {minutes.map((m) => (
+                                      <SelectItem key={m} value={m}>
+                                        {m}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
 
-                          <Select
-                            value={
-                              endTime
-                                ? convertTo12h(getHour(endTime)).period
-                                : "AM"
-                            }
-                            onValueChange={(p) => {
-                              const h24 = convertTo24h(
-                                endTime
-                                  ? convertTo12h(getHour(endTime)).hour
-                                  : "12",
-                                p
-                              );
-                              setEndTime(
-                                padTime(h24, getMinute(endTime) || "00")
-                              );
-                            }}
-                          >
-                            <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 text-sm">
-                              <SelectValue placeholder="AM/PM" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="AM">AM</SelectItem>
-                              <SelectItem value="PM">PM</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      Optional: add an end time so the event auto-ends (
-                      {is24h ? "24h" : "12h AM/PM"})
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="timezone" className="text-sm">
-                      Timezone
-                    </Label>
-                    <Select
-                      value={timezone}
-                      onValueChange={(value) => setTimezone(value)}
-                    >
-                      <SelectTrigger
-                        id="timezone"
-                        className="text-sm rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5"
-                      >
-                        <SelectValue placeholder="Select timezone" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {timezones.map((tz) => (
-                          <SelectItem key={tz} value={tz}>
-                            {tz}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <p className="text-xs text-muted-foreground">
-                      Times are saved using this timezone
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-3">
-                  <Label className="text-sm font-semibold">Event Repeat</Label>
-                  <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsRecurring(false);
-                        setRecurrenceRule(null);
-                      }}
-                      className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        !isRecurring
-                          ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
-                          : "bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20"
-                      }`}
-                    >
-                      One-time
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsRecurring(true);
-                        setRecurrenceRule({
-                          frequency: "weekly",
-                          interval: 1,
-                          count: 4,
-                        });
-                      }}
-                      className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        isRecurring && recurrenceRule?.frequency === "weekly"
-                          ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
-                          : "bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20"
-                      }`}
-                    >
-                      Weekly
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsRecurring(true);
-                        setRecurrenceRule({
-                          frequency: "daily",
-                          interval: 1,
-                          count: 7,
-                        });
-                      }}
-                      className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        isRecurring && recurrenceRule?.frequency === "daily"
-                          ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
-                          : "bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20"
-                      }`}
-                    >
-                      Daily
-                    </button>
-                  </div>
-                  {isRecurring && (
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span>Repeats for</span>
-                      <Input
-                        type="number"
-                        min="2"
-                        max="52"
-                        value={recurrenceRule?.count || 4}
-                        onChange={(e) => {
-                          const count = parseInt(e.target.value) || 4;
-                          setRecurrenceRule({
-                            ...recurrenceRule,
-                            frequency: recurrenceRule?.frequency || "weekly",
-                            interval: 1,
-                            count,
-                          });
-                        }}
-                        className="w-16 h-8 text-center [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                      />
-                      <span>
-                        {recurrenceRule?.frequency === "daily"
-                          ? "days"
-                          : "weeks"}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {isRecurring && (
-                  <Card className="border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded-xl">
-                    <CardHeader>
-                      <CardTitle className="text-base font-semibold">
-                        Recurrence Settings
-                      </CardTitle>
-                      <CardDescription className="text-sm">
-                        Configure how often this event repeats
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="grid gap-4 sm:grid-cols-3">
-                        <div className="space-y-2">
-                          <Label htmlFor="frequency" className="text-sm">
-                            Frequency
-                          </Label>
-                          <Select
-                            value={recurrenceRule?.frequency || "weekly"}
-                            onValueChange={(value: any) =>
-                              setRecurrenceRule({
-                                ...recurrenceRule,
-                                frequency: value,
-                              })
-                            }
-                          >
-                            <SelectTrigger id="frequency" className="text-sm">
-                              <SelectValue placeholder="Select frequency" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="daily">Daily</SelectItem>
-                              <SelectItem value="weekly">Weekly</SelectItem>
-                              <SelectItem value="monthly">Monthly</SelectItem>
-                            </SelectContent>
-                          </Select>
+                                <Select
+                                  value={
+                                    endTime
+                                      ? convertTo12h(getHour(endTime)).period
+                                      : "AM"
+                                  }
+                                  onValueChange={(p) => {
+                                    const h24 = convertTo24h(
+                                      endTime
+                                        ? convertTo12h(getHour(endTime)).hour
+                                        : "12",
+                                      p
+                                    );
+                                    setEndTime(
+                                      padTime(h24, getMinute(endTime) || "00")
+                                    );
+                                  }}
+                                >
+                                  <SelectTrigger className="h-12 rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 text-sm">
+                                    <SelectValue placeholder="AM/PM" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="AM">AM</SelectItem>
+                                    <SelectItem value="PM">PM</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </>
+                            )}
+                          </div>
+                          <p className="text-xs text-muted-foreground">
+                            Optional: add an end time so the event auto-ends (
+                            {is24h ? "24h" : "12h AM/PM"})
+                          </p>
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="interval" className="text-sm">
-                            Every
+                          <Label htmlFor="timezone" className="text-sm">
+                            Timezone
                           </Label>
-                          <Input
-                            id="interval"
-                            type="number"
-                            min="1"
-                            max="12"
-                            value={recurrenceRule?.interval || 1}
-                            onChange={(e) =>
-                              setRecurrenceRule({
-                                ...recurrenceRule,
-                                interval: Number.parseInt(e.target.value) || 1,
-                              })
-                            }
-                            className="text-sm sm:text-base [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                          />
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="count" className="text-sm">
-                            Occurrences
-                          </Label>
-                          <Input
-                            id="count"
-                            type="number"
-                            min="2"
-                            max="52"
-                            value={recurrenceRule?.count || 4}
-                            onChange={(e) =>
-                              setRecurrenceRule({
-                                ...recurrenceRule,
-                                count: Number.parseInt(e.target.value) || 4,
-                              })
-                            }
-                            className="text-sm sm:text-base [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                          />
+                          <Select
+                            value={timezone}
+                            onValueChange={(value) => setTimezone(value)}
+                          >
+                            <SelectTrigger
+                              id="timezone"
+                              className="text-sm rounded-xl border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5"
+                            >
+                              <SelectValue placeholder="Select timezone" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {timezones.map((tz) => (
+                                <SelectItem key={tz} value={tz}>
+                                  {tz}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-muted-foreground">
+                            Times are saved using this timezone
+                          </p>
                         </div>
                       </div>
 
-                      <p className="text-xs sm:text-sm text-muted-foreground">
-                        This will automatically create{" "}
-                        {recurrenceRule?.count || 4} separate events, repeating
-                        every {recurrenceRule?.interval || 1}{" "}
-                        {recurrenceRule?.frequency === "daily"
-                          ? "day(s)"
-                          : recurrenceRule?.frequency === "weekly"
-                            ? "week(s)"
-                            : "month(s)"}
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
+                      <div className="space-y-3">
+                        <Label className="text-sm font-semibold">
+                          Event Repeat
+                        </Label>
+                        <div className="flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsRecurring(false);
+                              setRecurrenceRule(null);
+                            }}
+                            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              !isRecurring
+                                ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
+                                : "bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20"
+                            }`}
+                          >
+                            One-time
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsRecurring(true);
+                              setRecurrenceRule({
+                                frequency: "weekly",
+                                interval: 1,
+                                count: 4,
+                              });
+                            }}
+                            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              isRecurring &&
+                              recurrenceRule?.frequency === "weekly"
+                                ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
+                                : "bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20"
+                            }`}
+                          >
+                            Weekly
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setIsRecurring(true);
+                              setRecurrenceRule({
+                                frequency: "daily",
+                                interval: 1,
+                                count: 7,
+                              });
+                            }}
+                            className={`flex-1 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              isRecurring &&
+                              recurrenceRule?.frequency === "daily"
+                                ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900"
+                                : "bg-slate-100 dark:bg-white/10 hover:bg-slate-200 dark:hover:bg-white/20"
+                            }`}
+                          >
+                            Daily
+                          </button>
+                        </div>
+                        {isRecurring && (
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <span>Repeats for</span>
+                            <Input
+                              type="number"
+                              min="2"
+                              max="52"
+                              value={recurrenceRule?.count || 4}
+                              onChange={(e) => {
+                                const count = parseInt(e.target.value) || 4;
+                                setRecurrenceRule({
+                                  ...recurrenceRule,
+                                  frequency:
+                                    recurrenceRule?.frequency || "weekly",
+                                  interval: 1,
+                                  count,
+                                });
+                              }}
+                              className="w-16 h-8 text-center [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                            />
+                            <span>
+                              {recurrenceRule?.frequency === "daily"
+                                ? "days"
+                                : "weeks"}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      {isRecurring && (
+                        <Card className="border-slate-300 dark:border-white/20 bg-slate-50 dark:bg-white/5 rounded-xl">
+                          <CardHeader>
+                            <CardTitle className="text-base font-semibold">
+                              Recurrence Settings
+                            </CardTitle>
+                            <CardDescription className="text-sm">
+                              Configure how often this event repeats
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            <div className="grid gap-4 sm:grid-cols-3">
+                              <div className="space-y-2">
+                                <Label htmlFor="frequency" className="text-sm">
+                                  Frequency
+                                </Label>
+                                <Select
+                                  value={recurrenceRule?.frequency || "weekly"}
+                                  onValueChange={(value: any) =>
+                                    setRecurrenceRule({
+                                      ...recurrenceRule,
+                                      frequency: value,
+                                    })
+                                  }
+                                >
+                                  <SelectTrigger
+                                    id="frequency"
+                                    className="text-sm"
+                                  >
+                                    <SelectValue placeholder="Select frequency" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="daily">Daily</SelectItem>
+                                    <SelectItem value="weekly">
+                                      Weekly
+                                    </SelectItem>
+                                    <SelectItem value="monthly">
+                                      Monthly
+                                    </SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label htmlFor="interval" className="text-sm">
+                                  Every
+                                </Label>
+                                <Input
+                                  id="interval"
+                                  type="number"
+                                  min="1"
+                                  max="12"
+                                  value={recurrenceRule?.interval || 1}
+                                  onChange={(e) =>
+                                    setRecurrenceRule({
+                                      ...recurrenceRule,
+                                      interval:
+                                        Number.parseInt(e.target.value) || 1,
+                                    })
+                                  }
+                                  className="text-sm sm:text-base [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                />
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label htmlFor="count" className="text-sm">
+                                  Occurrences
+                                </Label>
+                                <Input
+                                  id="count"
+                                  type="number"
+                                  min="2"
+                                  max="52"
+                                  value={recurrenceRule?.count || 4}
+                                  onChange={(e) =>
+                                    setRecurrenceRule({
+                                      ...recurrenceRule,
+                                      count:
+                                        Number.parseInt(e.target.value) || 4,
+                                    })
+                                  }
+                                  className="text-sm sm:text-base [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                                />
+                              </div>
+                            </div>
+
+                            <p className="text-xs sm:text-sm text-muted-foreground">
+                              This will automatically create{" "}
+                              {recurrenceRule?.count || 4} separate events,
+                              repeating every {recurrenceRule?.interval || 1}{" "}
+                              {recurrenceRule?.frequency === "daily"
+                                ? "day(s)"
+                                : recurrenceRule?.frequency === "weekly"
+                                  ? "week(s)"
+                                  : "month(s)"}
+                            </p>
+                          </CardContent>
+                        </Card>
+                      )}
                     </motion.div>
                   )}
                 </div>

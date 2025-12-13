@@ -183,8 +183,12 @@ export function EventCard({ event }: EventCardProps) {
 
   const baseStart = event.date ? new Date(event.date) : null;
   const baseEnd = event.end_datetime ? new Date(event.end_datetime) : null;
-  const displayStart = baseStart ? applyTimeFromSource(upcomingDate, baseStart) : null;
-  const displayEnd = baseEnd ? applyTimeFromSource(upcomingDate, baseEnd) : null;
+  const displayStart = baseStart
+    ? applyTimeFromSource(upcomingDate, baseStart)
+    : null;
+  const displayEnd = baseEnd
+    ? applyTimeFromSource(upcomingDate, baseEnd)
+    : null;
 
   // Calculate confirmed signups and waitlisted for the upcoming occurrence
   const { confirmed: totalSignups, waitlisted: totalWaitlisted } = (
@@ -314,7 +318,9 @@ export function EventCard({ event }: EventCardProps) {
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Calendar className="w-4 h-4" />
               <div className="flex flex-col leading-tight">
-                <span className="font-medium">{format(upcomingDate, "MMM d")}</span>
+                <span className="font-medium">
+                  {format(upcomingDate, "MMM d")}
+                </span>
                 {displayStart && (
                   <span className="text-xs text-foreground">
                     {displayEnd

@@ -97,7 +97,7 @@ export async function createEvent(formData: {
     console.log("Using user:", dbUser);
 
     // MONETIZATION GUARD: Check event limit for free plan
-    if (dbUser.plan === 'free') {
+    if (dbUser.plan === "free") {
       const { data: existingEvents, error: countError } = await supabase
         .from("events")
         .select("id")
@@ -107,11 +107,14 @@ export async function createEvent(formData: {
       if (countError) {
         console.error("Error counting active events:", countError);
       } else if (existingEvents && existingEvents.length >= 1) {
-        console.log(`Free plan limit reached: ${existingEvents.length} active events found`);
+        console.log(
+          `Free plan limit reached: ${existingEvents.length} active events found`
+        );
         return {
           success: false,
           error: "UPGRADE_REQUIRED",
-          message: "Free plan limited to 1 active event. Upgrade to create more.",
+          message:
+            "Free plan limited to 1 active event. Upgrade to create more.",
           upgradeRequired: true,
         };
       }
@@ -138,10 +141,10 @@ export async function createEvent(formData: {
     }
 
     const startTimeStr = format(startDateObj, "HH:mm"); // HH:mm format
-    
+
     let endTimeStr: string | undefined;
     let endDatetimeStr: string | undefined;
-    
+
     if (formData.end_time) {
       const endDateObj = new Date(formData.end_time);
       if (isNaN(endDateObj.getTime())) {
@@ -166,9 +169,9 @@ export async function createEvent(formData: {
         title: formData.title,
         description: formData.description,
         date: formData.date,
-        start_time: startTimeStr,  // Add start_time as HH:mm
-        end_time: endTimeStr,  // End time as HH:mm (deprecated, for backward compatibility)
-        end_datetime: endDatetimeStr,  // Full end datetime (preferred)
+        start_time: startTimeStr, // Add start_time as HH:mm
+        end_time: endTimeStr, // End time as HH:mm (deprecated, for backward compatibility)
+        end_datetime: endDatetimeStr, // Full end datetime (preferred)
         timezone: formData.timezone || "UTC",
         recurrence_rule: formData.recurrenceRule,
         show_signups: formData.showSignups ?? true, // Default to true to always show attendees

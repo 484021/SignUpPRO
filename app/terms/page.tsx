@@ -6,7 +6,8 @@ import { Button } from "@/components/ui/button";
 
 export const metadata = {
   title: "Terms of Service - SignUpPRO",
-  description: "Terms and conditions for using SignUpPRO event management platform.",
+  description:
+    "Terms and conditions for using SignUpPRO event management platform.",
 };
 
 export default function TermsPage() {
@@ -42,20 +43,23 @@ export default function TermsPage() {
           <div className="prose prose-slate dark:prose-invert max-w-none">
             <h2>1. Acceptance of Terms</h2>
             <p>
-              By accessing or using SignUpPRO, you agree to be bound by these Terms
-              of Service. If you do not agree to these terms, please do not use our
-              service.
+              By accessing or using SignUpPRO, you agree to be bound by these
+              Terms of Service. If you do not agree to these terms, please do
+              not use our service.
             </p>
 
             <h2>2. Description of Service</h2>
             <p>
-              SignUpPRO provides an event management platform that allows organizers
-              to create events, manage signups, and handle recurring schedules.
-              Participants can sign up for events without creating an account.
+              SignUpPRO provides an event management platform that allows
+              organizers to create events, manage signups, and handle recurring
+              schedules. Participants can sign up for events without creating an
+              account.
             </p>
 
             <h2>3. Account Registration and Security</h2>
-            <p>To use certain features, you must create an account. You agree to:</p>
+            <p>
+              To use certain features, you must create an account. You agree to:
+            </p>
             <ul>
               <li>Provide accurate and complete information</li>
               <li>Maintain the security of your account credentials</li>
@@ -89,7 +93,10 @@ export default function TermsPage() {
             </p>
 
             <h2>6. User Content and Conduct</h2>
-            <p>You are responsible for all content you create or share. You agree not to:</p>
+            <p>
+              You are responsible for all content you create or share. You agree
+              not to:
+            </p>
             <ul>
               <li>Use the service for illegal purposes</li>
               <li>Upload malicious code or spam</li>
@@ -100,9 +107,9 @@ export default function TermsPage() {
 
             <h2>7. Intellectual Property</h2>
             <p>
-              SignUpPRO and its original content, features, and functionality are
-              owned by us and protected by copyright, trademark, and other laws. You
-              retain ownership of content you create.
+              SignUpPRO and its original content, features, and functionality
+              are owned by us and protected by copyright, trademark, and other
+              laws. You retain ownership of content you create.
             </p>
 
             <h2>8. Data and Privacy</h2>
@@ -130,27 +137,28 @@ export default function TermsPage() {
 
             <h2>10. Limitation of Liability</h2>
             <p>
-              SignUpPRO is provided "as is" without warranties. We are not liable
-              for indirect, incidental, or consequential damages arising from your
-              use of the service.
+              SignUpPRO is provided "as is" without warranties. We are not
+              liable for indirect, incidental, or consequential damages arising
+              from your use of the service.
             </p>
 
             <h2>11. Termination</h2>
             <p>
-              We may terminate or suspend your account if you violate these terms.
-              You may delete your account at any time through account settings.
+              We may terminate or suspend your account if you violate these
+              terms. You may delete your account at any time through account
+              settings.
             </p>
 
             <h2>12. Changes to Terms</h2>
             <p>
-              We may update these terms from time to time. Continued use of SignUpPRO
-              after changes constitutes acceptance of the new terms.
+              We may update these terms from time to time. Continued use of
+              SignUpPRO after changes constitutes acceptance of the new terms.
             </p>
 
             <h2>13. Governing Law</h2>
             <p>
-              These terms are governed by the laws of your jurisdiction. Any disputes
-              will be resolved through binding arbitration.
+              These terms are governed by the laws of your jurisdiction. Any
+              disputes will be resolved through binding arbitration.
             </p>
 
             <h2>14. Contact Information</h2>

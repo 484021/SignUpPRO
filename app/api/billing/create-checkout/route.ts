@@ -26,10 +26,7 @@ export async function POST(req: NextRequest) {
       .single();
 
     if (userError || !dbUser) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Create or retrieve Stripe customer

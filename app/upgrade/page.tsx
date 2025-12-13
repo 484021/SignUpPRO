@@ -56,7 +56,7 @@ export default function UpgradePage() {
             <p className="text-muted-foreground">
               Free organizers can run 1 active event.
               <br />
-              Upgrade to manage recurring sessions.
+              Upgrade to stop managing signup lists in chats and run recurring events without the mess.
             </p>
           </div>
 

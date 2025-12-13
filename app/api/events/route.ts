@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server"
-import { createServiceRoleClient } from "@/lib/supabase/server"
+import { NextResponse } from "next/server";
+import { createServiceRoleClient } from "@/lib/supabase/server";
 
 async function getCurrentUserId(): Promise<string | null> {
   if (
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
       .maybeSingle();
 
     // MONETIZATION GUARD: Check event limit for free plan
-    if (dbUser?.plan === 'free') {
+    if (dbUser?.plan === "free") {
       const { data: existingEvents } = await supabase
         .from("events")
         .select("id")
@@ -46,14 +46,15 @@ export async function POST(request: Request) {
         return NextResponse.json(
           {
             error: "UPGRADE_REQUIRED",
-            message: "Free plan limited to 1 active event. Upgrade to create more.",
+            message:
+              "Free plan limited to 1 active event. Upgrade to create more.",
           },
           { status: 403 }
         );
       }
     }
 
-    const data = await request.json()
+    const data = await request.json();
 
     // Mock: In production, validate and save to database
     const newEvent = {
@@ -63,10 +64,13 @@ export async function POST(request: Request) {
       status: "open" as const,
       createdAt: new Date(),
       updatedAt: new Date(),
-    }
+    };
 
-    return NextResponse.json(newEvent, { status: 201 })
+    return NextResponse.json(newEvent, { status: 201 });
   } catch (error) {
-    return NextResponse.json({ error: "Failed to create event" }, { status: 500 })
+    return NextResponse.json(
+      { error: "Failed to create event" },
+      { status: 500 }
+    );
   }
 }
