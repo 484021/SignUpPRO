@@ -287,6 +287,16 @@ export function NewEventClient() {
       console.log("Create event result:", result);
 
       if (!result.success) {
+        // Check if upgrade is required
+        if (result.error === "UPGRADE_REQUIRED" || result.upgradeRequired) {
+          toast({
+            title: "Upgrade Required",
+            description: result.message || "Free plan limited to 1 active event.",
+            variant: "destructive",
+          });
+          router.push("/upgrade");
+          return;
+        }
         throw new Error(result.error || "Failed to create event");
       }
 

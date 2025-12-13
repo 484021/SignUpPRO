@@ -96,6 +96,27 @@ export async function createEvent(formData: {
 
     console.log("Using user:", dbUser);
 
+    // MONETIZATION GUARD: Check event limit for free plan
+    if (dbUser.plan === 'free') {
+      const { data: existingEvents, error: countError } = await supabase
+        .from("events")
+        .select("id")
+        .eq("clerk_id", userId)
+        .in("status", ["open", "draft"]);
+
+      if (countError) {
+        console.error("Error counting active events:", countError);
+      } else if (existingEvents && existingEvents.length >= 1) {
+        console.log(`Free plan limit reached: ${existingEvents.length} active events found`);
+        return {
+          success: false,
+          error: "UPGRADE_REQUIRED",
+          message: "Free plan limited to 1 active event. Upgrade to create more.",
+          upgradeRequired: true,
+        };
+      }
+    }
+
     const slug =
       formData.title
         .toLowerCase()

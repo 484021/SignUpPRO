@@ -641,43 +641,6 @@ export default function LandingPage() {
             </Card>
           </div>
         </section>
-
-        {/* Footer */}
-        <footer className="border-t border-slate-200 py-10 px-4 sm:px-6 lg:px-8 bg-white/80 backdrop-blur dark:border-white/10 dark:bg-black/60">
-          <div className="container mx-auto max-w-6xl flex flex-col sm:flex-row justify-between gap-6 sm:items-center text-slate-700 dark:text-white/70">
-            <div className="flex items-center gap-3">
-              <Logo className="w-6 h-6" />
-              <div>
-                <div className="text-sm font-semibold text-slate-900 dark:text-white">
-                  SignUpPRO
-                </div>
-                <div className="text-xs text-slate-500 dark:text-white/50">
-                  Precision signup sheets for fast-moving organizers.
-                </div>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-4 text-sm">
-              <Link
-                href="/sign-in"
-                className="hover:text-slate-900 dark:hover:text-white"
-              >
-                Create Signup
-              </Link>
-              <Link
-                href="#how-it-works"
-                className="hover:text-slate-900 dark:hover:text-white"
-              >
-                How it works
-              </Link>
-              <Link
-                href="/dashboard"
-                className="hover:text-slate-900 dark:hover:text-white"
-              >
-                Dashboard
-              </Link>
-            </div>
-          </div>
-        </footer>
       </div>
     </div>
   );

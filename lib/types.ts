@@ -1,9 +1,11 @@
-export type UserPlan = "free" | "pro";
+export type UserPlan = "free" | "monthly" | "pro";
 
 export interface User {
   id: string;
   email: string;
   plan: UserPlan;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
   signupsThisMonth: number;
   activeEventsCount: number;
   recurringSeriesCount: number;

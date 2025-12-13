@@ -81,11 +81,6 @@ export default function NotFound() {
           </CardContent>
         </Card>
       </main>
-
-      {/* Footer */}
-      <footer className="border-t border-border/50 py-6 px-4 sm:px-6 lg:px-8 text-center text-sm text-muted-foreground">
-        <p>© 2025 SignUpPRO. All rights reserved.</p>
-      </footer>
     </div>
   );
 }

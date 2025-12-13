@@ -53,34 +53,34 @@ export default async function EventDetailPage({
   return (
     <div className="min-h-screen app-bg">
       <NavDashboard />
-      <main className="container mx-auto px-4 py-10 max-w-6xl">
-        <div className="space-y-6">
+      <main className="container mx-auto px-4 pt-28 pb-12 max-w-7xl">
+        <div className="space-y-8">
           {/* Header Card */}
-          <Card className="rounded-2xl shadow-md">
-            <CardContent className="py-8 px-6">
+          <Card className="border-slate-200 dark:border-white/10 bg-white/60 dark:bg-white/5 backdrop-blur-xl shadow-lg rounded-2xl overflow-hidden">
+            <CardContent className="p-6 sm:p-8">
               <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
-                <div className="space-y-3 flex-1">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <h1 className="text-4xl md:text-5xl font-extrabold leading-tight">
+                <div className="space-y-4 flex-1">
+                  <div className="flex items-start gap-3 flex-wrap">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight leading-tight">
                       {event.title}
                     </h1>
-                    <Badge className="py-1 px-3 rounded-md text-xs uppercase tracking-wide">
-                      {event.status}
-                    </Badge>
                   </div>
-                  <div className="text-base text-muted-foreground font-medium">
+                  <div className="text-sm sm:text-base text-muted-foreground font-medium flex items-center gap-2">
+                    <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
                     {dateRangeText}
                   </div>
 
                   {event.description && (
-                    <p className="text-base text-muted-foreground max-w-3xl leading-relaxed">
+                    <p className="text-sm sm:text-base text-muted-foreground max-w-3xl leading-relaxed pt-2">
                       {event.description}
                     </p>
                   )}
                 </div>
 
-                <Link href={`/signup/${event.slug}`} target="_blank">
-                  <Button variant="outline" className="rounded-xl h-10">
+                <Link href={`/signup/${event.slug}`} target="_blank" className="shrink-0">
+                  <Button className="rounded-xl h-11 px-5 bg-black text-white hover:bg-black/90 dark:bg-white dark:text-black dark:hover:bg-white/90 font-semibold shadow-lg w-full md:w-auto">
                     <ExternalLink className="w-4 h-4 mr-2" />
                     View Public Page
                   </Button>
