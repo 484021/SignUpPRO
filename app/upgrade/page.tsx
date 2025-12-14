@@ -54,9 +54,9 @@ export default function UpgradePage() {
           <div>
             <h1 className="text-3xl font-black mb-2">Run unlimited events</h1>
             <p className="text-muted-foreground">
-              Free organizers can run 1 active event.
+              You can run 1 active event on the free plan.
               <br />
-              Upgrade to stop managing signup lists in chats and run recurring events without the mess.
+              Upgrade to run unlimited events and stop wasting time managing signups in chats.
             </p>
           </div>
 

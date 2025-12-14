@@ -111,7 +111,7 @@ export function SignupForm({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Your Information</CardTitle>
+        <CardTitle>Reserve your spot</CardTitle>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -139,7 +139,7 @@ export function SignupForm({
               disabled={isSubmitting}
             />
             <p className="text-xs text-muted-foreground">
-              We'll send you a confirmation and a link to manage your signup
+              We'll send you a confirmation email with details and a link to manage your spot
             </p>
           </div>
 
@@ -152,10 +152,10 @@ export function SignupForm({
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Signing up...
+                  Reserving your spot...
                 </>
               ) : (
-                "Complete Signup"
+                "Reserve My Spot"
               )}
             </Button>
             {onBack && (

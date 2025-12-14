@@ -82,7 +82,7 @@ export function DashboardClient({ events }: DashboardClientProps) {
               </h1>
               <p className="text-muted-foreground mt-2 text-lg">
                 {eventCount === 0
-                  ? "Create your first event and stop managing signups in Instagram, WhatsApp, or Messenger"
+                  ? "Create your first event and stop wasting time in chats"
                   : `${eventCount} ${eventCount === 1 ? "event" : "events"} • ${totalSignups} total signups`}
               </p>
             </div>
@@ -177,7 +177,7 @@ export function DashboardClient({ events }: DashboardClientProps) {
                     </div>
                     <h3 className="text-2xl font-bold mb-2">No events yet</h3>
                     <p className="text-muted-foreground mb-8 max-w-sm text-base">
-                      Create your first event and stop managing signup lists in Instagram, WhatsApp, or Messenger. Share one clean link instead of reposting lists over and over.
+                      Stop managing signup lists in Instagram, WhatsApp, or Messenger. Create your first event and share one clean link instead of reposting lists over and over.
                     </p>
                     <Link href="/dashboard/events/new">
                       <Button

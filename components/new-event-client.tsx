@@ -448,7 +448,7 @@ export function NewEventClient() {
             Create New Event
           </h1>
           <p className="text-lg text-muted-foreground">
-            Create a clean signup link and stop reposting lists in chats.
+            Stop reposting lists in chats. Create your signup link and share it once.
           </p>
         </motion.div>
 

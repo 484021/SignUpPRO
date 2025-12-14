@@ -189,7 +189,7 @@ export default function LandingPage() {
                     },
                   }}
                 >
-                  Stop managing signups in{" "}
+                  Stop wasting time managing signups in{" "}
                   <span className="bg-gradient-to-r from-purple-600 via-pink-500 to-orange-500 bg-clip-text text-transparent">
                     Instagram
                   </span>
@@ -218,7 +218,7 @@ export default function LandingPage() {
                     },
                   }}
                 >
-                  SignUpPro helps organizers manage event signup lists without wasting time in chats. Stop reposting lists — create one clean link and share it once.
+                  You're tired of reposting lists, fixing edits, and answering the same questions over and over. Create one clean signup link and share it once.
                 </motion.p>
               </motion.div>
               <motion.div

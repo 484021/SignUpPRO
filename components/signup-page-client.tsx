@@ -1113,7 +1113,7 @@ export function SignupPageClient({
                       transition={{ duration: 0.2, ease: "easeOut" }}
                       className="text-sm text-muted-foreground"
                     >
-                      Choose a date on the left to see available spots.
+                      Select a date to see available spots and reserve yours.
                     </motion.div>
                   ) : (
                     <motion.div
