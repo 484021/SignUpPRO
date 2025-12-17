@@ -210,8 +210,8 @@ export const seoKeywords: KeywordData[] = [
     title: "Excel Potluck Sign Up Sheet Alternative - Stop Emailing Spreadsheets",
     metaDescription:
       "Stop emailing Excel potluck sheets back and forth. Create one shareable link for your potluck signup. Real-time updates, no version conflicts, free forever.",
-    h1: "Stop Emailing Excel Potluck Sheets Back and Forth",
-    heroSubtitle: "You're tired of chasing down who's bringing what. Create one shareable link and watch your potluck fill up automatically—no spreadsheet confusion.",
+    h1: "Excel Potluck Sign Up Sheet",
+    heroSubtitle: "You're tired of chasing down who's bringing what. Stop emailing spreadsheets back and forth. Create one shareable link and watch your potluck fill up automatically—no version conflicts.",
     pain_points: [
       "Five people have five different Excel versions—who has the latest one?",
       "Drowning in email attachments with 'Please find attached...'",
