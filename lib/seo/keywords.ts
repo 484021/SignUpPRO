@@ -204,6 +204,31 @@ export const seoKeywords: KeywordData[] = [
 
   // Category 3: Event & Class Registration
   {
+    slug: "excel-potluck-sign-up-sheet",
+    keyword: "excel potluck sign up sheet",
+    category: "events",
+    title: "Excel Potluck Sign Up Sheet Alternative - Stop Emailing Spreadsheets",
+    metaDescription:
+      "Stop emailing Excel potluck sheets back and forth. Create one shareable link for your potluck signup. Real-time updates, no version conflicts, free forever.",
+    h1: "Stop Emailing Excel Potluck Sheets Back and Forth",
+    heroSubtitle: "You're tired of chasing down who's bringing what. Create one shareable link and watch your potluck fill up automatically—no spreadsheet confusion.",
+    pain_points: [
+      "Five people have five different Excel versions—who has the latest one?",
+      "Drowning in email attachments with 'Please find attached...'",
+      "Two people signed up for the same dish because they didn't see each other's updates",
+      "Spending hours copying names from emails into your spreadsheet",
+    ],
+    benefits: [
+      "Share one link in your group chat—everyone signs up directly, no file attachments",
+      "Everyone sees the same list instantly—no more version conflicts or duplicate dishes",
+      "Get notified when someone signs up—no more chasing people down",
+      "Works on any phone or computer—no Excel or Google Sheets required",
+    ],
+    use_cases: ["Office potlucks", "Holiday dinners", "Church gatherings", "School events", "Family reunions", "Team parties", "Neighborhood BBQs", "Club meetings"],
+    cta_text: "Create Free Potluck Signup",
+    related_keywords: ["potluck sign up sheet online", "potluck signup template", "potluck spreadsheet alternative", "online potluck organizer"],
+  },
+  {
     slug: "event-signup-sheet",
     keyword: "event signup sheet",
     category: "events",
